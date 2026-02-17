@@ -17,20 +17,20 @@ export default function Hero() {
       {/* 1. Fondo con imagen USM */}
       <motion.div style={{ y }} className="absolute inset-0 z-0">
         <img
-          src="/src/assets/lugar_usm.png"
+          src="/src/assets/Prueba.jpeg"
           alt="Campus USM"
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 opacity-20 [background-image:linear-gradient(to_right,rgba(255,255,255,0.08)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.08)_1px,transparent_1px)] [background-size:46px_46px]" />
-        <div className="absolute inset-0 bg-gradient-to-r from-usm-blue/90 via-usm-blue/65 to-black/55 z-20" />
+        <div className="absolute inset-0 bg-gradient-to-r from-usm-blue/80 via-usm-blue/50 to-black/40 z-20" />
       </motion.div>
 
-      <motion.div 
+      <motion.div
         style={{ opacity }}
         className="relative z-30 w-full max-w-7xl px-6 md:px-12 flex flex-col md:flex-row items-center justify-between gap-12 mt-20"
       >
         <div className="flex-1 text-left">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, x: -50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
@@ -39,15 +39,15 @@ export default function Hero() {
               La Nueva Era Digital
             </span>
             <h1 className="text-6xl md:text-8xl font-black text-white leading-[0.9] tracking-tighter mb-8 drop-shadow-2xl">
-              USM RED <br/> 
+              USM RED <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-100 via-white to-blue-300 animate-shine bg-[length:200%_auto]">
                 CONECTA TU VIDA ACADÉMICA.
               </span>
             </h1>
-            <p className="text-xl md:text-2xl text-gray-300 font-light max-w-2xl leading-relaxed mb-10 border-l-4 border-blue-300/70 pl-6">
+            <p className="text-xl md:text-2xl text-gray-300 font-light max-w-2xl leading-relaxed mb-10 border-l-4 border-usm-yellow/60 pl-6">
               Un espacio para descubrir publicaciones, organizar recursos y seguir la actividad universitaria en un solo lugar.
             </p>
-            
+
             <div className="flex flex-wrap gap-4">
               <Link to="/dashboard">
                 <Button className="text-lg px-10 py-5 rounded-full font-bold transition-all transform hover:-translate-y-1">
@@ -65,7 +65,7 @@ export default function Hero() {
           </motion.div>
         </div>
 
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.4, duration: 0.8 }}
@@ -76,8 +76,8 @@ export default function Hero() {
             { icon: <CalendarCheck2 className="w-7 h-7 text-blue-200" />, title: 'Eventos y avisos', description: 'Seguimiento de actividades universitarias.' },
             { icon: <ShieldCheck className="w-7 h-7 text-blue-200" />, title: 'Gestión administrativa', description: 'Panel para organizar contenido institucional.' },
           ].map((item, idx) => (
-            <div 
-              key={idx} 
+            <div
+              key={idx}
               className="p-6 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 shadow-2xl flex items-center gap-4 transform hover:scale-105 transition-transform duration-300"
             >
               <div className="p-3 bg-white/10 rounded-xl">{item.icon}</div>
@@ -91,7 +91,7 @@ export default function Hero() {
       </motion.div>
 
       {/* Scroll Down Indicator */}
-      <motion.div 
+      <motion.div
         animate={{ y: [0, 10, 0], opacity: [0.5, 1, 0.5] }}
         transition={{ repeat: Infinity, duration: 2 }}
         className="absolute bottom-10 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center gap-2 cursor-pointer"

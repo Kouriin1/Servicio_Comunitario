@@ -1,7 +1,9 @@
 import Navbar from '../components/landing/Navbar';
 import Hero from '../components/landing/Hero';
 import Features from '../components/landing/Features';
+import StatsSection from '../components/landing/StatsSection';
 import EventsCarousel from '../components/landing/EventsCarousel';
+import Footer from '../components/landing/Footer';
 import { Link } from 'react-router-dom';
 import { Layers, Workflow, Sparkles, Settings2, ShieldCheck } from 'lucide-react';
 import Button from '../components/ui/Button';
@@ -42,30 +44,32 @@ export default function LandingPage() {
                 <h3 className="text-xl font-bold text-usm-blue dark:text-white mb-2">Interfaz moderna</h3>
                 <p className="text-sm text-slate-600 dark:text-slate-400">Diseño limpio, responsive y pensado para lectura académica.</p>
               </article>
-              <article className="rounded-2xl bg-usm-blue text-white border border-blue-900 p-6">
-                <ShieldCheck className="w-7 h-7 text-blue-100 mb-4" />
-                <h3 className="text-xl font-bold mb-2">Gestión de contenido</h3>
-                <p className="text-sm text-blue-100">Herramientas internas para mantener organizada la información académica.</p>
+              <article className="rounded-2xl bg-white dark:bg-slate-700 border-2 border-usm-yellow/30 dark:border-usm-yellow/20 p-6">
+                <ShieldCheck className="w-7 h-7 text-usm-yellow mb-4" />
+                <h3 className="text-xl font-bold text-usm-blue dark:text-white mb-2">Gestión de contenido</h3>
+                <p className="text-sm text-slate-600 dark:text-slate-400">Herramientas internas para mantener organizada la información académica.</p>
               </article>
             </div>
           </div>
         </section>
 
-        <section className="bg-usm-blue py-20 text-center relative overflow-hidden" id="nosotros">
-          <div className="absolute inset-0 opacity-25 [background-image:linear-gradient(to_right,rgba(255,255,255,0.14)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.14)_1px,transparent_1px)] [background-size:42px_42px]" />
+        <StatsSection />
+
+        <section className="bg-slate-50 dark:bg-slate-900 py-20 text-center relative overflow-hidden" id="nosotros">
           <div className="relative z-10 max-w-4xl mx-auto px-6">
-            <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">Accede a la red académica USM</h2>
-            <p className="text-lg text-blue-100 mb-10 font-light">
+            <div className="w-10 h-0.5 bg-usm-yellow mx-auto mb-8" />
+            <h2 className="text-4xl md:text-5xl font-bold text-usm-blue dark:text-white mb-6">Accede a la red académica USM</h2>
+            <p className="text-lg text-slate-500 dark:text-slate-400 mb-10 font-light">
               Inicia sesión o crea tu cuenta para comenzar a explorar contenido académico.
             </p>
             <div className="flex flex-wrap items-center justify-center gap-4">
               <Link to="/login">
-                <Button variant="outline" className="text-lg px-10 py-4 border-white/50 text-white hover:bg-white hover:text-usm-blue">
+                <Button variant="secondary" className="text-lg px-10 py-4">
                   Iniciar Sesión
                 </Button>
               </Link>
               <Link to="/registro">
-                <Button variant="secondary" className="text-lg px-10 py-4 bg-white text-usm-blue hover:bg-blue-50">
+                <Button variant="outline" className="text-lg px-10 py-4 border-usm-blue/30 text-usm-blue dark:text-white dark:border-white/30 hover:bg-usm-blue hover:text-white hover:border-usm-blue">
                   Crear Cuenta
                 </Button>
               </Link>
@@ -75,15 +79,8 @@ export default function LandingPage() {
 
         <EventsCarousel />
       </main>
-      
-      <footer className="bg-usm-blue text-blue-100 py-10 px-6 border-t border-blue-300/20">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4 text-sm">
-          <span>USM Red</span>
-          <div className="flex gap-6">
-           <p>Falta añadir muchas guebonadas</p>
-          </div>
-        </div>
-      </footer>
+
+      <Footer />
     </div>
   );
 }

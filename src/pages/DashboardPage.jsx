@@ -95,11 +95,10 @@ export default function DashboardPage() {
           <button
             key={item.label}
             onClick={() => handleMenuClick(item.key)}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
-              activeMenu === item.key
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeMenu === item.key
                 ? 'bg-white text-usm-blue font-bold'
                 : 'text-white/60 hover:bg-white/10 hover:text-white'
-            }`}
+              }`}
           >
             {item.icon}
             {item.label}
@@ -199,9 +198,8 @@ export default function DashboardPage() {
                     {mockNotifications.map((n) => (
                       <div
                         key={n.id}
-                        className={`p-4 border-b border-slate-50 dark:border-slate-700 last:border-none hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors ${
-                          n.unread ? 'bg-blue-50/50 dark:bg-blue-900/10' : ''
-                        }`}
+                        className={`p-4 border-b border-slate-50 dark:border-slate-700 last:border-none hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors ${n.unread ? 'bg-blue-50/50 dark:bg-blue-900/10' : ''
+                          }`}
                       >
                         <p className="text-sm text-slate-700 dark:text-slate-200">{n.text}</p>
                         <p className="text-xs text-slate-400 mt-1">{n.time}</p>
@@ -227,11 +225,10 @@ export default function DashboardPage() {
         <div className="flex flex-wrap items-center gap-3 mb-6">
           <button
             onClick={() => setSavedOnly((prev) => !prev)}
-            className={`px-4 py-2 rounded-full text-sm font-semibold transition-colors ${
-              savedOnly
+            className={`px-4 py-2 rounded-full text-sm font-semibold transition-colors ${savedOnly
                 ? 'bg-usm-blue text-white'
                 : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'
-            }`}
+              }`}
           >
             <span className="inline-flex items-center gap-2">
               <BookmarkCheck className="w-4 h-4" /> Solo guardados ({savedIds.length})
@@ -249,11 +246,10 @@ export default function DashboardPage() {
             <button
               key={f}
               onClick={() => setFacultyFilter(f)}
-              className={`px-6 py-2 rounded-full text-sm font-semibold transition-all shrink-0 ${
-                facultyFilter === f
+              className={`px-6 py-2 rounded-full text-sm font-semibold transition-all shrink-0 ${facultyFilter === f
                   ? 'bg-usm-blue text-white shadow-md'
                   : 'bg-white dark:bg-slate-800 text-gray-500 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700'
-              }`}
+                }`}
             >
               {f}
             </button>
@@ -265,11 +261,10 @@ export default function DashboardPage() {
             <button
               key={type}
               onClick={() => setTypeFilter(type)}
-              className={`px-4 py-2 rounded-full text-sm font-semibold transition-all shrink-0 ${
-                typeFilter === type
+              className={`px-4 py-2 rounded-full text-sm font-semibold transition-all shrink-0 ${typeFilter === type
                   ? 'bg-blue-100 dark:bg-blue-900/30 text-usm-blue dark:text-blue-300 border border-blue-200 dark:border-blue-800'
                   : 'bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-300 border border-transparent hover:bg-slate-100 dark:hover:bg-slate-700'
-              }`}
+                }`}
             >
               {type}
             </button>
