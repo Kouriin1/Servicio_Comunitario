@@ -11,7 +11,6 @@ export default function RegisterPage() {
   const navigate = useNavigate();
   const { login } = useAuth();
   const { showToast } = useToast();
-  const [role, setRole] = useState('estudiante');
   const [name, setName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
@@ -44,20 +43,7 @@ export default function RegisterPage() {
         <h1 className="text-3xl font-bold text-white mb-2">Crear cuenta</h1>
         <p className="text-blue-100 mb-8">Completa tus datos para acceder a la plataforma.</p>
 
-        <div className="mb-6 p-1 rounded-xl bg-black/20 flex gap-2">
-          {['estudiante', 'profesor'].map((item) => (
-            <button
-              key={item}
-              type="button"
-              onClick={() => setRole(item)}
-              className={`flex-1 py-2.5 rounded-lg font-semibold capitalize transition-colors ${
-                role === item ? 'bg-white text-usm-blue' : 'text-white/80 hover:text-white'
-              }`}
-            >
-              {item}
-            </button>
-          ))}
-        </div>
+
 
         <form className="grid grid-cols-1 md:grid-cols-2 gap-5" onSubmit={handleSubmit}>
           <label className="block md:col-span-1">

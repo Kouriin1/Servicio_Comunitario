@@ -35,16 +35,16 @@ export default function LoginPage() {
       <div className="hidden lg:flex lg:w-1/2 relative items-center justify-center">
         <motion.div
           initial={{ scale: 1.1, opacity: 0 }}
-          animate={{ scale: 1, opacity: 0.6 }}
+          animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 2 }}
           className="absolute inset-0"
         >
           <img
             src="/src/assets/lugar.png"
             alt="USM Campus"
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover grayscale opacity-20"
           />
-          <div className="absolute inset-0 bg-usm-blue/40 mix-blend-multiply" />
+          <div className="absolute inset-0 bg-gradient-to-br from-white via-white/95 to-slate-100/90" />
         </motion.div>
 
         <div className="relative z-10 text-center p-12">
@@ -52,10 +52,10 @@ export default function LoginPage() {
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             src="/src/assets/loguito.png"
-            className="h-44 mx-auto mb-8"
+            className="h-40 mx-auto mb-6 drop-shadow-xl"
           />
-          <h2 className="text-4xl font-bold text-white mb-4">Excelencia Académica</h2>
-          <p className="text-blue-200 text-xl font-light tracking-widest">USM RED</p>
+          <h2 className="text-5xl font-bold text-usm-blue mb-4 tracking-tight">Excelencia Académica</h2>
+          <p className="text-slate-500 text-xl font-medium tracking-[0.2em] uppercase">USM RED</p>
         </div>
       </div>
 
