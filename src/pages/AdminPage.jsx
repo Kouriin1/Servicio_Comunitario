@@ -16,7 +16,7 @@ import ContentDetailModal from '../components/ui/ContentDetailModal';
 
 const emptyForm = {
   title: '', excerpt: '', type: 'Tesis', faculty: 'Ingeniería', author: '',
-  fileUrl: null, fileType: null, fileName: null,
+  fileUrl: null, fileType: null, fileName: null, linkUrl: null,
 };
 
 const ACCEPTED_FILES = {
@@ -87,9 +87,17 @@ export default function AdminPage() {
 
   const handleLinkUrl = (url, isEdit = false) => {
     if (isEdit && editingItem) {
-      setEditingItem({ ...editingItem, fileUrl: url, fileType: 'link', fileName: url });
+      setEditingItem({ ...editingItem, linkUrl: url });
     } else {
-      setForm({ ...form, fileUrl: url, fileType: 'link', fileName: url });
+      setForm({ ...form, linkUrl: url });
+    }
+  };
+
+  const handleRemoveLink = (isEdit = false) => {
+    if (isEdit && editingItem) {
+      setEditingItem({ ...editingItem, linkUrl: null });
+    } else {
+      setForm({ ...form, linkUrl: null });
     }
   };
 
@@ -120,6 +128,7 @@ export default function AdminPage() {
       fileUrl: editingItem.fileUrl,
       fileType: editingItem.fileType,
       fileName: editingItem.fileName,
+      linkUrl: editingItem.linkUrl,
     });
     showToast('Publicación actualizada', 'success');
     setShowEditModal(false);
@@ -131,7 +140,7 @@ export default function AdminPage() {
     showToast('Publicación eliminada', 'info');
   };
 
-  const FileUploadArea = ({ currentFile, onFileSelect, onRemove, onLinkUrl, inputRef, isEdit = false }) => (
+  const FileUploadArea = ({ currentFile, onFileSelect, onRemove, inputRef, isEdit = false }) => (
     <div className="space-y-3">
       <label className="text-sm font-medium text-slate-600 dark:text-slate-300">
         Adjuntar archivo (opcional)
@@ -176,42 +185,34 @@ export default function AdminPage() {
               e.target.value = '';
             }}
           />
-          <div className="flex items-center gap-2">
-            <div className="flex-1 h-px bg-slate-200 dark:bg-slate-700" />
-            <span className="text-xs text-slate-400">o pega un enlace</span>
-            <div className="flex-1 h-px bg-slate-200 dark:bg-slate-700" />
-          </div>
-          <div className="flex gap-2">
-            <input
-              type="url"
-              placeholder="https://ejemplo.com/recurso"
-              className="flex-1 rounded-xl border border-slate-200 dark:border-slate-600 px-4 py-2.5 text-sm dark:bg-slate-700 dark:text-white"
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  e.preventDefault();
-                  if (e.target.value.trim()) {
-                    onLinkUrl(e.target.value.trim(), isEdit);
-                    e.target.value = '';
-                  }
-                }
-              }}
-            />
-            <button
-              type="button"
-              onClick={(e) => {
-                const input = e.target.closest('.flex').querySelector('input');
-                if (input?.value.trim()) {
-                  onLinkUrl(input.value.trim(), isEdit);
-                  input.value = '';
-                }
-              }}
-              className="px-3 py-2 rounded-xl bg-usm-blue text-white text-sm font-medium hover:bg-blue-800 transition-colors"
-            >
-              <Link2 className="w-4 h-4" />
-            </button>
-          </div>
         </>
       )}
+    </div>
+  );
+
+  const LinkInputArea = ({ currentLink, onLinkUrl, onRemoveLink, isEdit = false }) => (
+    <div className="space-y-3">
+      <label className="text-sm font-medium text-slate-600 dark:text-slate-300">
+        Enlace externo (opcional)
+      </label>
+      <div className="flex gap-2">
+        <input
+          type="url"
+          value={currentLink || ''}
+          onChange={(e) => onLinkUrl(e.target.value, isEdit)}
+          placeholder="https://ejemplo.com/recurso"
+          className="flex-1 rounded-xl border border-slate-200 dark:border-slate-600 px-4 py-2.5 text-sm dark:bg-slate-700 dark:text-white"
+        />
+        {currentLink && (
+          <button
+            type="button"
+            onClick={() => onRemoveLink(isEdit)}
+            className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-600 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        )}
+      </div>
     </div>
   );
 
@@ -292,8 +293,13 @@ export default function AdminPage() {
                 currentFile={form}
                 onFileSelect={handleFileSelect}
                 onRemove={handleRemoveFile}
-                onLinkUrl={handleLinkUrl}
                 inputRef={fileInputRef}
+              />
+
+              <LinkInputArea
+                currentLink={form.linkUrl}
+                onLinkUrl={handleLinkUrl}
+                onRemoveLink={handleRemoveLink}
               />
 
               <Button type="submit" className="w-full flex items-center justify-center gap-2">
@@ -340,6 +346,12 @@ export default function AdminPage() {
                         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-50 dark:bg-blue-900/30 text-usm-blue dark:text-blue-300 text-[10px] font-bold uppercase">
                           <FileTypeIcon fileType={item.fileType} className="w-3 h-3" />
                           {item.fileType}
+                        </span>
+                      )}
+                      {item.linkUrl && (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-300 text-[10px] font-bold uppercase">
+                          <Link2 className="w-3 h-3" />
+                          enlace
                         </span>
                       )}
                     </div>
@@ -423,8 +435,14 @@ export default function AdminPage() {
               currentFile={editingItem}
               onFileSelect={handleFileSelect}
               onRemove={handleRemoveFile}
-              onLinkUrl={handleLinkUrl}
               inputRef={editFileInputRef}
+              isEdit
+            />
+
+            <LinkInputArea
+              currentLink={editingItem.linkUrl}
+              onLinkUrl={handleLinkUrl}
+              onRemoveLink={handleRemoveLink}
               isEdit
             />
 

@@ -11,80 +11,77 @@ const facultyColors = {
 };
 
 function MediaViewer({ item }) {
-  if (!item.fileType || !item.fileUrl) return null;
+  const hasFile = item.fileType && item.fileUrl;
+  const hasLink = !!item.linkUrl;
 
-  if (item.fileType === 'video') {
-    return (
-      <div className="rounded-xl overflow-hidden bg-black">
-        <video
-          src={item.fileUrl}
-          controls
-          className="w-full max-h-[360px]"
-          preload="metadata"
-        >
-          Tu navegador no soporta la reproducción de video.
-        </video>
-      </div>
-    );
-  }
+  if (!hasFile && !hasLink) return null;
 
-  if (item.fileType === 'pdf') {
-    return (
-      <div className="space-y-2">
-        <div className="rounded-xl overflow-hidden border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700">
-          <iframe
+  return (
+    <div className="space-y-3">
+      {hasFile && item.fileType === 'video' && (
+        <div className="rounded-xl overflow-hidden bg-black">
+          <video
             src={item.fileUrl}
-            title={item.fileName || 'Documento PDF'}
-            className="w-full h-[400px]"
+            controls
+            className="w-full max-h-[360px]"
+            preload="metadata"
+          >
+            Tu navegador no soporta la reproducción de video.
+          </video>
+        </div>
+      )}
+
+      {hasFile && item.fileType === 'pdf' && (
+        <div className="space-y-2">
+          <div className="rounded-xl overflow-hidden border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700">
+            <iframe
+              src={item.fileUrl}
+              title={item.fileName || 'Documento PDF'}
+              className="w-full h-[400px]"
+            />
+          </div>
+          <a
+            href={item.fileUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            download={item.fileName}
+            className="inline-flex items-center gap-2 text-sm text-usm-blue dark:text-blue-300 hover:underline"
+          >
+            <Download className="w-4 h-4" /> Descargar PDF
+          </a>
+        </div>
+      )}
+
+      {hasFile && item.fileType === 'image' && (
+        <div className="rounded-xl overflow-hidden">
+          <img
+            src={item.fileUrl}
+            alt={item.title}
+            className="w-full max-h-[400px] object-contain bg-slate-100 dark:bg-slate-700"
           />
         </div>
+      )}
+
+      {hasLink && (
         <a
-          href={item.fileUrl}
+          href={item.linkUrl}
           target="_blank"
           rel="noopener noreferrer"
-          download={item.fileName}
-          className="inline-flex items-center gap-2 text-sm text-usm-blue dark:text-blue-300 hover:underline"
+          className="flex items-center gap-3 p-4 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700/50 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors group"
         >
-          <Download className="w-4 h-4" /> Descargar PDF
+          <div className="w-10 h-10 rounded-lg bg-usm-blue/10 dark:bg-blue-900/30 flex items-center justify-center text-usm-blue dark:text-blue-300">
+            <ExternalLink className="w-5 h-5" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium text-usm-blue dark:text-blue-300 group-hover:underline truncate">
+              {item.linkUrl}
+            </p>
+            <p className="text-xs text-slate-400">Abrir enlace externo</p>
+          </div>
         </a>
-      </div>
-    );
-  }
-
-  if (item.fileType === 'image') {
-    return (
-      <div className="rounded-xl overflow-hidden">
-        <img
-          src={item.fileUrl}
-          alt={item.title}
-          className="w-full max-h-[400px] object-contain bg-slate-100 dark:bg-slate-700"
-        />
-      </div>
-    );
-  }
-
-  if (item.fileType === 'link') {
-    return (
-      <a
-        href={item.fileUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="flex items-center gap-3 p-4 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700/50 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors group"
-      >
-        <div className="w-10 h-10 rounded-lg bg-usm-blue/10 dark:bg-blue-900/30 flex items-center justify-center text-usm-blue dark:text-blue-300">
-          <ExternalLink className="w-5 h-5" />
-        </div>
-        <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium text-usm-blue dark:text-blue-300 group-hover:underline truncate">
-            {item.fileName || item.fileUrl}
-          </p>
-          <p className="text-xs text-slate-400">Abrir enlace externo</p>
-        </div>
-      </a>
-    );
-  }
-
-  return null;
+      )}
+    </div>
+  );
 }
 
 function FileTypeBadge({ fileType }) {
@@ -136,6 +133,11 @@ export default function ContentDetailModal({ isOpen, onClose, item }) {
             </span>
           )}
           <FileTypeBadge fileType={item.fileType} />
+          {item.linkUrl && (
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400">
+              <ExternalLink className="w-3.5 h-3.5" /> Enlace
+            </span>
+          )}
         </div>
 
         <MediaViewer item={item} />
@@ -146,10 +148,10 @@ export default function ContentDetailModal({ isOpen, onClose, item }) {
           </p>
         </div>
 
-        {!item.fileUrl && (
+        {!item.fileUrl && !item.linkUrl && (
           <div className="pt-2 border-t border-slate-100 dark:border-slate-700">
             <p className="text-xs text-slate-400">
-              Esta publicación no tiene archivos adjuntos. El administrador puede agregar PDFs, videos o enlaces desde el panel.
+              Esta publicación no tiene archivos adjuntos. El administrador puede agregar PDFs, videos, imágenes o enlaces desde el panel.
             </p>
           </div>
         )}
