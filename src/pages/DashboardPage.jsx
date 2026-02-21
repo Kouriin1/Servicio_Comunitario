@@ -24,14 +24,14 @@ import {
 } from 'lucide-react';
 import { useContentContext } from '../context/ContentContext';
 import { useAuth } from '../context/AuthContext';
-import { faculties, contentTypes } from '../mockData';
+import { schools, contentTypes } from '../mockData';
 import FeedCard from '../components/ui/FeedCard';
 import ContentDetailModal from '../components/ui/ContentDetailModal';
 import { FeedCardSkeleton } from '../components/ui/Skeleton';
 
 const mockNotifications = [
-  { id: 1, text: 'Nueva tesis publicada en Ingeniería', time: 'Hace 5 min', unread: true },
-  { id: 2, text: 'Evento de Odontología actualizado', time: 'Hace 1 hora', unread: true },
+  { id: 1, text: 'Nueva tesis publicada en Derecho', time: 'Hace 5 min', unread: true },
+  { id: 2, text: 'Evento de Estudios Internacionales actualizado', time: 'Hace 1 hora', unread: true },
   { id: 3, text: 'Tu contenido guardado fue editado', time: 'Hace 3 horas', unread: false },
 ];
 
@@ -46,7 +46,7 @@ export default function DashboardPage() {
   const { allContent, savedIds, toggleSave } = useContentContext();
   const { user, logout } = useAuth();
   const [activeMenu, setActiveMenu] = useState('feed');
-  const [facultyFilter, setFacultyFilter] = useState('Todas');
+  const [schoolFilter, setSchoolFilter] = useState('Todas');
   const [typeFilter, setTypeFilter] = useState('Todos');
   const [query, setQuery] = useState('');
   const [savedOnly, setSavedOnly] = useState(false);
@@ -80,12 +80,12 @@ export default function DashboardPage() {
   const filteredData = allContent.filter((item) => {
     const dashboardSavedOnly = activeMenu === 'biblioteca' ? true : savedOnly;
 
-    const matchFaculty = facultyFilter === 'Todas' || item.faculty === facultyFilter;
+    const matchSchool = schoolFilter === 'Todas' || item.school === schoolFilter;
     const matchType = typeFilter === 'Todos' || item.type === typeFilter;
     const matchSearch = `${item.title} ${item.author}`.toLowerCase().includes(query.toLowerCase());
     const matchSaved = !dashboardSavedOnly || savedIds.includes(item.id);
 
-    return matchFaculty && matchType && matchSearch && matchSaved;
+    return matchSchool && matchType && matchSearch && matchSaved;
   });
 
   const sidebarContent = (
@@ -175,10 +175,10 @@ export default function DashboardPage() {
       { label: 'Artículos', count: totalArticles, color: 'bg-emerald-500', text: 'text-emerald-600 dark:text-emerald-400', dot: 'bg-emerald-500' },
       { label: 'Eventos', count: totalEvents, color: 'bg-purple-500', text: 'text-purple-600 dark:text-purple-400', dot: 'bg-purple-500' },
     ];
-    const trendingTags = ['#Ingeniería', '#FACES', '#Tesis2026', '#ActoDeGrado', '#CienciasAplicadas'];
+    const trendingTags = ['#Derecho', '#EstudiosInternacionales', '#Tesis2026', '#ActoDeGrado', '#DerechoPenal'];
     const suggested = [
-      { name: 'Dr. Alberto Rivas', role: 'Docente · FACES' },
-      { name: 'Laura Medina', role: 'Estudiante · Derecho' },
+      { name: 'Dr. Alberto Rivas', role: 'Docente · Derecho' },
+      { name: 'Laura Medina', role: 'Estudiante · Estudios Internacionales' },
     ];
     return (
     <div className="space-y-5">
@@ -433,16 +433,16 @@ export default function DashboardPage() {
                 <BookmarkCheck className="w-4 h-4" /> Guardados
               </button>
               <div className="w-px h-6 bg-slate-200 dark:bg-slate-700 mx-1 shrink-0" />
-              {['Todas', ...faculties].map((f) => (
+              {schools.map((s) => (
                 <button
-                  key={f}
-                  onClick={() => setFacultyFilter(f)}
-                  className={`px-5 py-2 rounded-full text-sm font-semibold transition-all shrink-0 border ${facultyFilter === f
+                  key={s}
+                  onClick={() => setSchoolFilter(s)}
+                  className={`px-5 py-2 rounded-full text-sm font-semibold transition-all shrink-0 border ${schoolFilter === s
                     ? 'bg-usm-blue text-white border-usm-blue shadow-md shadow-blue-900/20'
                     : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700'
                     }`}
                 >
-                  {f}
+                  {s}
                 </button>
               ))}
             </div>

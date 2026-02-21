@@ -5,7 +5,7 @@ const stats = [
     { value: 1200, label: 'Tesis publicadas', prefix: '+' },
     { value: 350, label: 'Artículos de investigación', prefix: '+' },
     { value: 80, label: 'Eventos registrados', prefix: '+' },
-    { value: 5, label: 'Facultades integradas', prefix: '' },
+    { value: 2, label: 'Escuelas integradas', prefix: '' },
 ];
 
 function AnimatedCounter({ value, prefix, isInView }) {

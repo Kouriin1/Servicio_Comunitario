@@ -57,7 +57,7 @@ export default function EventsCarousel() {
               <Card className="h-full flex flex-col p-0 overflow-hidden group">
                 <div className="h-48 bg-usm-blue relative overflow-hidden">
                   <div className="absolute top-4 left-4 bg-white/90 text-usm-blue font-bold px-3 py-1 rounded-md text-sm z-10">
-                    {event.faculty}
+                    {event.school}
                   </div>
                   <div className="absolute inset-0 bg-gradient-to-br from-usm-blue-bright/40 to-usm-blue" />
                   <div className="absolute inset-0 opacity-30 [background-image:linear-gradient(to_right,rgba(255,255,255,0.14)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.14)_1px,transparent_1px)] [background-size:26px_26px]" />

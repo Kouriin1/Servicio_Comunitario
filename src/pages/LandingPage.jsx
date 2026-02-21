@@ -27,7 +27,7 @@ export default function LandingPage() {
               <article className="rounded-2xl bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 p-6">
                 <Layers className="w-7 h-7 text-usm-blue-bright mb-4" />
                 <h3 className="text-xl font-bold text-usm-blue dark:text-white mb-2">Contenido estructurado</h3>
-                <p className="text-sm text-slate-600 dark:text-slate-400">Publicaciones organizadas por facultad y tipo para lectura rápida.</p>
+                <p className="text-sm text-slate-600 dark:text-slate-400">Publicaciones organizadas por escuela y tipo para lectura rápida.</p>
               </article>
               <article className="rounded-2xl bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 p-6">
                 <Workflow className="w-7 h-7 text-usm-blue-bright mb-4" />

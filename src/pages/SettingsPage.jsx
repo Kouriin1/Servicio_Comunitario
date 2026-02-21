@@ -59,8 +59,8 @@ export default function SettingsPage() {
               <div className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-700/50 rounded-xl">
                 <Building2 className="w-4 h-4 text-slate-400" />
                 <div>
-                  <p className="text-xs text-slate-400">Facultad</p>
-                  <p className="text-sm font-medium text-slate-700 dark:text-slate-200">{user?.faculty || 'No definida'}</p>
+                  <p className="text-xs text-slate-400">Escuela</p>
+                  <p className="text-sm font-medium text-slate-700 dark:text-slate-200">{user?.school || 'No definida'}</p>
                 </div>
               </div>
               <div className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-700/50 rounded-xl">

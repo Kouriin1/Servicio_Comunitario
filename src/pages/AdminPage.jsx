@@ -8,14 +8,14 @@ import {
 import { useContentContext } from '../context/ContentContext';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
-import { faculties, contentTypes } from '../mockData';
+import { schools, contentTypes } from '../mockData';
 import Button from '../components/ui/Button';
 import Modal from '../components/ui/Modal';
 import ConfirmDialog from '../components/ui/ConfirmDialog';
 import ContentDetailModal from '../components/ui/ContentDetailModal';
 
 const emptyForm = {
-  title: '', excerpt: '', type: 'Tesis', faculty: 'Ingeniería', author: '',
+  title: '', excerpt: '', type: 'Tesis', school: 'Derecho', author: '',
   fileUrl: null, fileType: null, fileName: null, linkUrl: null,
 };
 
@@ -124,7 +124,7 @@ export default function AdminPage() {
       title: editingItem.title,
       excerpt: editingItem.excerpt,
       type: editingItem.type,
-      faculty: editingItem.faculty,
+      school: editingItem.school,
       fileUrl: editingItem.fileUrl,
       fileType: editingItem.fileType,
       fileName: editingItem.fileName,
@@ -280,12 +280,12 @@ export default function AdminPage() {
               </select>
 
               <select
-                value={form.faculty}
-                onChange={(e) => setForm({ ...form, faculty: e.target.value })}
+                value={form.school}
+                onChange={(e) => setForm({ ...form, school: e.target.value })}
                 className="w-full rounded-xl border border-slate-200 dark:border-slate-600 px-4 py-3 bg-white dark:bg-slate-700 dark:text-white"
               >
-                {faculties.filter((f) => f !== 'Todas').map((faculty) => (
-                  <option key={faculty} value={faculty}>{faculty}</option>
+                {schools.filter((s) => s !== 'Todas').map((school) => (
+                  <option key={school} value={school}>{school}</option>
                 ))}
               </select>
 
@@ -341,7 +341,7 @@ export default function AdminPage() {
                 >
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <p className="text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400">{item.type} · {item.faculty}</p>
+                      <p className="text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400">{item.type} · {item.school}</p>
                       {item.fileType && (
                         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-50 dark:bg-blue-900/30 text-usm-blue dark:text-blue-300 text-[10px] font-bold uppercase">
                           <FileTypeIcon fileType={item.fileType} className="w-3 h-3" />
@@ -422,12 +422,12 @@ export default function AdminPage() {
               ))}
             </select>
             <select
-              value={editingItem.faculty}
-              onChange={(e) => setEditingItem({ ...editingItem, faculty: e.target.value })}
+              value={editingItem.school}
+              onChange={(e) => setEditingItem({ ...editingItem, school: e.target.value })}
               className="w-full rounded-xl border border-slate-200 dark:border-slate-600 px-4 py-3 bg-white dark:bg-slate-700 dark:text-white"
             >
-              {faculties.filter((f) => f !== 'Todas').map((f) => (
-                <option key={f} value={f}>{f}</option>
+              {schools.filter((s) => s !== 'Todas').map((s) => (
+                <option key={s} value={s}>{s}</option>
               ))}
             </select>
 

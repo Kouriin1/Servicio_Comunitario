@@ -19,12 +19,9 @@ import {
 import { useAuth } from "../context/AuthContext";
 import { useContentContext } from "../context/ContentContext";
 
-const FACULTY_COLORS = {
-  Ingenieria: { bg: "bg-orange-100 dark:bg-orange-900/20", text: "text-orange-600 dark:text-orange-300", border: "border-orange-200 dark:border-orange-800" },
-  FACES: { bg: "bg-green-100 dark:bg-green-900/20", text: "text-green-600 dark:text-green-300", border: "border-green-200 dark:border-green-800" },
+const SCHOOL_COLORS = {
   Derecho: { bg: "bg-red-100 dark:bg-red-900/20", text: "text-red-600 dark:text-red-300", border: "border-red-200 dark:border-red-800" },
-  Odontologia: { bg: "bg-purple-100 dark:bg-purple-900/20", text: "text-purple-600 dark:text-purple-300", border: "border-purple-200 dark:border-purple-800" },
-  Farmacia: { bg: "bg-sky-100 dark:bg-sky-900/20", text: "text-sky-600 dark:text-sky-300", border: "border-sky-200 dark:border-sky-800" },
+  "Estudios Internacionales": { bg: "bg-sky-100 dark:bg-sky-900/20", text: "text-sky-600 dark:text-sky-300", border: "border-sky-200 dark:border-sky-800" },
 };
 
 const TYPE_COLORS = {
@@ -38,9 +35,8 @@ function getTypeColor(type) {
   return TYPE_COLORS[type] || "bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300";
 }
 
-function getFacultyStyle(faculty) {
-  const key = faculty ? faculty.replace(/[íá]/g, (c) => ({ í: "i", á: "a" }[c])) : "";
-  return FACULTY_COLORS[key] || { bg: "bg-slate-100 dark:bg-slate-700", text: "text-slate-600 dark:text-slate-300", border: "border-slate-200 dark:border-slate-600" };
+function getSchoolStyle(school) {
+  return SCHOOL_COLORS[school] || { bg: "bg-slate-100 dark:bg-slate-700", text: "text-slate-600 dark:text-slate-300", border: "border-slate-200 dark:border-slate-600" };
 }
 
 function Avatar({ name, size = "lg" }) {
@@ -80,7 +76,7 @@ function SavedCard({ item }) {
       </p>
       <div className="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-700">
         <span className="text-[11px] text-slate-400 flex items-center gap-1.5">
-          <BookOpen className="w-3 h-3" /> {item.faculty}
+          <BookOpen className="w-3 h-3" /> {item.school}
         </span>
         <span className="text-[11px] text-slate-400 truncate max-w-[120px]">{item.author}</span>
       </div>
@@ -126,7 +122,7 @@ export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState("guardados");
 
   const savedContent = allContent.filter((i) => savedIds.includes(i.id));
-  const facultyStyle = getFacultyStyle(user?.faculty);
+  const schoolStyle = getSchoolStyle(user?.school);
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
@@ -191,9 +187,9 @@ export default function ProfilePage() {
 
               {/* Meta list */}
               <div className="space-y-2.5 mb-5">
-                {user?.faculty && (
-                  <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-xs font-semibold ${facultyStyle.bg} ${facultyStyle.text} ${facultyStyle.border}`}>
-                    <BookOpen className="w-3.5 h-3.5" /> {user.faculty}
+                {user?.school && (
+                  <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-xs font-semibold ${schoolStyle.bg} ${schoolStyle.text} ${schoolStyle.border}`}>
+                    <BookOpen className="w-3.5 h-3.5" /> {user.school}
                   </div>
                 )}
                 <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
@@ -275,7 +271,7 @@ export default function ProfilePage() {
                       <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2">
                         <GraduationCap className="w-3.5 h-3.5" /> Informacion Academica
                       </h4>
-                      <InfoBlock label="Facultad" value={user?.faculty || "Ingenieria"} />
+                      <InfoBlock label="Escuela" value={user?.school || "Derecho"} />
                       <InfoBlock label="Rol" value={user?.role === "admin" ? "Administrador" : "Estudiante de pregrado"} />
                       <InfoBlock label="Universidad" value="Univ. Santa Maria (USM)" />
                       <InfoBlock label="Ingreso" value="2022" />

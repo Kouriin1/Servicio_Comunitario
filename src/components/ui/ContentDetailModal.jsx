@@ -1,12 +1,9 @@
 import Modal from './Modal';
 import { Calendar, MapPin, Clock, User, Building2, FileText, Video, Image, ExternalLink, Download } from 'lucide-react';
 
-const facultyColors = {
-  'Ingeniería': 'bg-orange-500',
-  'FACES': 'bg-green-500',
+const schoolColors = {
   'Derecho': 'bg-red-500',
-  'Odontología': 'bg-purple-500',
-  'Farmacia': 'bg-blue-500',
+  'Estudios Internacionales': 'bg-blue-500',
   'Todas': 'bg-usm-blue',
 };
 
@@ -108,7 +105,7 @@ export default function ContentDetailModal({ isOpen, onClose, item }) {
     <Modal isOpen={isOpen} onClose={onClose} title={item.type}>
       <div className="space-y-5">
         <div className="flex items-center gap-2">
-          <div className={`w-2 h-6 rounded-full ${facultyColors[item.faculty] || 'bg-gray-500'}`} />
+          <div className={`w-2 h-6 rounded-full ${schoolColors[item.school] || 'bg-gray-500'}`} />
           <h3 className="text-lg font-bold text-usm-blue dark:text-white leading-tight">{item.title}</h3>
         </div>
 
@@ -117,7 +114,7 @@ export default function ContentDetailModal({ isOpen, onClose, item }) {
             <User className="w-4 h-4" /> {item.author}
           </span>
           <span className="flex items-center gap-1.5">
-            <Building2 className="w-4 h-4" /> {item.faculty}
+            <Building2 className="w-4 h-4" /> {item.school}
           </span>
           <span className="flex items-center gap-1.5">
             <Calendar className="w-4 h-4" /> {item.date}

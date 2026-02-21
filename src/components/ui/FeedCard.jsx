@@ -27,12 +27,9 @@ function timeAgo(dateStr) {
   return `Hace ${Math.floor(diff / 86400)}d`;
 }
 
-const FACULTY_COLORS = {
-  Ingeniería: { badge: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300', dot: 'bg-orange-400' },
-  FACES: { badge: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300', dot: 'bg-green-400' },
+const SCHOOL_COLORS = {
   Derecho: { badge: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300', dot: 'bg-red-400' },
-  Odontología: { badge: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300', dot: 'bg-purple-400' },
-  Farmacia: { badge: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300', dot: 'bg-blue-400' },
+  'Estudios Internacionales': { badge: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300', dot: 'bg-blue-400' },
   Todas: { badge: 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300', dot: 'bg-slate-400' },
 };
 
@@ -161,7 +158,7 @@ function CommentItem({ comment }) {
 // ─── Main FeedCard ────────────────────────────────────────────────────────────
 
 export default function FeedCard({ item, onToggleSave, isSaved = false, onViewDetail }) {
-  const facultyStyle = FACULTY_COLORS[item.faculty] || FACULTY_COLORS['Todas'];
+  const schoolStyle = SCHOOL_COLORS[item.school] || SCHOOL_COLORS['Todas'];
   const typeColor = TYPE_COLORS[item.type] || 'bg-slate-100 text-slate-600';
 
   const [liked, setLiked] = useState(false);
@@ -220,8 +217,8 @@ export default function FeedCard({ item, onToggleSave, isSaved = false, onViewDe
                 </button>
               </h3>
               <p className="text-xs text-slate-400 flex items-center gap-1.5 mt-0.5">
-                <span className={`w-1.5 h-1.5 rounded-full ${facultyStyle.dot}`} />
-                <span>{item.faculty}</span>
+                <span className={`w-1.5 h-1.5 rounded-full ${schoolStyle.dot}`} />
+                <span>{item.school}</span>
                 <span>·</span>
                 <span>{timeAgo(item.date)}</span>
               </p>

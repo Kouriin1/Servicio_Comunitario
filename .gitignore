@@ -29,6 +29,8 @@ coverage
 .env.test.local
 .env.production.local
 .env.production
+SUPABASE_DATABASE.md
+database/
 
 # IDE & Editor Configs
 .vscode/*

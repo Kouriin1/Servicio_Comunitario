@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import { UserRound, Mail, Lock, Building2, ChevronRight } from 'lucide-react';
 import Button from '../components/ui/Button';
-import { faculties } from '../mockData';
+import { schools } from '../mockData';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 
@@ -15,7 +15,7 @@ export default function RegisterPage() {
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [faculty, setFaculty] = useState('Ingeniería');
+  const [school, setSchool] = useState('Derecho');
   const [error, setError] = useState('');
 
   const handleSubmit = (event) => {
@@ -28,7 +28,7 @@ export default function RegisterPage() {
 
     setError('');
     const fullName = `${name.trim()} ${lastName.trim()}`;
-    const redirectTo = login(email, password, { name: fullName, faculty });
+    const redirectTo = login(email, password, { name: fullName, school });
     showToast(`Cuenta creada exitosamente. Bienvenido/a, ${name}!`, 'success');
     navigate(redirectTo);
   };
@@ -78,14 +78,14 @@ export default function RegisterPage() {
           </label>
 
           <label className="block md:col-span-1">
-            <span className="text-sm text-blue-100 flex items-center gap-2 mb-2"><Building2 className="w-4 h-4" /> Facultad</span>
+            <span className="text-sm text-blue-100 flex items-center gap-2 mb-2"><Building2 className="w-4 h-4" /> Escuela</span>
             <select
-              value={faculty}
-              onChange={(e) => setFaculty(e.target.value)}
+              value={school}
+              onChange={(e) => setSchool(e.target.value)}
               className="w-full rounded-xl px-4 py-3 bg-white/5 border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-blue-300"
             >
-              {faculties.filter((f) => f !== 'Todas').map((f) => (
-                <option key={f} value={f} className="text-usm-blue">{f}</option>
+              {schools.filter((s) => s !== 'Todas').map((s) => (
+                <option key={s} value={s} className="text-usm-blue">{s}</option>
               ))}
             </select>
           </label>

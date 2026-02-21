@@ -8,7 +8,7 @@ export function AuthProvider({ children }) {
   const login = (email, password, extraData = {}) => {
     const isAdmin = email.toLowerCase().includes('admin');
     const name = extraData.name || email.split('@')[0];
-    const faculty = extraData.faculty || 'Ingeniería';
+    const school = extraData.school || 'Derecho';
     const initials = name
       .split(' ')
       .map((w) => w[0])
@@ -20,7 +20,7 @@ export function AuthProvider({ children }) {
       name,
       email,
       role: isAdmin ? 'admin' : 'estudiante',
-      faculty,
+      school,
       initials,
     });
 

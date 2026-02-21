@@ -42,7 +42,7 @@ export default function Features() {
             {
               icon: <BookOpen className="w-8 h-8 text-usm-blue-bright" />,
               title: 'Repositorio de Tesis',
-              description: 'Consulta trabajos de grado con filtros por facultad, tipo y fecha.'
+              description: 'Consulta trabajos de grado con filtros por escuela, tipo y fecha.'
             },
             {
               icon: <Calendar className="w-8 h-8 text-usm-blue-bright" />,
