@@ -108,15 +108,7 @@ function LinkPreview({ item }) {
 
 // ─── Mock initial comments per card ─────────────────────────────────────────
 
-const INITIAL_COMMENTS = {
-  'usm-001': [
-    { id: 1, author: 'María González', text: 'Excelente trabajo! La metodología Scrum aplicada aquí es un referente.', time: 'Hace 1h' },
-    { id: 2, author: 'Pedro Ramírez', text: 'Me gustaría saber más sobre la arquitectura de Supabase que usaron.', time: 'Hace 30 min' },
-  ],
-  'usm-002': [
-    { id: 1, author: 'Ana Torres', text: 'Qué emocionante! Ya estamos listos para el acto de grado.', time: 'Hace 2h' },
-  ],
-};
+const INITIAL_COMMENTS = {};
 
 // ─── Avatar ──────────────────────────────────────────────────────────────────
 

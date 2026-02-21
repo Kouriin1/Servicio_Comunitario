@@ -129,7 +129,7 @@ export default function ProfilePage() {
 
       {/* Topbar */}
       <header className="sticky top-0 z-40 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-700/80">
-        <div className="max-w-[1400px] mx-auto px-4 md:px-8 h-14 flex items-center justify-between">
+        <div className="max-w-[1400px] mx-auto px-3 sm:px-4 md:px-8 h-14 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button onClick={() => navigate(-1)} className="p-2 rounded-xl text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
               <ArrowLeft className="w-5 h-5" />
@@ -142,7 +142,7 @@ export default function ProfilePage() {
         </div>
       </header>
 
-      <div className="max-w-[1400px] mx-auto px-4 md:px-8 py-6 flex flex-col lg:flex-row gap-6 items-start">
+      <div className="max-w-[1400px] mx-auto px-3 sm:px-4 md:px-8 py-4 sm:py-6 flex flex-col lg:flex-row gap-4 sm:gap-6 items-start">
 
         {/* LEFT sidebar - sticky */}
         <aside className="w-full lg:w-72 shrink-0 lg:sticky lg:top-20">
@@ -245,7 +245,7 @@ export default function ProfilePage() {
               })}
             </div>
 
-            <div className="p-6">
+            <div className="p-4 sm:p-6">
               <AnimatePresence mode="wait">
 
                 {/* GUARDADOS */}
@@ -271,10 +271,9 @@ export default function ProfilePage() {
                       <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2">
                         <GraduationCap className="w-3.5 h-3.5" /> Informacion Academica
                       </h4>
-                      <InfoBlock label="Escuela" value={user?.school || "Derecho"} />
+                      <InfoBlock label="Escuela" value={user?.school || "Sin asignar"} />
                       <InfoBlock label="Rol" value={user?.role === "admin" ? "Administrador" : "Estudiante de pregrado"} />
                       <InfoBlock label="Universidad" value="Univ. Santa Maria (USM)" />
-                      <InfoBlock label="Ingreso" value="2022" />
                     </div>
 
                     {/* Contacto */}
@@ -287,37 +286,13 @@ export default function ProfilePage() {
                     </div>
 
                     {/* Intereses */}
-                    <div className="bg-slate-50 dark:bg-slate-700/30 rounded-2xl p-5 border border-slate-100 dark:border-slate-700">
+                    <div className="bg-slate-50 dark:bg-slate-700/30 rounded-2xl p-5 border border-slate-100 dark:border-slate-700 md:col-span-2">
                       <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2">
-                        <BookOpen className="w-3.5 h-3.5" /> Intereses Academicos
+                        <Star className="w-3.5 h-3.5" /> Bio
                       </h4>
-                      <div className="flex flex-wrap gap-2">
-                        {["Desarrollo Web", "Inteligencia Artificial", "Bases de Datos", "UX/UI", "Ciencias de Datos"].map((tag) => (
-                          <span key={tag} className="px-3 py-1 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-xs text-slate-600 dark:text-slate-300 font-medium">
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Actividad */}
-                    <div className="bg-slate-50 dark:bg-slate-700/30 rounded-2xl p-5 border border-slate-100 dark:border-slate-700">
-                      <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2">
-                        <Star className="w-3.5 h-3.5" /> Actividad Reciente
-                      </h4>
-                      {[
-                        { text: "Guardo el articulo de IA y salud mental", time: "Hace 3 dias" },
-                        { text: "Exploro la seccion de Tesis de Ingenieria", time: "Hace 1 semana" },
-                        { text: "Se unio a USM RED", time: "Feb 2026" },
-                      ].map((a, i) => (
-                        <div key={i} className="flex items-start gap-3 py-2.5 border-b border-slate-200/60 dark:border-slate-700/60 last:border-0">
-                          <div className="w-1.5 h-1.5 rounded-full bg-usm-blue mt-1.5 shrink-0" />
-                          <div className="flex-1 min-w-0">
-                            <p className="text-xs text-slate-700 dark:text-slate-200 leading-relaxed">{a.text}</p>
-                            <p className="text-[10px] text-slate-400 mt-0.5">{a.time}</p>
-                          </div>
-                        </div>
-                      ))}
+                      <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                        {user?.bio || 'Aún no has agregado una biografía. Puedes hacerlo desde la configuración.'}
+                      </p>
                     </div>
                   </motion.div>
                 )}

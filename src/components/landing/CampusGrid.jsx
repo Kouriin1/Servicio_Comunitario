@@ -36,7 +36,7 @@ const campuses = [
 
 export default function CampusGrid() {
     return (
-        <section className="relative py-28 px-6 md:px-12 bg-white dark:bg-slate-800 overflow-hidden" id="sedes">
+        <section className="relative py-16 sm:py-28 px-4 sm:px-6 md:px-12 bg-white dark:bg-slate-800 overflow-hidden" id="sedes">
             {/* Subtle gradient background */}
             <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 via-transparent to-slate-50/50 dark:from-blue-950/20 dark:via-transparent dark:to-slate-900/20" />
 
@@ -51,7 +51,7 @@ export default function CampusGrid() {
                     <span className="inline-block px-4 py-1.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-usm-blue dark:text-blue-300 text-xs font-bold uppercase tracking-widest mb-4 border border-blue-200 dark:border-blue-800">
                         Nuestras Sedes
                     </span>
-                    <h2 className="text-4xl md:text-5xl font-black text-usm-blue dark:text-white leading-tight mb-4">
+                    <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-usm-blue dark:text-white leading-tight mb-4">
                         Presencia en{' '}
                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-usm-blue to-usm-blue-bright">
                             todo el país
@@ -63,7 +63,7 @@ export default function CampusGrid() {
                 </motion.div>
 
                 {/* Bento Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 auto-rows-[200px]">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 auto-rows-[180px] sm:auto-rows-[200px]">
                     {campuses.map((campus, index) => (
                         <motion.div
                             key={campus.name}

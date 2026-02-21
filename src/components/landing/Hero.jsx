@@ -13,7 +13,7 @@ export default function Hero() {
   const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
 
   return (
-    <section ref={ref} className="relative h-screen w-full flex items-center justify-center overflow-hidden bg-black">
+    <section ref={ref} className="relative min-h-screen w-full flex items-center justify-center overflow-hidden bg-black">
       {/* 1. Fondo con imagen USM */}
       <motion.div style={{ y }} className="absolute inset-0 z-0">
         <img
@@ -27,7 +27,7 @@ export default function Hero() {
 
       <motion.div
         style={{ opacity }}
-        className="relative z-30 w-full max-w-7xl px-6 md:px-12 flex flex-col md:flex-row items-center justify-between gap-12 mt-20"
+        className="relative z-30 w-full max-w-7xl px-4 sm:px-6 md:px-12 flex flex-col md:flex-row items-center justify-between gap-8 md:gap-12 pt-24 pb-20 md:pt-28 md:pb-24"
       >
         <div className="flex-1 text-left">
           <motion.div
@@ -38,26 +38,26 @@ export default function Hero() {
             <span className="inline-block py-1 px-3 rounded-full bg-white/10 text-blue-100 border border-white/25 text-xs font-bold tracking-widest uppercase mb-6 backdrop-blur-md">
               La Nueva Era Digital
             </span>
-            <h1 className="text-6xl md:text-8xl font-black text-white leading-[0.9] tracking-tighter mb-8 drop-shadow-2xl">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-8xl font-black text-white leading-[0.9] tracking-tighter mb-6 md:mb-8 drop-shadow-2xl">
               USM RED <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-100 via-white to-blue-300 animate-shine bg-[length:200%_auto]">
                 CONECTA TU VIDA ACADÉMICA.
               </span>
             </h1>
-            <p className="text-xl md:text-2xl text-gray-300 font-light max-w-2xl leading-relaxed mb-10 border-l-4 border-usm-yellow/60 pl-6">
+            <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-gray-300 font-light max-w-2xl leading-relaxed mb-8 md:mb-10 border-l-4 border-usm-yellow/60 pl-4 sm:pl-6">
               Un espacio para descubrir publicaciones, organizar recursos y seguir la actividad universitaria en un solo lugar.
             </p>
 
-            <div className="flex flex-wrap gap-4">
+            <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4">
               <Link to="/dashboard">
-                <Button className="text-lg px-10 py-5 rounded-full font-bold transition-all transform hover:-translate-y-1">
+                <Button className="text-base sm:text-lg px-8 sm:px-10 py-4 sm:py-5 rounded-full font-bold transition-all transform hover:-translate-y-1 w-full sm:w-auto">
                   Explorar Plataforma
                 </Button>
               </Link>
               <Button
                 variant="outline"
                 onClick={() => document.getElementById('software')?.scrollIntoView({ behavior: 'smooth' })}
-                className="text-lg px-10 py-5 rounded-full border-white/30 text-white hover:bg-white hover:text-black hover:border-white transition-all backdrop-blur-sm"
+                className="text-base sm:text-lg px-8 sm:px-10 py-4 sm:py-5 rounded-full border-white/30 text-white hover:bg-white hover:text-black hover:border-white transition-all backdrop-blur-sm w-full sm:w-auto"
               >
                 Conocer Más
               </Button>

@@ -44,7 +44,7 @@ export default function StatsSection() {
     const isInView = useInView(ref, { once: true, margin: '-100px' });
 
     return (
-        <section ref={ref} className="relative py-24 px-6 md:px-12 bg-white dark:bg-slate-800 overflow-hidden">
+        <section ref={ref} className="relative py-16 sm:py-24 px-4 sm:px-6 md:px-12 bg-white dark:bg-slate-800 overflow-hidden">
             {/* Subtle background */}
             <div className="absolute inset-0 bg-gradient-to-b from-slate-50 to-white dark:from-slate-800 dark:to-slate-800" />
 
@@ -61,7 +61,7 @@ export default function StatsSection() {
                     </p>
                 </motion.div>
 
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-10 md:gap-12">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-10 md:gap-12">
                     {stats.map((stat, index) => (
                         <motion.div
                             key={stat.label}
@@ -71,7 +71,7 @@ export default function StatsSection() {
                             transition={{ delay: index * 0.1, duration: 0.5 }}
                             className="text-center"
                         >
-                            <div className="text-4xl md:text-5xl lg:text-6xl font-black text-usm-blue dark:text-white mb-3 leading-none">
+                            <div className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-usm-blue dark:text-white mb-3 leading-none">
                                 <AnimatedCounter value={stat.value} prefix={stat.prefix} isInView={isInView} />
                             </div>
                             <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">{stat.label}</p>

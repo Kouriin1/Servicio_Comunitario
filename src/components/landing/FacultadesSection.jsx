@@ -46,7 +46,7 @@ const facultades = [
 
 export default function FacultadesSection() {
     return (
-        <section className="relative py-28 px-6 md:px-12 bg-slate-50 dark:bg-slate-900 overflow-hidden" id="facultades-section">
+        <section className="relative py-16 sm:py-28 px-4 sm:px-6 md:px-12 bg-slate-50 dark:bg-slate-900 overflow-hidden" id="facultades-section">
             {/* Background */}
             <div className="absolute inset-0 opacity-[0.02] dark:opacity-[0.04] [background-image:radial-gradient(circle,#002855_1px,transparent_1px)] [background-size:20px_20px]" />
 
@@ -61,7 +61,7 @@ export default function FacultadesSection() {
                     <span className="inline-block px-4 py-1.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-usm-blue dark:text-blue-300 text-xs font-bold uppercase tracking-widest mb-4 border border-blue-200 dark:border-blue-800">
                         Ecosistema Académico
                     </span>
-                    <h2 className="text-4xl md:text-5xl font-black text-usm-blue dark:text-white leading-tight mb-4">
+                    <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-usm-blue dark:text-white leading-tight mb-4">
                         Nuestras{' '}
                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-usm-blue to-usm-blue-bright">
                             Facultades
@@ -73,7 +73,7 @@ export default function FacultadesSection() {
                 </motion.div>
 
                 {/* Faculty cards */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                     {facultades.map((fac, index) => {
                         const Icon = fac.icon;
                         return (

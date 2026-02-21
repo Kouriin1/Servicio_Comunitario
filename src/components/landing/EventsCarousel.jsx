@@ -21,11 +21,11 @@ export default function EventsCarousel() {
   };
 
   return (
-    <section className="py-24 px-8 bg-white dark:bg-slate-900 overflow-hidden" id="investigación">
+    <section className="py-16 sm:py-24 px-4 sm:px-8 bg-white dark:bg-slate-900 overflow-hidden" id="investigación">
       <div className="max-w-6xl mx-auto">
-        <div className="flex justify-between items-end mb-12">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-8 sm:mb-12 gap-4">
           <div>
-            <h2 className="text-4xl font-bold text-usm-blue dark:text-white mb-4">Próximos Actos</h2>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-usm-blue dark:text-white mb-4">Próximos Actos</h2>
             <div className="w-20 h-1.5 bg-usm-blue-bright rounded-full" />
           </div>
           <div className="flex gap-2">
@@ -52,7 +52,7 @@ export default function EventsCarousel() {
           {events.map((event) => (
             <motion.div 
               key={event.id}
-              className="min-w-[300px] md:min-w-[400px] snap-start"
+              className="min-w-[260px] sm:min-w-[300px] md:min-w-[400px] snap-start"
             >
               <Card className="h-full flex flex-col p-0 overflow-hidden group">
                 <div className="h-48 bg-usm-blue relative overflow-hidden">

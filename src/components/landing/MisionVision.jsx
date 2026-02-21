@@ -19,7 +19,7 @@ const cardVariants = {
 
 export default function MisionVision() {
     return (
-        <section className="relative py-28 px-6 md:px-12 bg-slate-50 dark:bg-slate-900 overflow-hidden" id="identidad">
+        <section className="relative py-16 sm:py-28 px-4 sm:px-6 md:px-12 bg-slate-50 dark:bg-slate-900 overflow-hidden" id="identidad">
             {/* Background pattern */}
             <div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.05] [background-image:radial-gradient(circle,#002855_1px,transparent_1px)] [background-size:24px_24px]" />
 
@@ -34,7 +34,7 @@ export default function MisionVision() {
                     <span className="inline-block px-4 py-1.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-usm-blue dark:text-blue-300 text-xs font-bold uppercase tracking-widest mb-4 border border-blue-200 dark:border-blue-800">
                         Identidad Institucional
                     </span>
-                    <h2 className="text-4xl md:text-5xl font-black text-usm-blue dark:text-white leading-tight mb-4">
+                    <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-usm-blue dark:text-white leading-tight mb-4">
                         Nuestra{' '}
                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-usm-blue to-usm-blue-bright">
                             Razón de Ser
@@ -46,7 +46,7 @@ export default function MisionVision() {
                 </motion.div>
 
                 {/* Cards grid */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 mb-12 sm:mb-16">
                     {/* Misión */}
                     <motion.div
                         custom={0}

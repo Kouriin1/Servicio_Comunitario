@@ -11,8 +11,8 @@ export default function SettingsPage() {
   const { theme, toggleTheme } = useTheme();
   const { showToast } = useToast();
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logout();
     showToast('Sesión cerrada', 'info');
     navigate('/login');
   };
@@ -74,44 +74,7 @@ export default function SettingsPage() {
           </div>
         </motion.section>
 
-        {/* Apariencia */}
-        <motion.section
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-6"
-        >
-          <h2 className="text-lg font-bold text-usm-blue dark:text-white mb-4">Apariencia</h2>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              {theme === 'dark' ? (
-                <Moon className="w-5 h-5 text-blue-400" />
-              ) : (
-                <Sun className="w-5 h-5 text-yellow-500" />
-              )}
-              <div>
-                <p className="font-medium text-slate-700 dark:text-slate-200">Modo oscuro</p>
-                <p className="text-xs text-slate-400">Cambia la apariencia de la interfaz</p>
-              </div>
-            </div>
-            <button
-              onClick={() => {
-                toggleTheme();
-                showToast(theme === 'light' ? 'Modo oscuro activado' : 'Modo claro activado', 'info');
-              }}
-              className={`relative w-14 h-8 rounded-full transition-colors duration-300 ${
-                theme === 'dark' ? 'bg-usm-blue-bright' : 'bg-slate-300'
-              }`}
-            >
-              <motion.div
-                layout
-                className="absolute top-1 w-6 h-6 bg-white rounded-full shadow-md"
-                style={{ left: theme === 'dark' ? '28px' : '4px' }}
-                transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-              />
-            </button>
-          </div>
-        </motion.section>
+       
 
         {/* Sesión */}
         <motion.section

@@ -3,7 +3,7 @@ import { BookOpen, Users, Calendar, FileCheck2 } from 'lucide-react';
 
 export default function Features() {
   return (
-    <section className="py-24 px-6 md:px-12 bg-slate-50 dark:bg-slate-900 relative overflow-hidden" id="facultades">
+    <section className="py-16 sm:py-24 px-4 sm:px-6 md:px-12 bg-slate-50 dark:bg-slate-900 relative overflow-hidden" id="facultades">
       <div className="max-w-7xl mx-auto">
         <div className="text-left md:text-center mb-20 relative">
           <motion.div 
@@ -19,7 +19,7 @@ export default function Features() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.1 }}
-            className="text-4xl md:text-5xl font-black text-usm-blue dark:text-white leading-tight mb-6"
+            className="text-3xl sm:text-4xl md:text-5xl font-black text-usm-blue dark:text-white leading-tight mb-6"
           >
             Un espacio académico<br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-usm-blue to-usm-blue-bright">
@@ -37,7 +37,7 @@ export default function Features() {
           </motion.p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
           {[
             {
               icon: <BookOpen className="w-8 h-8 text-usm-blue-bright" />,

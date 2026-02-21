@@ -6,5 +6,9 @@ export const useContent = () => {
     events: ctx.events,
     works: ctx.works,
     allContent: ctx.allContent,
+    faculties: ctx.faculties,
+    schools: ctx.schools,
+    contentTypes: ctx.contentTypes,
+    loading: ctx.loading,
   };
 };

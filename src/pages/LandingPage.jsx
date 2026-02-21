@@ -16,14 +16,14 @@ export default function LandingPage() {
         <Hero />
         <Features />
 
-        <section className="py-20 px-6 md:px-12 bg-white dark:bg-slate-800" id="software">
+        <section className="py-16 sm:py-20 px-4 sm:px-6 md:px-12 bg-white dark:bg-slate-800" id="software">
           <div className="max-w-7xl mx-auto">
             <div className="mb-10 text-center md:text-left">
-              <h2 className="text-3xl md:text-4xl font-bold text-usm-blue dark:text-white mb-3">USM Red como software académico</h2>
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-usm-blue dark:text-white mb-3">USM Red como software académico</h2>
               <p className="text-slate-600 dark:text-slate-400">Diseñado para centralizar publicaciones, eventos y gestión de contenidos en una experiencia clara.</p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               <article className="rounded-2xl bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 p-6">
                 <Layers className="w-7 h-7 text-usm-blue-bright mb-4" />
                 <h3 className="text-xl font-bold text-usm-blue dark:text-white mb-2">Contenido estructurado</h3>
@@ -55,11 +55,11 @@ export default function LandingPage() {
 
         <StatsSection />
 
-        <section className="bg-slate-50 dark:bg-slate-900 py-20 text-center relative overflow-hidden" id="nosotros">
-          <div className="relative z-10 max-w-4xl mx-auto px-6">
-            <div className="w-10 h-0.5 bg-usm-yellow mx-auto mb-8" />
-            <h2 className="text-4xl md:text-5xl font-bold text-usm-blue dark:text-white mb-6">Accede a la red académica USM</h2>
-            <p className="text-lg text-slate-500 dark:text-slate-400 mb-10 font-light">
+        <section className="bg-slate-50 dark:bg-slate-900 py-16 sm:py-20 text-center relative overflow-hidden" id="nosotros">
+          <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6">
+            <div className="w-10 h-0.5 bg-usm-yellow mx-auto mb-6 sm:mb-8" />
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-usm-blue dark:text-white mb-4 sm:mb-6">Accede a la red académica USM</h2>
+            <p className="text-base sm:text-lg text-slate-500 dark:text-slate-400 mb-8 sm:mb-10 font-light">
               Inicia sesión o crea tu cuenta para comenzar a explorar contenido académico.
             </p>
             <div className="flex flex-wrap items-center justify-center gap-4">

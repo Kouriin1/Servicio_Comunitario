@@ -1,46 +1,82 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
-import { UserRound, Mail, Lock, Building2, ChevronRight } from 'lucide-react';
+import { UserRound, Mail, Lock, Building2, ChevronRight, Loader2 } from 'lucide-react';
 import Button from '../components/ui/Button';
-import { schools } from '../mockData';
+import { useContentContext } from '../context/ContentContext';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 
 export default function RegisterPage() {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { register } = useAuth();
   const { showToast } = useToast();
+  const { faculties } = useContentContext();
   const [name, setName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [school, setSchool] = useState('Derecho');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [facultyId, setFacultyId] = useState('');
   const [error, setError] = useState('');
+  const [submitting, setSubmitting] = useState(false);
 
-  const handleSubmit = (event) => {
+  // Filter out the "Todas" meta-faculty for student registration
+  const studentFaculties = faculties.filter((f) => f.code !== 'TODAS');
+
+  const handleSubmit = async (event) => {
     event.preventDefault();
 
     if (!name.trim() || !lastName.trim() || !email.trim() || !password.trim()) {
       setError('Completa todos los campos para continuar.');
       return;
     }
+    if (password.length < 6) {
+      setError('La contraseña debe tener al menos 6 caracteres.');
+      return;
+    }
+    if (password !== confirmPassword) {
+      setError('Las contraseñas no coinciden.');
+      return;
+    }
 
     setError('');
-    const fullName = `${name.trim()} ${lastName.trim()}`;
-    const redirectTo = login(email, password, { name: fullName, school });
-    showToast(`Cuenta creada exitosamente. Bienvenido/a, ${name}!`, 'success');
-    navigate(redirectTo);
+    setSubmitting(true);
+    try {
+      const redirectTo = await register({
+        email,
+        password,
+        firstName: name.trim(),
+        lastName: lastName.trim(),
+        facultyId: facultyId || null,
+      });
+
+      if (redirectTo) {
+        showToast(`Cuenta creada exitosamente. Bienvenido/a, ${name}!`, 'success');
+        navigate(redirectTo);
+      } else {
+        showToast('Cuenta creada. Revisa tu correo para confirmar tu cuenta.', 'info');
+        navigate('/login');
+      }
+    } catch (err) {
+      setError(
+        err.message?.includes('already registered')
+          ? 'Este correo ya está registrado. Intenta iniciar sesión.'
+          : err.message
+      );
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-usm-blue to-blue-950 p-6 md:p-10 flex items-center justify-center">
+    <div className="min-h-screen bg-gradient-to-br from-usm-blue to-blue-950 px-4 py-6 sm:p-6 md:p-10 flex items-center justify-center">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-2xl rounded-2xl bg-white/10 border border-white/20 backdrop-blur-xl p-8 md:p-10"
+        className="w-full max-w-2xl rounded-2xl bg-white/10 border border-white/20 backdrop-blur-xl p-5 sm:p-8 md:p-10"
       >
-        <h1 className="text-3xl font-bold text-white mb-2">Crear cuenta</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">Crear cuenta</h1>
         <p className="text-blue-100 mb-8">Completa tus datos para acceder a la plataforma.</p>
 
 
@@ -67,25 +103,26 @@ export default function RegisterPage() {
           </label>
 
           <label className="block md:col-span-2">
-            <span className="text-sm text-blue-100 flex items-center gap-2 mb-2"><Mail className="w-4 h-4" /> Correo institucional</span>
+            <span className="text-sm text-blue-100 flex items-center gap-2 mb-2"><Mail className="w-4 h-4" /> Correo</span>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full rounded-xl px-4 py-3 bg-white/5 border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-blue-300"
-              placeholder="usuario@usm.edu.ve"
+              placeholder="usuario@gmail.com"
             />
           </label>
 
           <label className="block md:col-span-1">
             <span className="text-sm text-blue-100 flex items-center gap-2 mb-2"><Building2 className="w-4 h-4" /> Escuela</span>
             <select
-              value={school}
-              onChange={(e) => setSchool(e.target.value)}
+              value={facultyId}
+              onChange={(e) => setFacultyId(e.target.value)}
               className="w-full rounded-xl px-4 py-3 bg-white/5 border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-blue-300"
             >
-              {schools.filter((s) => s !== 'Todas').map((s) => (
-                <option key={s} value={s} className="text-usm-blue">{s}</option>
+              <option value="" className="text-usm-blue">Seleccionar escuela</option>
+              {studentFaculties.map((f) => (
+                <option key={f.id} value={f.id} className="text-usm-blue">{f.name}</option>
               ))}
             </select>
           </label>
@@ -101,11 +138,22 @@ export default function RegisterPage() {
             />
           </label>
 
+          <label className="block md:col-span-2">
+            <span className="text-sm text-blue-100 flex items-center gap-2 mb-2"><Lock className="w-4 h-4" /> Confirmar contraseña</span>
+            <input
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              className="w-full rounded-xl px-4 py-3 bg-white/5 border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-blue-300"
+              placeholder="••••••••"
+            />
+          </label>
+
           {error && <p className="md:col-span-2 text-sm text-red-300">{error}</p>}
 
           <div className="md:col-span-2 pt-2">
-            <Button type="submit" className="w-full py-4 text-lg flex items-center justify-center gap-2">
-              Crear Cuenta <ChevronRight className="w-5 h-5" />
+            <Button type="submit" disabled={submitting} className="w-full py-4 text-lg flex items-center justify-center gap-2">
+              {submitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <>Crear Cuenta <ChevronRight className="w-5 h-5" /></>}
             </Button>
           </div>
         </form>

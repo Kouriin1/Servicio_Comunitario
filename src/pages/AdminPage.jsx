@@ -8,7 +8,6 @@ import {
 import { useContentContext } from '../context/ContentContext';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
-import { schools, contentTypes } from '../mockData';
 import Button from '../components/ui/Button';
 import Modal from '../components/ui/Modal';
 import ConfirmDialog from '../components/ui/ConfirmDialog';
@@ -16,7 +15,7 @@ import ContentDetailModal from '../components/ui/ContentDetailModal';
 
 const emptyForm = {
   title: '', excerpt: '', type: 'Tesis', school: 'Derecho', author: '',
-  fileUrl: null, fileType: null, fileName: null, linkUrl: null,
+  file: null, fileUrl: null, fileType: null, fileName: null, linkUrl: null,
 };
 
 const ACCEPTED_FILES = {
@@ -42,7 +41,7 @@ function FileTypeIcon({ fileType, className = 'w-4 h-4' }) {
 }
 
 export default function AdminPage() {
-  const { allContent, addContent, deleteContent, updateContent } = useContentContext();
+  const { allContent, addContent, deleteContent, updateContent, faculties, contentTypesList, contentTypes } = useContentContext();
   const { user } = useAuth();
   const { showToast } = useToast();
   const [selectedType, setSelectedType] = useState('Todos');
@@ -68,9 +67,9 @@ export default function AdminPage() {
     const fileType = getFileType(file);
     const fileUrl = URL.createObjectURL(file);
     if (isEdit && editingItem) {
-      setEditingItem({ ...editingItem, fileUrl, fileType, fileName: file.name });
+      setEditingItem({ ...editingItem, file, fileUrl, fileType, fileName: file.name });
     } else {
-      setForm({ ...form, fileUrl, fileType, fileName: file.name });
+      setForm({ ...form, file, fileUrl, fileType, fileName: file.name });
     }
     showToast(`${file.name} adjuntado`, 'success');
   };
@@ -78,10 +77,10 @@ export default function AdminPage() {
   const handleRemoveFile = (isEdit = false) => {
     if (isEdit && editingItem) {
       if (editingItem.fileUrl?.startsWith('blob:')) URL.revokeObjectURL(editingItem.fileUrl);
-      setEditingItem({ ...editingItem, fileUrl: null, fileType: null, fileName: null });
+      setEditingItem({ ...editingItem, file: null, fileUrl: null, fileType: null, fileName: null, fileRemoved: true });
     } else {
       if (form.fileUrl?.startsWith('blob:')) URL.revokeObjectURL(form.fileUrl);
-      setForm({ ...form, fileUrl: null, fileType: null, fileName: null });
+      setForm({ ...form, file: null, fileUrl: null, fileType: null, fileName: null });
     }
   };
 
@@ -101,43 +100,57 @@ export default function AdminPage() {
     }
   };
 
-  const handlePublish = (event) => {
+  const handlePublish = async (event) => {
     event.preventDefault();
     if (!form.title.trim() || !form.excerpt.trim()) {
       showToast('Completa título y descripción', 'error');
       return;
     }
-    addContent({
-      ...form,
-      author: form.author.trim() || user?.name || 'Administrador',
-      readTime: form.type !== 'Evento' ? '5 min' : undefined,
-      location: form.type === 'Evento' ? 'Por definir' : undefined,
-    });
-    showToast('Publicación creada exitosamente', 'success');
-    setForm(emptyForm);
+    try {
+      await addContent({
+        ...form,
+        author: form.author.trim() || user?.name || 'Administrador',
+        readTime: form.type !== 'Evento' ? '5 min' : undefined,
+        location: form.type === 'Evento' ? 'Por definir' : undefined,
+      });
+      showToast('Publicación creada exitosamente', 'success');
+      setForm(emptyForm);
+    } catch (err) {
+      showToast(err.message || 'Error al crear publicación', 'error');
+    }
   };
 
-  const handleEdit = (event) => {
+  const handleEdit = async (event) => {
     event.preventDefault();
     if (!editingItem) return;
-    updateContent(editingItem.id, {
-      title: editingItem.title,
-      excerpt: editingItem.excerpt,
-      type: editingItem.type,
-      school: editingItem.school,
-      fileUrl: editingItem.fileUrl,
-      fileType: editingItem.fileType,
-      fileName: editingItem.fileName,
-      linkUrl: editingItem.linkUrl,
-    });
-    showToast('Publicación actualizada', 'success');
-    setShowEditModal(false);
-    setEditingItem(null);
+    try {
+      await updateContent(editingItem.id, {
+        title: editingItem.title,
+        excerpt: editingItem.excerpt,
+        type: editingItem.type,
+        school: editingItem.school,
+        file: editingItem.file || null,
+        fileUrl: editingItem.fileUrl,
+        fileType: editingItem.fileType,
+        fileName: editingItem.fileName,
+        fileRemoved: editingItem.fileRemoved || false,
+        linkUrl: editingItem.linkUrl,
+      });
+      showToast('Publicación actualizada', 'success');
+      setShowEditModal(false);
+      setEditingItem(null);
+    } catch (err) {
+      showToast(err.message || 'Error al actualizar', 'error');
+    }
   };
 
-  const handleDelete = (id) => {
-    deleteContent(id);
-    showToast('Publicación eliminada', 'info');
+  const handleDelete = async (id) => {
+    try {
+      await deleteContent(id);
+      showToast('Publicación eliminada', 'info');
+    } catch (err) {
+      showToast(err.message || 'Error al eliminar', 'error');
+    }
   };
 
   const FileUploadArea = ({ currentFile, onFileSelect, onRemove, inputRef, isEdit = false }) => (
@@ -217,29 +230,29 @@ export default function AdminPage() {
   );
 
   return (
-    <div className="min-h-screen bg-slate-100 dark:bg-slate-900 p-6 md:p-8">
-      <div className="max-w-7xl mx-auto space-y-8">
-        <header className="bg-usm-blue rounded-2xl p-6 md:p-8 text-white">
-          <div className="flex items-center justify-between">
+    <div className="min-h-screen bg-slate-100 dark:bg-slate-900 p-3 sm:p-6 md:p-8">
+      <div className="max-w-7xl mx-auto space-y-6 sm:space-y-8">
+        <header className="bg-usm-blue rounded-2xl p-4 sm:p-6 md:p-8 text-white">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
-              <h1 className="text-3xl md:text-4xl font-bold mb-2">Panel Administrador</h1>
-              <p className="text-blue-100">Gestiona publicaciones, categorías y contenido académico.</p>
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-1 sm:mb-2">Panel Administrador</h1>
+              <p className="text-blue-100 text-sm sm:text-base">Gestiona publicaciones, categorías y contenido académico.</p>
             </div>
             <Link
               to="/dashboard"
-              className="hidden md:flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-xl text-sm transition-colors"
+              className="hidden sm:flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-xl text-sm transition-colors shrink-0"
             >
               <ArrowLeft className="w-4 h-4" /> Volver al Dashboard
             </Link>
           </div>
         </header>
 
-        <section className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+        <section className="grid grid-cols-1 lg:grid-cols-5 gap-4 sm:gap-6">
           {/* Formulario de publicación */}
           <motion.article
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            className="lg:col-span-2 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-6"
+            className="lg:col-span-2 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-4 sm:p-6"
           >
             <div className="flex items-center gap-2 mb-4 text-usm-blue dark:text-blue-300">
               <FilePlus2 className="w-5 h-5" />
@@ -274,8 +287,8 @@ export default function AdminPage() {
                 onChange={(e) => setForm({ ...form, type: e.target.value })}
                 className="w-full rounded-xl border border-slate-200 dark:border-slate-600 px-4 py-3 bg-white dark:bg-slate-700 dark:text-white"
               >
-                {contentTypes.filter((t) => t !== 'Todos').map((type) => (
-                  <option key={type} value={type}>{type}</option>
+                {contentTypesList.map((t) => (
+                  <option key={t.id} value={t.name}>{t.name}</option>
                 ))}
               </select>
 
@@ -284,8 +297,8 @@ export default function AdminPage() {
                 onChange={(e) => setForm({ ...form, school: e.target.value })}
                 className="w-full rounded-xl border border-slate-200 dark:border-slate-600 px-4 py-3 bg-white dark:bg-slate-700 dark:text-white"
               >
-                {schools.filter((s) => s !== 'Todas').map((school) => (
-                  <option key={school} value={school}>{school}</option>
+                {faculties.map((f) => (
+                  <option key={f.id} value={f.name}>{f.name}</option>
                 ))}
               </select>
 
@@ -313,7 +326,7 @@ export default function AdminPage() {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="lg:col-span-3 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-6"
+            className="lg:col-span-3 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-4 sm:p-6"
           >
             <div className="flex flex-col md:flex-row gap-4 md:items-center justify-between mb-5">
               <h2 className="text-xl font-bold text-usm-blue dark:text-white">
@@ -388,7 +401,7 @@ export default function AdminPage() {
         </section>
 
         {/* Mobile back link */}
-        <div className="md:hidden text-center">
+        <div className="sm:hidden text-center">
           <Link to="/dashboard" className="text-usm-blue dark:text-blue-300 text-sm hover:underline inline-flex items-center gap-1">
             <ArrowLeft className="w-4 h-4" /> Volver al Dashboard
           </Link>
@@ -417,8 +430,8 @@ export default function AdminPage() {
               onChange={(e) => setEditingItem({ ...editingItem, type: e.target.value })}
               className="w-full rounded-xl border border-slate-200 dark:border-slate-600 px-4 py-3 bg-white dark:bg-slate-700 dark:text-white"
             >
-              {contentTypes.filter((t) => t !== 'Todos').map((type) => (
-                <option key={type} value={type}>{type}</option>
+              {contentTypesList.map((t) => (
+                <option key={t.id} value={t.name}>{t.name}</option>
               ))}
             </select>
             <select
@@ -426,8 +439,8 @@ export default function AdminPage() {
               onChange={(e) => setEditingItem({ ...editingItem, school: e.target.value })}
               className="w-full rounded-xl border border-slate-200 dark:border-slate-600 px-4 py-3 bg-white dark:bg-slate-700 dark:text-white"
             >
-              {schools.filter((s) => s !== 'Todas').map((s) => (
-                <option key={s} value={s}>{s}</option>
+              {faculties.map((f) => (
+                <option key={f.id} value={f.name}>{f.name}</option>
               ))}
             </select>
 

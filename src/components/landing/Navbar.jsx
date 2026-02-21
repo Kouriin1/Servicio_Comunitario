@@ -31,13 +31,13 @@ export default function Navbar() {
       initial="top"
       animate={scrolled ? "scrolled" : "top"}
       transition={{ duration: 0.3 }}
-      className="fixed top-0 w-full z-50 py-4 px-6 md:px-12 flex justify-between items-center transition-colors"
+      className="fixed top-0 w-full z-50 py-3 sm:py-4 px-4 sm:px-6 md:px-12 flex justify-between items-center transition-colors"
     >
       <div className="flex items-center gap-3 z-50">
         <img
           src="/src/assets/usm_logo.png"
           alt="USM Logo"
-          className="h-12 transition-all duration-300 brightness-0 invert"
+          className="h-8 sm:h-12 transition-all duration-300 brightness-0 invert"
         />
       </div>
 

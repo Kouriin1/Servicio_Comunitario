@@ -13,7 +13,7 @@ export default function Footer() {
                             <img
                                 src="/src/assets/usm_logo.png"
                                 alt="USM Logo"
-                                className="h-9 brightness-0 invert opacity-70"
+                                className="h-8 sm:h-9 brightness-0 invert opacity-70"
                             />
                             <span className="text-lg font-bold text-white tracking-tight">USM Red</span>
                         </div>
@@ -23,7 +23,7 @@ export default function Footer() {
                     </div>
 
                     {/* Quick links */}
-                    <div className="flex gap-16">
+                    <div className="flex flex-col sm:flex-row gap-8 sm:gap-16">
                         <div>
                             <h4 className="text-white text-sm font-semibold mb-4">Plataforma</h4>
                             <ul className="space-y-2.5 text-sm">
