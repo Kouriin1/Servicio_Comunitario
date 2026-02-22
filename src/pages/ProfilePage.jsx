@@ -39,7 +39,11 @@ function getSchoolStyle(school) {
   return SCHOOL_COLORS[school] || { bg: "bg-slate-100 dark:bg-slate-700", text: "text-slate-600 dark:text-slate-300", border: "border-slate-200 dark:border-slate-600" };
 }
 
-function Avatar({ name, size = "lg" }) {
+function Avatar({ name, size = "lg", avatarUrl }) {
+  if (avatarUrl) {
+    const sz = size === "lg" ? "w-24 h-24" : "w-10 h-10";
+    return <img src={avatarUrl} alt={name || 'Avatar'} className={`${sz} rounded-full object-cover shrink-0 ring-4 ring-white dark:ring-slate-800 border bg-white`} />;
+  }
   const initials = name
     ? name.split(" ").slice(0, 2).map((w) => w[0]).join("").toUpperCase()
     : "U";
@@ -158,10 +162,12 @@ export default function ProfilePage() {
               </div>
               {/* Avatar over banner */}
               <div className="absolute left-5 bottom-0 translate-y-1/2">
-                <Avatar name={user?.name} size="lg" />
+                <Avatar name={user?.name} size="lg" avatarUrl={user?.avatar_url} />
               </div>
               {/* Edit button top right */}
-              <button className="absolute top-3 right-3 flex items-center gap-1.5 px-3 py-1.5 bg-white/20 backdrop-blur-sm text-white text-xs font-semibold rounded-xl hover:bg-white/30 transition-colors border border-white/20">
+              <button
+                onClick={() => navigate('/configuracion')}
+                className="absolute top-3 right-3 flex items-center gap-1.5 px-3 py-1.5 bg-white/20 backdrop-blur-sm text-white text-xs font-semibold rounded-xl hover:bg-white/30 transition-colors border border-white/20">
                 <Edit3 className="w-3.5 h-3.5" /> Editar
               </button>
             </div>

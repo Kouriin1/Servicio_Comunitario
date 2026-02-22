@@ -116,8 +116,8 @@ export default function DashboardPage() {
       {/* User mini card */}
       <div className="mb-5 p-3 rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-slate-700/60 dark:to-slate-800/60 border border-blue-100 dark:border-slate-700">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-usm-blue to-blue-400 text-white flex items-center justify-center font-bold text-sm shadow shrink-0">
-            {user?.initials || 'US'}
+          <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-usm-blue to-blue-400 text-white flex items-center justify-center font-bold text-sm shadow shrink-0 overflow-hidden">
+            {user?.avatar_url ? <img src={user.avatar_url} alt="Avatar" className="w-full h-full object-cover" /> : user?.initials || 'US'}
           </div>
           <div className="min-w-0">
             <p className="text-sm font-bold text-slate-800 dark:text-white truncate">{user?.name || 'Usuario'}</p>
@@ -200,8 +200,8 @@ export default function DashboardPage() {
           </div>
           <div className="px-5 pb-5">
             <div className="flex items-end justify-between -mt-7 mb-3">
-              <div className="w-14 h-14 rounded-full bg-gradient-to-tr from-usm-blue to-blue-400 text-white flex items-center justify-center font-bold text-lg shadow-lg border-4 border-white dark:border-slate-800">
-                {user?.initials || 'US'}
+              <div className="w-14 h-14 rounded-full bg-gradient-to-tr from-usm-blue to-blue-400 text-white flex items-center justify-center font-bold text-lg shadow-lg border-4 border-white dark:border-slate-800 overflow-hidden shrink-0">
+                {user?.avatar_url ? <img src={user.avatar_url} alt="Avatar" className="w-full h-full object-cover" /> : user?.initials || 'US'}
               </div>
               <span className="text-[10px] bg-blue-50 dark:bg-blue-900/30 text-usm-blue dark:text-blue-300 font-bold px-2 py-1 rounded-full border border-blue-100 dark:border-blue-800">
                 {user?.role === 'admin' ? 'Admin' : 'Usu.'}
@@ -402,8 +402,8 @@ export default function DashboardPage() {
                   )}
                 </AnimatePresence>
                 <Link to="/profile">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-usm-blue to-blue-500 text-white flex items-center justify-center font-bold shadow-md cursor-pointer hover:scale-105 transition-transform">
-                    {user?.initials || 'US'}
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-usm-blue to-blue-500 text-white flex items-center justify-center font-bold shadow-md cursor-pointer hover:scale-105 transition-transform overflow-hidden">
+                    {user?.avatar_url ? <img src={user.avatar_url} alt="Avatar" className="w-full h-full object-cover" /> : user?.initials || 'US'}
                   </div>
                 </Link>
               </div>

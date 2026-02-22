@@ -12,6 +12,7 @@ function transformPublication(pub) {
     id: pub.id,
     title: pub.title,
     author: pub.author_name || 'Anónimo',
+    author_avatar: pub.profiles?.avatar_url || null,
     school: pub.faculty?.name || 'General',
     type: pub.content_type?.name || 'Artículo',
     date: pub.created_at,
@@ -43,7 +44,8 @@ const PUB_SELECT = `
   content_type:content_types(id, name, icon, color),
   media_files(id, file_type, file_name, public_url, thumbnail_url, external_url, storage_path),
   likes(user_id),
-  comments(id, content, created_at, is_deleted, user_id, profiles:user_id(display_name))
+  comments(id, content, created_at, is_deleted, user_id, profiles:user_id(display_name, avatar_url)),
+  profiles:author_id(avatar_url)
 `;
 
 /* ───── Provider ─────────────────────────────────────── */
@@ -315,7 +317,7 @@ export function ContentProvider({ children }) {
       publication_id: publicationId,
       user_id: session.user.id,
       content: text,
-    }).select('*, profiles:user_id(display_name)').single();
+    }).select('*, profiles:user_id(display_name, avatar_url)').single();
     if (error) {
       console.error(error);
       return null;
@@ -364,7 +366,7 @@ export function ContentProvider({ children }) {
   };
 
   const getPublicationLikes = async (publicationId) => {
-    const { data } = await supabase.from('likes').select('profiles:user_id(id, display_name, email)').eq('publication_id', publicationId);
+    const { data } = await supabase.from('likes').select('profiles:user_id(id, display_name, email, avatar_url)').eq('publication_id', publicationId);
     return data ? data.map(d => d.profiles) : [];
   };
 

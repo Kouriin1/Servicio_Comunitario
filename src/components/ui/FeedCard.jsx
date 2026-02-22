@@ -115,7 +115,11 @@ const INITIAL_COMMENTS = {};
 
 // ─── Avatar ──────────────────────────────────────────────────────────────────
 
-function Avatar({ name, size = 'md' }) {
+function Avatar({ name, size = 'md', avatarUrl }) {
+  if (avatarUrl) {
+    const sizeClass = size === 'sm' ? 'w-7 h-7' : 'w-10 h-10';
+    return <img src={avatarUrl} alt={name || 'Avatar'} className={`${sizeClass} rounded-full object-cover shrink-0 border bg-white`} />;
+  }
   const initials = name
     ? name.split(' ').slice(0, 2).map((w) => w[0]).join('').toUpperCase()
     : 'U';
@@ -141,7 +145,7 @@ function CommentItem({ comment, isAdmin, onDelete, publicationId }) {
       animate={{ opacity: 1, y: 0 }}
       className="flex items-start gap-2.5 group relative"
     >
-      <Avatar name={authorName} size="sm" />
+      <Avatar name={authorName} size="sm" avatarUrl={comment.profiles?.avatar_url} />
       <div className="flex-1 bg-white dark:bg-slate-800 rounded-xl px-3 py-2 border border-slate-100 dark:border-slate-700">
         <div className="flex items-baseline justify-between gap-2">
           <div className="flex items-baseline gap-2">
@@ -232,7 +236,7 @@ export default function FeedCard({ item, onToggleSave, isSaved = false, onViewDe
         {/* Header */}
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center gap-3">
-            <Avatar name={item.author} />
+            <Avatar name={item.author} avatarUrl={item.author_avatar} />
             <div>
               <h3 className="text-sm font-bold text-slate-900 dark:text-white leading-tight">
                 {item.author}
@@ -370,7 +374,7 @@ export default function FeedCard({ item, onToggleSave, isSaved = false, onViewDe
 
               {/* Input */}
               <div className="flex items-center gap-2 mt-4">
-                <Avatar name="Tú" size="sm" />
+                <Avatar name="Tú" size="sm" avatarUrl={user?.avatar_url} />
                 <div className="flex-1 flex items-center gap-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-full px-3 py-1.5 focus-within:ring-2 focus-within:ring-usm-blue/50 transition-all">
                   <input
                     type="text"
@@ -434,7 +438,7 @@ export default function FeedCard({ item, onToggleSave, isSaved = false, onViewDe
                   <div className="flex flex-col gap-1">
                     {likersList.map(liker => (
                       <div key={liker.id} className="flex items-center gap-3 p-3 hover:bg-slate-50 dark:hover:bg-slate-700/50 rounded-xl transition-colors">
-                        <Avatar name={liker.display_name} size="md" />
+                        <Avatar name={liker.display_name} size="md" avatarUrl={liker.avatar_url} />
                         <div>
                           <p className="text-sm font-bold text-slate-900 dark:text-white leading-none">{liker.display_name}</p>
                           <p className="text-xs text-slate-500 mt-1 truncate max-w-[200px]">{liker.email}</p>

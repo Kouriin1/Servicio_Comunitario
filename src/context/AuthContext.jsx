@@ -141,11 +141,61 @@ export function AuthProvider({ children }) {
     setSession(null);
   };
 
+  /* ───── Profile actions ───────────────────────────────── */
+
+  const updateProfile = async (updates) => {
+    if (!session?.user) throw new Error('No user logged in');
+
+    // Update local immediately for snappy UI
+    setProfile(prev => ({ ...prev, ...updates }));
+
+    const { data, error } = await supabase
+      .from('profiles')
+      .update(updates)
+      .eq('id', session.user.id)
+      .select('*, faculty:faculties(id, name, code, color)')
+      .single();
+
+    if (error) {
+      // Revert if error
+      fetchProfile(session.user.id);
+      throw error;
+    }
+
+    setProfile(data);
+    return data;
+  };
+
+  const uploadAvatar = async (file) => {
+    if (!session?.user) throw new Error('No user logged in');
+
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${session.user.id}-${Date.now()}.${fileExt}`;
+    const filePath = `${session.user.id}/${fileName}`;
+
+    // Upload to bucket
+    const { error: uploadError } = await supabase.storage
+      .from('avatars')
+      .upload(filePath, file, { upsert: true });
+
+    if (uploadError) throw uploadError;
+
+    // Get public URL
+    const { data: { publicUrl } } = supabase.storage
+      .from('avatars')
+      .getPublicUrl(filePath);
+
+    // Save to profile
+    await updateProfile({ avatar_url: publicUrl });
+
+    return publicUrl;
+  };
+
   /* ───── Provider ──────────────────────────────────────── */
 
   return (
     <AuthContext.Provider
-      value={{ user, loading, login, register, logout, session, profile }}
+      value={{ user, loading, login, register, logout, updateProfile, uploadAvatar, session, profile }}
     >
       {children}
     </AuthContext.Provider>
