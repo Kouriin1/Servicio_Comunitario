@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useContentContext } from "../context/ContentContext";
+import ContentDetailModal from "../components/ui/ContentDetailModal";
 
 const SCHOOL_COLORS = {
   Derecho: { bg: "bg-red-100 dark:bg-red-900/20", text: "text-red-600 dark:text-red-300", border: "border-red-200 dark:border-red-800" },
@@ -62,9 +63,10 @@ function Avatar({ name, size = "lg", avatarUrl }) {
   );
 }
 
-function SavedCard({ item }) {
+function SavedCard({ item, onClick }) {
   return (
     <motion.div
+      onClick={onClick}
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       className="group bg-white dark:bg-slate-800/80 rounded-2xl border border-slate-200 dark:border-slate-700 p-5 hover:border-usm-blue/40 dark:hover:border-blue-500/40 hover:shadow-lg hover:shadow-usm-blue/5 transition-all cursor-pointer"
@@ -122,10 +124,13 @@ const TABS = [
 export default function ProfilePage() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { allContent, savedIds } = useContentContext();
-  const [activeTab, setActiveTab] = useState("guardados");
+  const { content, savedIds } = useContentContext();
 
-  const savedContent = allContent.filter((i) => savedIds.includes(i.id));
+  const [activeTab, setActiveTab] = useState("guardados");
+  const [selectedItem, setSelectedItem] = useState(null);
+
+  // Filter out the actual publication objects that the user has savedIds.includes(i.id));
+  const savedContent = content.filter((i) => savedIds.includes(i.id));
   const schoolStyle = getSchoolStyle(user?.school);
 
   return (
@@ -167,7 +172,7 @@ export default function ProfilePage() {
               {/* Edit button top right */}
               <button
                 onClick={() => navigate('/configuracion')}
-                className="absolute top-3 right-3 flex items-center gap-1.5 px-3 py-1.5 bg-white/20 backdrop-blur-sm text-white text-xs font-semibold rounded-xl hover:bg-white/30 transition-colors border border-white/20">
+                className="absolute top-3 right-3 flex items-center gap-1.5 px-3 py-1.5 bg-white/20 backdrop-blur-sm text-white text-xs font-semibold rounded-xl hover:bg-white/30 transition-colors">
                 <Edit3 className="w-3.5 h-3.5" /> Editar
               </button>
             </div>
@@ -260,7 +265,7 @@ export default function ProfilePage() {
                       <EmptyState icon={Bookmark} text="Aun no has guardado contenido." />
                     ) : (
                       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-                        {savedContent.map((item) => <SavedCard key={item.id} item={item} />)}
+                        {savedContent.map((item) => <SavedCard key={item.id} item={item} onClick={() => setSelectedItem(item)} />)}
                       </div>
                     )}
                   </motion.div>
@@ -287,7 +292,7 @@ export default function ProfilePage() {
                         <Mail className="w-3.5 h-3.5" /> Contacto
                       </h4>
                       <InfoBlock label="Correo" value={user?.email || "usuario@usm.edu.ve"} link />
-                      <InfoBlock label="Ubicacion" value="Caracas, Venezuela" />
+
                     </div>
 
                     {/* Intereses */}
@@ -306,8 +311,13 @@ export default function ProfilePage() {
             </div>
           </div>
         </main>
-
       </div>
+
+      <ContentDetailModal
+        isOpen={!!selectedItem}
+        onClose={() => setSelectedItem(null)}
+        item={selectedItem}
+      />
     </div>
   );
 }
