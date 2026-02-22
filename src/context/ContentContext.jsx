@@ -26,19 +26,24 @@ function transformPublication(pub) {
     comments_count: pub.comments_count || 0,
     views_count: pub.views_count || 0,
     bookmarks_count: pub.bookmarks_count || 0,
+    has_liked: pub.likes && pub.likes.length > 0, // Si trae el array con tu user_id, es true
+    comments: pub.comments || [],
     _faculty_id: pub.faculty_id,
     _content_type_id: pub.content_type_id,
     _author_id: pub.author_id,
+    _creator_id: pub.creator_id,
   };
 }
 
 /* ───── Publication select query (reusable) ──────────── */
-
+// Nota: 'likes' viene filtrado por RLS o se filtra en la llamada para saber si el currentUser dio like
 const PUB_SELECT = `
   *,
   faculty:faculties(id, name, code, color),
   content_type:content_types(id, name, icon, color),
-  media_files(id, file_type, file_name, public_url, thumbnail_url, external_url, storage_path)
+  media_files(id, file_type, file_name, public_url, thumbnail_url, external_url, storage_path),
+  likes(user_id),
+  comments(id, content, created_at, is_deleted, user_id, profiles:user_id(display_name))
 `;
 
 /* ───── Provider ─────────────────────────────────────── */
@@ -304,6 +309,65 @@ export function ContentProvider({ children }) {
 
   /* ───── Context value ──────────────────────────────── */
 
+  const addComment = async (publicationId, text) => {
+    if (!session?.user) return null;
+    const { data, error } = await supabase.from('comments').insert({
+      publication_id: publicationId,
+      user_id: session.user.id,
+      content: text,
+    }).select('*, profiles:user_id(display_name)').single();
+    if (error) {
+      console.error(error);
+      return null;
+    }
+    // Update local state without refetching all
+    setContent((prev) => prev.map((item) => {
+      if (item.id === publicationId) {
+        return { ...item, comments: [...(item.comments || []), data], comments_count: item.comments_count + 1 };
+      }
+      return item;
+    }));
+    return data;
+  };
+
+  const deleteComment = async (commentId, publicationId) => {
+    // Si somos Admin hacemos borrado suave (is_deleted = true) o hard
+    // Optemos por Hard Delete para limpiar la UI:
+    const { error } = await supabase.from('comments').delete().eq('id', commentId);
+    if (!error) {
+      setContent((prev) => prev.map((item) => {
+        if (item.id === publicationId) {
+          return { ...item, comments: item.comments.filter(c => c.id !== commentId), comments_count: Math.max(0, item.comments_count - 1) };
+        }
+        return item;
+      }));
+    }
+  };
+
+  const toggleLike = async (publicationId, currentLikedState) => {
+    if (!session?.user) return;
+
+    // Optimistic update
+    setContent((prev) => prev.map(p => {
+      if (p.id === publicationId) {
+        const adj = currentLikedState ? -1 : 1;
+        return { ...p, has_liked: !currentLikedState, likes: Math.max(0, (p.likes || 0) + adj) };
+      }
+      return p;
+    }));
+
+    if (currentLikedState) {
+      await supabase.from('likes').delete().eq('publication_id', publicationId).eq('user_id', session.user.id);
+    } else {
+      await supabase.from('likes').insert({ publication_id: publicationId, user_id: session.user.id });
+    }
+  };
+
+  const getPublicationLikes = async (publicationId) => {
+    const { data } = await supabase.from('likes').select('profiles:user_id(id, display_name, email)').eq('publication_id', publicationId);
+    return data ? data.map(d => d.profiles) : [];
+  };
+
   return (
     <ContentContext.Provider
       value={{
@@ -313,6 +377,10 @@ export function ContentProvider({ children }) {
         deleteContent,
         updateContent,
         toggleSave,
+        addComment,
+        deleteComment,
+        toggleLike,
+        getPublicationLikes,
         allContent: content,
         events: content.filter((i) => i.type === 'Evento'),
         works: content.filter((i) => i.type === 'Tesis' || i.type === 'Artículo'),

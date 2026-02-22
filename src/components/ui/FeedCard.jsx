@@ -1,4 +1,4 @@
-﻿import { useState } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Bookmark,
@@ -7,14 +7,17 @@ import {
   MessageCircle,
   Share2,
   Download,
-  MoreHorizontal,
+  Trash2,
   FileText,
   Link2,
   Send,
   ChevronDown,
   ChevronUp,
   Smile,
+  MoreHorizontal,
 } from 'lucide-react';
+import { useContentContext } from '../../context/ContentContext';
+import { useAuth } from '../../context/AuthContext';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -128,20 +131,34 @@ function Avatar({ name, size = 'md' }) {
 
 // ─── Comment Item ─────────────────────────────────────────────────────────────
 
-function CommentItem({ comment }) {
+function CommentItem({ comment, isAdmin, onDelete, publicationId }) {
+  const authorName = comment.profiles?.display_name || 'Usuario';
+  const time = timeAgo(comment.created_at);
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      className="flex items-start gap-2.5"
+      className="flex items-start gap-2.5 group relative"
     >
-      <Avatar name={comment.author} size="sm" />
+      <Avatar name={authorName} size="sm" />
       <div className="flex-1 bg-white dark:bg-slate-800 rounded-xl px-3 py-2 border border-slate-100 dark:border-slate-700">
-        <div className="flex items-baseline gap-2">
-          <span className="text-xs font-bold text-slate-800 dark:text-white">{comment.author}</span>
-          <span className="text-[10px] text-slate-400">{comment.time}</span>
+        <div className="flex items-baseline justify-between gap-2">
+          <div className="flex items-baseline gap-2">
+            <span className="text-xs font-bold text-slate-800 dark:text-white">{authorName}</span>
+            <span className="text-[10px] text-slate-400">{time}</span>
+          </div>
+          {isAdmin && (
+            <button
+              onClick={() => onDelete(comment.id, publicationId)}
+              className="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-500 transition-all p-1"
+              title="Borrar comentario"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+            </button>
+          )}
         </div>
-        <p className="text-xs text-slate-600 dark:text-slate-300 mt-0.5 leading-relaxed">{comment.text}</p>
+        <p className="text-xs text-slate-600 dark:text-slate-300 mt-0.5 leading-relaxed">{comment.content}</p>
       </div>
     </motion.div>
   );
@@ -150,33 +167,49 @@ function CommentItem({ comment }) {
 // ─── Main FeedCard ────────────────────────────────────────────────────────────
 
 export default function FeedCard({ item, onToggleSave, isSaved = false, onViewDetail }) {
+  const { toggleLike, addComment, deleteComment } = useContentContext();
+  const { user } = useAuth();
+
   const schoolStyle = SCHOOL_COLORS[item.school] || SCHOOL_COLORS['Todas'];
   const typeColor = TYPE_COLORS[item.type] || 'bg-slate-100 text-slate-600';
 
-  const [liked, setLiked] = useState(false);
-  const [likeCount, setLikeCount] = useState(item.likes ?? 12);
+  // State derived directly from the loaded item
   const [likeAnim, setLikeAnim] = useState(false);
+  const [showLikesModal, setShowLikesModal] = useState(false);
+  const [likersList, setLikersList] = useState([]);
+  const [isLoadingLikers, setIsLoadingLikers] = useState(false);
 
-  const handleLike = () => {
-    setLiked((prev) => {
-      setLikeCount((c) => (prev ? c - 1 : c + 1));
-      return !prev;
-    });
+  const { getPublicationLikes } = useContentContext();
+
+  // Load likers when admin requests it
+  useEffect(() => {
+    if (showLikesModal && user?.role === 'admin') {
+      setIsLoadingLikers(true);
+      getPublicationLikes(item.id).then((users) => {
+        setLikersList(users);
+        setIsLoadingLikers(false);
+      });
+    }
+  }, [showLikesModal, item.id]);
+
+  const liked = item.has_liked;
+  const likeCount = item.likes ?? 0;
+
+  const handleLike = async () => {
     setLikeAnim(true);
     setTimeout(() => setLikeAnim(false), 400);
+    await toggleLike(item.id, liked);
   };
 
   const [showComments, setShowComments] = useState(false);
-  const [comments, setComments] = useState(INITIAL_COMMENTS[item.id] ?? []);
   const [commentText, setCommentText] = useState('');
 
-  const handleAddComment = () => {
+  const comments = item.comments || [];
+
+  const handleAddComment = async () => {
     const text = commentText.trim();
     if (!text) return;
-    setComments((prev) => [
-      ...prev,
-      { id: Date.now(), author: 'Tú', text, time: 'Justo ahora' },
-    ]);
+    await addComment(item.id, text);
     setCommentText('');
   };
 
@@ -245,26 +278,38 @@ export default function FeedCard({ item, onToggleSave, isSaved = false, onViewDe
         <div className="flex items-center justify-between pt-3.5 border-t border-slate-100 dark:border-slate-700">
           <div className="flex items-center gap-1">
             {/* Like */}
-            <motion.button
-              onClick={handleLike}
-              whileTap={{ scale: 0.8 }}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-medium transition-all ${liked
-                  ? 'text-red-500 bg-red-50 dark:bg-red-900/20'
-                  : 'text-slate-500 dark:text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10'
-                }`}
-            >
-              <motion.div animate={likeAnim ? { scale: [1, 1.5, 0.9, 1.1, 1] } : {}} transition={{ duration: 0.4 }}>
-                <Heart className="w-[18px] h-[18px] transition-all" fill={liked ? 'currentColor' : 'none'} strokeWidth={liked ? 0 : 1.75} />
-              </motion.div>
-              <span className="text-xs tabular-nums">{likeCount}</span>
-            </motion.button>
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-medium">
+              <motion.button
+                onClick={handleLike}
+                whileTap={{ scale: 0.8 }}
+                className={`flex items-center transition-all ${liked
+                  ? 'text-red-500 hover:text-red-600'
+                  : 'text-slate-500 dark:text-slate-400 hover:text-red-500'
+                  }`}
+              >
+                <motion.div animate={likeAnim ? { scale: [1, 1.5, 0.9, 1.1, 1] } : {}} transition={{ duration: 0.4 }}>
+                  <Heart className="w-[18px] h-[18px] transition-all" fill={liked ? 'currentColor' : 'none'} strokeWidth={liked ? 0 : 1.75} />
+                </motion.div>
+              </motion.button>
+
+              <button
+                className={`text-xs tabular-nums transition-colors ${user?.role === 'admin' ? 'hover:underline cursor-pointer text-slate-700 dark:text-slate-300' : 'text-slate-500 dark:text-slate-400 cursor-default'}`}
+                onClick={() => {
+                  if (user?.role === 'admin' && likeCount > 0) {
+                    setShowLikesModal(true);
+                  }
+                }}
+              >
+                {likeCount}
+              </button>
+            </div>
 
             {/* Comment toggle */}
             <button
               onClick={() => setShowComments((p) => !p)}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-medium transition-all ${showComments
-                  ? 'text-usm-blue bg-blue-50 dark:bg-blue-900/20'
-                  : 'text-slate-500 dark:text-slate-400 hover:text-usm-blue hover:bg-blue-50 dark:hover:bg-blue-900/10'
+                ? 'text-usm-blue bg-blue-50 dark:bg-blue-900/20'
+                : 'text-slate-500 dark:text-slate-400 hover:text-usm-blue hover:bg-blue-50 dark:hover:bg-blue-900/10'
                 }`}
             >
               <MessageCircle className="w-[18px] h-[18px]" fill={showComments ? 'currentColor' : 'none'} strokeWidth={showComments ? 0 : 1.75} />
@@ -312,7 +357,13 @@ export default function FeedCard({ item, onToggleSave, isSaved = false, onViewDe
                 )}
                 <AnimatePresence initial={false}>
                   {comments.map((c) => (
-                    <CommentItem key={c.id} comment={c} />
+                    <CommentItem
+                      key={c.id}
+                      comment={c}
+                      isAdmin={user?.role === 'admin'}
+                      onDelete={deleteComment}
+                      publicationId={item.id}
+                    />
                   ))}
                 </AnimatePresence>
               </div>
@@ -342,6 +393,59 @@ export default function FeedCard({ item, onToggleSave, isSaved = false, onViewDe
               </div>
             </div>
           </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Admin Likers Modal */}
+      <AnimatePresence>
+        {showLikesModal && user?.role === 'admin' && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowLikesModal(false)}
+              className="fixed inset-0 bg-slate-900/40 z-50 backdrop-blur-sm"
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-sm bg-white dark:bg-slate-800 rounded-2xl shadow-xl z-50 overflow-hidden text-left border border-slate-200 dark:border-slate-700"
+            >
+              <div className="flex items-center justify-between p-4 border-b border-slate-100 dark:border-slate-700">
+                <h3 className="font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                  <Heart className="w-4 h-4 text-red-500" fill="currentColor" />
+                  Me gusta
+                </h3>
+                <button
+                  onClick={() => setShowLikesModal(false)}
+                  className="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700"
+                >
+                  <ChevronDown className="w-5 h-5 rotate-90" />
+                </button>
+              </div>
+              <div className="p-2 max-h-[60vh] overflow-y-auto">
+                {isLoadingLikers ? (
+                  <p className="text-center text-sm text-slate-400 py-6">Cargando...</p>
+                ) : likersList.length === 0 ? (
+                  <p className="text-center text-sm text-slate-400 py-6">Aún no hay likes.</p>
+                ) : (
+                  <div className="flex flex-col gap-1">
+                    {likersList.map(liker => (
+                      <div key={liker.id} className="flex items-center gap-3 p-3 hover:bg-slate-50 dark:hover:bg-slate-700/50 rounded-xl transition-colors">
+                        <Avatar name={liker.display_name} size="md" />
+                        <div>
+                          <p className="text-sm font-bold text-slate-900 dark:text-white leading-none">{liker.display_name}</p>
+                          <p className="text-xs text-slate-500 mt-1 truncate max-w-[200px]">{liker.email}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          </>
         )}
       </AnimatePresence>
     </motion.div>
