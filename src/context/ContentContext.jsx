@@ -111,9 +111,27 @@ export function ContentProvider({ children }) {
 
   /* ───── CRUD ───────────────────────────────────────── */
 
+  const [usersList, setUsersList] = useState([]);
+
+  async function fetchUsers() {
+    if (session?.user) {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*, faculty:faculties(name)')
+        .order('created_at', { ascending: false });
+      if (!error && data) {
+        setUsersList(data);
+      }
+    }
+  }
+
   const addContent = async (item) => {
     const faculty = faculties.find((f) => f.name === item.school);
     const contentType = contentTypesList.find((t) => t.name === item.type);
+
+    // If a user was explicitly tagged, use their ID and Name. Otherwise fallback to the typed name and admin's ID.
+    const finalAuthorId = item.taggedUserId || session?.user?.id || null;
+    const finalAuthorName = item.taggedUserName || item.author || 'Administrador';
 
     // 1. Create publication
     const { data: pub, error } = await supabase
@@ -121,8 +139,9 @@ export function ContentProvider({ children }) {
       .insert({
         title: item.title,
         description: item.excerpt,
-        author_name: item.author || 'Administrador',
-        author_id: session?.user?.id || null,
+        author_name: finalAuthorName,
+        author_id: finalAuthorId,
+        creator_id: session?.user?.id || null, // Track who actually created this
         faculty_id: faculty?.id || null,
         content_type_id: contentType?.id || null,
         external_url: item.linkUrl || null,
@@ -134,6 +153,17 @@ export function ContentProvider({ children }) {
       .single();
 
     if (error) throw error;
+
+    // 1.5 Send Notification if a user was tagged
+    if (item.taggedUserId && item.taggedUserId !== session?.user?.id) {
+      await supabase.from('notifications').insert({
+        user_id: item.taggedUserId,
+        actor_id: session?.user?.id,
+        type: 'mention',
+        publication_id: pub.id,
+        message: '¡El administrador ha subido una nueva publicación a tu nombre!',
+      });
+    }
 
     // 2. Upload file to Storage + create media_files record
     if (item.file) {
@@ -147,7 +177,7 @@ export function ContentProvider({ children }) {
           .from('publications-media')
           .getPublicUrl(filePath);
 
-        await supabase.from('media_files').insert({
+        const { error: mediaErr } = await supabase.from('media_files').insert({
           publication_id: pub.id,
           file_type: item.fileType,
           file_name: item.file.name,
@@ -156,6 +186,10 @@ export function ContentProvider({ children }) {
           storage_path: filePath,
           public_url: urlData.publicUrl,
         });
+
+        if (mediaErr) {
+          console.error("Error inserting media files into db:", mediaErr);
+        }
       }
     }
 
@@ -286,6 +320,8 @@ export function ContentProvider({ children }) {
         contentTypesList,
         schools,
         contentTypes,
+        usersList,
+        fetchUsers,
         loading,
         refreshContent: fetchContent,
       }}
