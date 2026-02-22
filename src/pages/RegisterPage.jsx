@@ -59,11 +59,17 @@ export default function RegisterPage() {
         navigate('/login');
       }
     } catch (err) {
-      setError(
-        err.message?.includes('already registered')
-          ? 'Este correo ya está registrado. Intenta iniciar sesión.'
-          : err.message
-      );
+      console.error('Registration error:', err);
+      const msg = err.message || '';
+      if (msg.includes('already registered') || msg.includes('User already registered')) {
+        setError('Este correo ya está registrado. Intenta iniciar sesión.');
+      } else if (msg.includes('Password should be at least')) {
+        setError('La contraseña es muy débil (mínimo 6 caracteres).');
+      } else if (msg.includes('Invalid email format') || msg.includes('invalid email')) {
+        setError('El formato del correo electrónico no es válido.');
+      } else {
+        setError('Ocurrió un error al crear la cuenta. Intenta de nuevo.');
+      }
     } finally {
       setSubmitting(false);
     }

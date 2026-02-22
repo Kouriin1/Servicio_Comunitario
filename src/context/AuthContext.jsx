@@ -17,7 +17,7 @@ function getInitials(profile) {
 function mapRole(dbRole) {
   if (dbRole === 'admin') return 'admin';
   if (dbRole === 'professor') return 'profesor';
-  return 'estudiante';
+  return 'usuario';
 }
 
 export function AuthProvider({ children }) {
@@ -28,21 +28,21 @@ export function AuthProvider({ children }) {
   // Computed user object — backwards-compatible with the old mock shape
   const user = profile
     ? {
-        id: profile.id,
-        name:
-          profile.display_name ||
-          `${profile.first_name || ''} ${profile.last_name || ''}`.trim() ||
-          'Usuario',
-        email: profile.email,
-        role: mapRole(profile.role),
-        school: profile.faculty?.name || '',
-        initials: getInitials(profile),
-        avatar_url: profile.avatar_url,
-        bio: profile.bio,
-        first_name: profile.first_name,
-        last_name: profile.last_name,
-        faculty_id: profile.faculty_id,
-      }
+      id: profile.id,
+      name:
+        profile.display_name ||
+        `${profile.first_name || ''} ${profile.last_name || ''}`.trim() ||
+        'Usuario',
+      email: profile.email,
+      role: mapRole(profile.role),
+      school: profile.faculty?.name || '',
+      initials: getInitials(profile),
+      avatar_url: profile.avatar_url,
+      bio: profile.bio,
+      first_name: profile.first_name,
+      last_name: profile.last_name,
+      faculty_id: profile.faculty_id,
+    }
     : null;
 
   /* ───── Lifecycle ─────────────────────────────────────── */
@@ -120,17 +120,15 @@ export function AuthProvider({ children }) {
         data: {
           first_name: firstName,
           last_name: lastName,
+          faculty_id: facultyId || null,
         },
       },
     });
     if (error) throw error;
 
-    // If auto-confirm enabled → session returned → update faculty
-    if (data.session && facultyId) {
-      await supabase
-        .from('profiles')
-        .update({ faculty_id: facultyId })
-        .eq('id', data.user.id);
+    // Supabase security feature: if user exists, it returns a fake user object but with an empty identities array
+    if (data.user && data.user.identities && data.user.identities.length === 0) {
+      throw new Error('User already registered');
     }
 
     // null means email confirmation is required

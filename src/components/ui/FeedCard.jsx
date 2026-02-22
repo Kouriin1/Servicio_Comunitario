@@ -203,10 +203,6 @@ export default function FeedCard({ item, onToggleSave, isSaved = false, onViewDe
             <div>
               <h3 className="text-sm font-bold text-slate-900 dark:text-white leading-tight">
                 {item.author}
-                <span className="text-slate-300 font-normal mx-1.5">·</span>
-                <button className="text-usm-blue dark:text-blue-400 hover:underline font-semibold transition-colors">
-                  Seguir
-                </button>
               </h3>
               <p className="text-xs text-slate-400 flex items-center gap-1.5 mt-0.5">
                 <span className={`w-1.5 h-1.5 rounded-full ${schoolStyle.dot}`} />
@@ -252,11 +248,10 @@ export default function FeedCard({ item, onToggleSave, isSaved = false, onViewDe
             <motion.button
               onClick={handleLike}
               whileTap={{ scale: 0.8 }}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-medium transition-all ${
-                liked
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-medium transition-all ${liked
                   ? 'text-red-500 bg-red-50 dark:bg-red-900/20'
                   : 'text-slate-500 dark:text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10'
-              }`}
+                }`}
             >
               <motion.div animate={likeAnim ? { scale: [1, 1.5, 0.9, 1.1, 1] } : {}} transition={{ duration: 0.4 }}>
                 <Heart className="w-[18px] h-[18px] transition-all" fill={liked ? 'currentColor' : 'none'} strokeWidth={liked ? 0 : 1.75} />
@@ -267,11 +262,10 @@ export default function FeedCard({ item, onToggleSave, isSaved = false, onViewDe
             {/* Comment toggle */}
             <button
               onClick={() => setShowComments((p) => !p)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-medium transition-all ${
-                showComments
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-medium transition-all ${showComments
                   ? 'text-usm-blue bg-blue-50 dark:bg-blue-900/20'
                   : 'text-slate-500 dark:text-slate-400 hover:text-usm-blue hover:bg-blue-50 dark:hover:bg-blue-900/10'
-              }`}
+                }`}
             >
               <MessageCircle className="w-[18px] h-[18px]" fill={showComments ? 'currentColor' : 'none'} strokeWidth={showComments ? 0 : 1.75} />
               <span className="text-xs tabular-nums">{comments.length}</span>

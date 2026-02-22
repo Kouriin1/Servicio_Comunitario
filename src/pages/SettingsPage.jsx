@@ -44,7 +44,7 @@ export default function SettingsPage() {
               </div>
               <div>
                 <p className="font-bold text-slate-800 dark:text-white">{user?.name || 'Usuario'}</p>
-                <p className="text-sm text-slate-500 dark:text-slate-400 capitalize">{user?.role || 'estudiante'}</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400 capitalize">{user?.role || 'usuario'}</p>
               </div>
             </div>
 
@@ -67,14 +67,14 @@ export default function SettingsPage() {
                 <Shield className="w-4 h-4 text-slate-400" />
                 <div>
                   <p className="text-xs text-slate-400">Rol</p>
-                  <p className="text-sm font-medium text-slate-700 dark:text-slate-200 capitalize">{user?.role || 'estudiante'}</p>
+                  <p className="text-sm font-medium text-slate-700 dark:text-slate-200 capitalize">{user?.role || 'usuario'}</p>
                 </div>
               </div>
             </div>
           </div>
         </motion.section>
 
-       
+
 
         {/* Sesión */}
         <motion.section

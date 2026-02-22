@@ -35,11 +35,17 @@ export default function LoginPage() {
       showToast('Sesión iniciada correctamente', 'success');
       navigate(redirectTo);
     } catch (err) {
-      setError(
-        err.message === 'Invalid login credentials'
-          ? 'Credenciales incorrectas. Verifica tu correo y contraseña.'
-          : err.message
-      );
+      console.error('Login error:', err);
+      const msg = err.message || '';
+      if (msg === 'Invalid login credentials') {
+        setError('Credenciales incorrectas. Verifica tu correo y contraseña.');
+      } else if (msg.includes('Email not confirmed')) {
+        setError('Debes confirmar tu correo electrónico antes de iniciar sesión.');
+      } else if (msg.includes('invalid format')) {
+        setError('El formato del correo electrónico no es válido.');
+      } else {
+        setError('Ocurrió un error al intentar iniciar sesión.');
+      }
     } finally {
       setSubmitting(false);
     }
@@ -186,66 +192,66 @@ export default function LoginPage() {
               )}
             </motion.div>
           ) : (
-          /* ── Login View ── */
-          <motion.div
-            key="login"
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.2 }}
-          >
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-white mb-2">Bienvenido</h1>
-            <p className="text-gray-300">Ingresa con tu cuenta</p>
-          </div>
+            /* ── Login View ── */
+            <motion.div
+              key="login"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.2 }}
+            >
+              <div className="mb-8">
+                <h1 className="text-3xl font-bold text-white mb-2">Bienvenido</h1>
+                <p className="text-gray-300">Ingresa con tu cuenta</p>
+              </div>
 
-          <form className="space-y-6" onSubmit={handleSubmit}>
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-300 flex items-center gap-2">
-                <Mail className="w-4 h-4" /> Correo 
-              </label>
-              <input
-                type="email"
-                placeholder="usuario@gmail.com"
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-usm-blue-bright transition-all"
-              />
-            </div>
+              <form className="space-y-6" onSubmit={handleSubmit}>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-300 flex items-center gap-2">
+                    <Mail className="w-4 h-4" /> Correo
+                  </label>
+                  <input
+                    type="email"
+                    placeholder="usuario@gmail.com"
+                    value={email}
+                    onChange={(event) => setEmail(event.target.value)}
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-usm-blue-bright transition-all"
+                  />
+                </div>
 
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-300 flex items-center gap-2">
-                <Lock className="w-4 h-4" /> Contraseña
-              </label>
-              <input
-                type="password"
-                placeholder="••••••••"
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-usm-blue-bright transition-all"
-              />
-            </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-300 flex items-center gap-2">
+                    <Lock className="w-4 h-4" /> Contraseña
+                  </label>
+                  <input
+                    type="password"
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(event) => setPassword(event.target.value)}
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-usm-blue-bright transition-all"
+                  />
+                </div>
 
-            {error && <p className="text-sm text-red-300">{error}</p>}
+                {error && <p className="text-sm text-red-300">{error}</p>}
 
-            <Button type="submit" disabled={submitting} className="w-full py-4 text-lg flex items-center justify-center gap-2">
-              {submitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <>Entrar al Campus <ChevronRight className="w-5 h-5" /></>}
-            </Button>
-          </form>
+                <Button type="submit" disabled={submitting} className="w-full py-4 text-lg flex items-center justify-center gap-2">
+                  {submitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <>Entrar al Campus <ChevronRight className="w-5 h-5" /></>}
+                </Button>
+              </form>
 
-          <div className="mt-8 text-center text-sm space-y-2">
-            <p className="text-gray-400">
-              ¿Olvidaste tu acceso?{' '}
-              <button
-                type="button"
-                onClick={() => { setShowRecovery(true); setError(''); setRecoveryEmail(email); }}
-                className="text-blue-200 hover:underline font-medium"
-              >
-                Recuperar cuenta
-              </button>
-            </p>
-            <p className="text-gray-400">¿No tienes cuenta? <Link to="/registro" className="text-blue-200 hover:underline">Regístrate</Link></p>
-          </div>
-          </motion.div>
+              <div className="mt-8 text-center text-sm space-y-2">
+                <p className="text-gray-400">
+                  ¿Olvidaste tu acceso?{' '}
+                  <button
+                    type="button"
+                    onClick={() => { setShowRecovery(true); setError(''); setRecoveryEmail(email); }}
+                    className="text-blue-200 hover:underline font-medium"
+                  >
+                    Recuperar cuenta
+                  </button>
+                </p>
+                <p className="text-gray-400">¿No tienes cuenta? <Link to="/registro" className="text-blue-200 hover:underline">Regístrate</Link></p>
+              </div>
+            </motion.div>
           )}
         </motion.div>
       </div>

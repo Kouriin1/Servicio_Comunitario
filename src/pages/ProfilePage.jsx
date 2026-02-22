@@ -179,7 +179,7 @@ export default function ProfilePage() {
                   </span>
                 ) : (
                   <span className="flex items-center gap-1 px-2 py-0.5 bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300 rounded-full text-[10px] font-bold">
-                    <GraduationCap className="w-3 h-3" /> Estudiante
+                    <GraduationCap className="w-3 h-3" /> Usuario
                   </span>
                 )}
               </div>
@@ -231,9 +231,8 @@ export default function ProfilePage() {
                   <button
                     key={tab.key}
                     onClick={() => setActiveTab(tab.key)}
-                    className={`relative flex items-center gap-2 px-5 py-4 text-sm font-semibold transition-colors ${
-                      active ? "text-usm-blue dark:text-blue-400" : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white"
-                    }`}
+                    className={`relative flex items-center gap-2 px-5 py-4 text-sm font-semibold transition-colors ${active ? "text-usm-blue dark:text-blue-400" : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white"
+                      }`}
                   >
                     <Icon className="w-4 h-4" />
                     {tab.label}
@@ -272,7 +271,7 @@ export default function ProfilePage() {
                         <GraduationCap className="w-3.5 h-3.5" /> Informacion Academica
                       </h4>
                       <InfoBlock label="Escuela" value={user?.school || "Sin asignar"} />
-                      <InfoBlock label="Rol" value={user?.role === "admin" ? "Administrador" : "Estudiante de pregrado"} />
+                      <InfoBlock label="Rol" value={user?.role === "admin" ? "Administrador" : "Usuario"} />
                       <InfoBlock label="Universidad" value="Univ. Santa Maria (USM)" />
                     </div>
 

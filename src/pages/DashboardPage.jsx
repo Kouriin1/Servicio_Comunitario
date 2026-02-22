@@ -124,7 +124,7 @@ export default function DashboardPage() {
             <p className="text-[10px] text-slate-500 flex items-center gap-1">
               {user?.role === 'admin'
                 ? <><Shield className="w-3 h-3 text-usm-blue" /> Administrador</>
-                : <><GraduationCap className="w-3 h-3 text-emerald-500" /> Estudiante</>}
+                : <><GraduationCap className="w-3 h-3 text-emerald-500" /> Usuario</>}
             </p>
           </div>
         </div>
@@ -141,15 +141,13 @@ export default function DashboardPage() {
             <button
               key={item.key}
               onClick={() => handleMenuClick(item.key)}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all font-medium group ${
-                isActive
-                  ? 'bg-usm-blue text-white shadow-md shadow-usm-blue/25'
-                  : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/70'
-              }`}
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all font-medium group ${isActive
+                ? 'bg-usm-blue text-white shadow-md shadow-usm-blue/25'
+                : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/70'
+                }`}
             >
-              <span className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-colors ${
-                isActive ? 'bg-white/20' : `${item.bg} ${item.color}`
-              }`}>
+              <span className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-colors ${isActive ? 'bg-white/20' : `${item.bg} ${item.color}`
+                }`}>
                 <Icon className="w-4 h-4" />
               </span>
               <span className="text-sm">{item.label}</span>
@@ -188,143 +186,113 @@ export default function DashboardPage() {
       { label: 'Eventos', count: totalEvents, color: 'bg-purple-500', text: 'text-purple-600 dark:text-purple-400', dot: 'bg-purple-500' },
     ];
     const trendingTags = ['#Derecho', '#EstudiosInternacionales', '#Tesis2026', '#ActoDeGrado', '#DerechoPenal'];
-    const suggested = [
-      { name: 'Dr. Alberto Rivas', role: 'Docente · Derecho' },
-      { name: 'Laura Medina', role: 'Estudiante · Estudios Internacionales' },
-    ];
     return (
-    <div className="space-y-5">
-      {/* User Profile Card */}
-      <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
-        <div className="h-24 bg-gradient-to-135 from-usm-blue via-blue-500 to-indigo-600 relative overflow-hidden">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(255,255,255,0.15)_0%,transparent_60%)]" />
-          <div className="absolute -bottom-3 -right-3 w-20 h-20 rounded-full bg-white/10" />
-          <div className="absolute top-2 left-2 flex items-center gap-1 bg-white/20 backdrop-blur-sm rounded-full px-2 py-0.5">
-            <Sparkles className="w-3 h-3 text-yellow-300" />
-            <span className="text-[10px] text-white font-bold">USM RED</span>
-          </div>
-        </div>
-        <div className="px-5 pb-5">
-          <div className="flex items-end justify-between -mt-7 mb-3">
-            <div className="w-14 h-14 rounded-full bg-gradient-to-tr from-usm-blue to-blue-400 text-white flex items-center justify-center font-bold text-lg shadow-lg border-4 border-white dark:border-slate-800">
-              {user?.initials || 'US'}
-            </div>
-            <span className="text-[10px] bg-blue-50 dark:bg-blue-900/30 text-usm-blue dark:text-blue-300 font-bold px-2 py-1 rounded-full border border-blue-100 dark:border-blue-800">
-              {user?.role === 'admin' ? 'Admin' : 'Est.'}
-            </span>
-          </div>
-          <h3 className="font-bold text-slate-800 dark:text-white">{user?.name || 'Usuario'}</h3>
-          <p className="text-xs text-slate-400 mb-4 flex items-center gap-1">
-            {user?.role === 'admin'
-              ? <><Shield className="w-3 h-3 text-usm-blue" /> Administrador</>              : <><GraduationCap className="w-3 h-3 text-emerald-500" /> Estudiante · USM</>}
-          </p>
-          <div className="grid grid-cols-2 gap-2">
-            <div className="bg-gradient-to-br from-blue-50 to-blue-100/50 dark:from-blue-900/20 dark:to-blue-900/10 rounded-xl p-3 text-center border border-blue-100 dark:border-blue-900/30">
-              <p className="text-xl font-extrabold text-usm-blue">{totalPublications}</p>
-              <p className="text-[10px] text-slate-500 font-semibold tracking-wide">Publicaciones</p>
-            </div>
-            <div className="bg-gradient-to-br from-yellow-50 to-amber-100/50 dark:from-yellow-900/20 dark:to-amber-900/10 rounded-xl p-3 text-center border border-yellow-100 dark:border-yellow-900/30">
-              <p className="text-xl font-extrabold text-usm-yellow">{totalSaved}</p>
-              <p className="text-[10px] text-slate-500 font-semibold tracking-wide">Guardados</p>
+      <div className="space-y-5">
+        {/* User Profile Card */}
+        <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+          <div className="h-24 bg-gradient-to-135 from-usm-blue via-blue-500 to-indigo-600 relative overflow-hidden">
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(255,255,255,0.15)_0%,transparent_60%)]" />
+            <div className="absolute -bottom-3 -right-3 w-20 h-20 rounded-full bg-white/10" />
+            <div className="absolute top-2 left-2 flex items-center gap-1 bg-white/20 backdrop-blur-sm rounded-full px-2 py-0.5">
+              <Sparkles className="w-3 h-3 text-yellow-300" />
+              <span className="text-[10px] text-white font-bold">USM RED</span>
             </div>
           </div>
-        </div>
-      </div>
-
-      {/* Content Stats with progress bars */}
-      <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-sm border border-slate-200 dark:border-slate-700">
-        <h3 className="font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2 text-sm">
-          <BookOpenCheck className="w-4 h-4 text-usm-blue" /> Contenido Disponible
-        </h3>
-        <div className="space-y-3.5">
-          {statsItems.map((s) => (
-            <div key={s.label}>
-              <div className="flex items-center justify-between mb-1.5">
-                <div className="flex items-center gap-2">
-                  <div className={`w-2 h-2 rounded-full ${s.dot}`} />
-                  <span className="text-xs text-slate-600 dark:text-slate-300 font-medium">{s.label}</span>
-                </div>
-                <span className={`text-xs font-bold ${s.text}`}>{s.count}</span>
+          <div className="px-5 pb-5">
+            <div className="flex items-end justify-between -mt-7 mb-3">
+              <div className="w-14 h-14 rounded-full bg-gradient-to-tr from-usm-blue to-blue-400 text-white flex items-center justify-center font-bold text-lg shadow-lg border-4 border-white dark:border-slate-800">
+                {user?.initials || 'US'}
               </div>
-              <div className="h-1.5 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
-                <motion.div
-                  initial={{ width: 0 }}
-                  animate={{ width: `${Math.round((s.count / total) * 100)}%` }}
-                  transition={{ delay: 0.3, duration: 0.6, ease: 'easeOut' }}
-                  className={`h-full rounded-full ${s.color}`}
-                />
+              <span className="text-[10px] bg-blue-50 dark:bg-blue-900/30 text-usm-blue dark:text-blue-300 font-bold px-2 py-1 rounded-full border border-blue-100 dark:border-blue-800">
+                {user?.role === 'admin' ? 'Admin' : 'Usu.'}
+              </span>
+            </div>
+            <h3 className="font-bold text-slate-800 dark:text-white">{user?.name || 'Usuario'}</h3>
+            <p className="text-xs text-slate-400 mb-4 flex items-center gap-1">
+              {user?.role === 'admin'
+                ? <><Shield className="w-3 h-3 text-usm-blue" /> Administrador</> : <><GraduationCap className="w-3 h-3 text-emerald-500" /> Usuario · USM</>}
+            </p>
+            <div className="grid grid-cols-2 gap-2">
+              <div className="bg-gradient-to-br from-blue-50 to-blue-100/50 dark:from-blue-900/20 dark:to-blue-900/10 rounded-xl p-3 text-center border border-blue-100 dark:border-blue-900/30">
+                <p className="text-xl font-extrabold text-usm-blue">{totalPublications}</p>
+                <p className="text-[10px] text-slate-500 font-semibold tracking-wide">Publicaciones</p>
+              </div>
+              <div className="bg-gradient-to-br from-yellow-50 to-amber-100/50 dark:from-yellow-900/20 dark:to-amber-900/10 rounded-xl p-3 text-center border border-yellow-100 dark:border-yellow-900/30">
+                <p className="text-xl font-extrabold text-usm-yellow">{totalSaved}</p>
+                <p className="text-[10px] text-slate-500 font-semibold tracking-wide">Guardados</p>
               </div>
             </div>
-          ))}
+          </div>
         </div>
-      </div>
 
-      {/* Trending */}
-      <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-sm border border-slate-200 dark:border-slate-700">
-        <h3 className="font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2 text-sm">
-          <TrendingUp className="w-4 h-4 text-purple-500" /> Temas Populares
-        </h3>
-        <div className="flex flex-wrap gap-2">
-          {trendingTags.map((tag) => (
-            <button
-              key={tag}
-              className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-50 dark:bg-slate-700/70 border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 text-xs font-medium hover:bg-usm-blue/10 hover:text-usm-blue hover:border-usm-blue/30 transition-all"
-            >
-              <Hash className="w-3 h-3" />{tag.slice(1)}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Suggested Users */}
-      <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-sm border border-slate-200 dark:border-slate-700">
-        <h3 className="font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2 text-sm">
-          <Users className="w-4 h-4 text-emerald-500" /> Personas Sugeridas
-        </h3>
-        <div className="space-y-3">
-          {suggested.map((p) => {
-            const initials = p.name.split(' ').slice(0,2).map(w=>w[0]).join('');
-            const grads = ['from-purple-500 to-pink-400','from-emerald-500 to-teal-400'];
-            const gi = p.name.charCodeAt(0) % grads.length;
-            return (
-              <div key={p.name} className="flex items-center gap-3">
-                <div className={`w-8 h-8 rounded-full bg-gradient-to-br ${grads[gi]} text-white flex items-center justify-center text-xs font-bold shrink-0`}>
-                  {initials}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs font-bold text-slate-800 dark:text-white truncate">{p.name}</p>
-                  <p className="text-[10px] text-slate-400 truncate">{p.role}</p>
-                </div>
-                <button className="text-xs font-bold text-usm-blue border border-usm-blue/30 px-2 py-0.5 rounded-full hover:bg-usm-blue hover:text-white transition-all shrink-0">
-                  Seguir
-                </button>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Quick Links */}
-      {user?.role === 'admin' && (
+        {/* Content Stats with progress bars */}
         <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-sm border border-slate-200 dark:border-slate-700">
           <h3 className="font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2 text-sm">
-            <FileText className="w-4 h-4 text-green-500" /> Acceso Rápido
+            <BookOpenCheck className="w-4 h-4 text-usm-blue" /> Contenido Disponible
           </h3>
-          <Link
-            to="/admin"
-            className="flex items-center gap-3 p-3 rounded-xl bg-usm-blue/5 dark:bg-blue-900/20 hover:bg-usm-blue/10 dark:hover:bg-blue-900/30 transition-colors group"
-          >
-            <div className="w-10 h-10 rounded-lg bg-usm-blue/10 flex items-center justify-center text-usm-blue">
-              <Plus className="w-5 h-5" />
-            </div>
-            <div>
-              <p className="text-sm font-semibold text-usm-blue group-hover:underline">Panel Administrador</p>
-              <p className="text-xs text-slate-400">Crear y gestionar contenido</p>
-            </div>
-          </Link>
+          <div className="space-y-3.5">
+            {statsItems.map((s) => (
+              <div key={s.label}>
+                <div className="flex items-center justify-between mb-1.5">
+                  <div className="flex items-center gap-2">
+                    <div className={`w-2 h-2 rounded-full ${s.dot}`} />
+                    <span className="text-xs text-slate-600 dark:text-slate-300 font-medium">{s.label}</span>
+                  </div>
+                  <span className={`text-xs font-bold ${s.text}`}>{s.count}</span>
+                </div>
+                <div className="h-1.5 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: `${Math.round((s.count / total) * 100)}%` }}
+                    transition={{ delay: 0.3, duration: 0.6, ease: 'easeOut' }}
+                    className={`h-full rounded-full ${s.color}`}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
-      )}
-    </div>
+
+        {/* Trending */}
+        <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-sm border border-slate-200 dark:border-slate-700">
+          <h3 className="font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2 text-sm">
+            <TrendingUp className="w-4 h-4 text-purple-500" /> Temas Populares
+          </h3>
+          <div className="flex flex-wrap gap-2">
+            {trendingTags.map((tag) => (
+              <button
+                key={tag}
+                className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-50 dark:bg-slate-700/70 border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 text-xs font-medium hover:bg-usm-blue/10 hover:text-usm-blue hover:border-usm-blue/30 transition-all"
+              >
+                <Hash className="w-3 h-3" />{tag.slice(1)}
+              </button>
+            ))}
+          </div>
+        </div>
+
+
+
+        {/* Quick Links */}
+        {user?.role === 'admin' && (
+          <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-sm border border-slate-200 dark:border-slate-700">
+            <h3 className="font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2 text-sm">
+              <FileText className="w-4 h-4 text-green-500" /> Acceso Rápido
+            </h3>
+            <Link
+              to="/admin"
+              className="flex items-center gap-3 p-3 rounded-xl bg-usm-blue/5 dark:bg-blue-900/20 hover:bg-usm-blue/10 dark:hover:bg-blue-900/30 transition-colors group"
+            >
+              <div className="w-10 h-10 rounded-lg bg-usm-blue/10 flex items-center justify-center text-usm-blue">
+                <Plus className="w-5 h-5" />
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-usm-blue group-hover:underline">Panel Administrador</p>
+                <p className="text-xs text-slate-400">Crear y gestionar contenido</p>
+              </div>
+            </Link>
+          </div>
+        )}
+      </div>
     );
   };
 
@@ -409,7 +377,7 @@ export default function DashboardPage() {
                       initial={{ opacity: 0, y: 10, scale: 0.95 }}
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                    className="absolute right-0 top-16 w-72 sm:w-80 bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden z-50 max-h-[70vh] overflow-y-auto"
+                      className="absolute right-0 top-16 w-72 sm:w-80 bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden z-50 max-h-[70vh] overflow-y-auto"
                     >
                       <div className="p-4 border-b border-slate-100 dark:border-slate-700">
                         <h4 className="font-bold text-usm-blue dark:text-white">Notificaciones</h4>
@@ -422,9 +390,8 @@ export default function DashboardPage() {
                         notifications.map((n) => (
                           <div
                             key={n.id}
-                            className={`p-4 border-b border-slate-50 dark:border-slate-700 last:border-none hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors ${
-                              !n.is_read ? 'bg-blue-50/50 dark:bg-blue-900/10' : ''
-                            }`}
+                            className={`p-4 border-b border-slate-50 dark:border-slate-700 last:border-none hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors ${!n.is_read ? 'bg-blue-50/50 dark:bg-blue-900/10' : ''
+                              }`}
                           >
                             <p className="text-sm text-slate-700 dark:text-slate-200">{n.message || `Nueva ${n.type}`}</p>
                             <p className="text-xs text-slate-400 mt-1">{new Date(n.created_at).toLocaleDateString('es-VE')}</p>
