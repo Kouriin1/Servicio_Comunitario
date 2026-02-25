@@ -64,6 +64,7 @@ export function AuthProvider({ children }) {
     } = supabase.auth.onAuthStateChange((_event, s) => {
       setSession(s);
       if (s?.user) {
+        setLoading(true);
         fetchProfile(s.user.id);
       } else {
         setProfile(null);

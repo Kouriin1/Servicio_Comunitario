@@ -16,6 +16,7 @@ import {
   Smile,
   MoreHorizontal,
 } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { useContentContext } from '../../context/ContentContext';
 import { useAuth } from '../../context/AuthContext';
 
@@ -108,10 +109,6 @@ function LinkPreview({ item }) {
     </a>
   );
 }
-
-// ─── Mock initial comments per card ─────────────────────────────────────────
-
-const INITIAL_COMMENTS = {};
 
 // ─── Avatar ──────────────────────────────────────────────────────────────────
 
@@ -236,11 +233,27 @@ export default function FeedCard({ item, onToggleSave, isSaved = false, onViewDe
         {/* Header */}
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center gap-3">
-            <Avatar name={item.author} avatarUrl={item.author_avatar} />
+            {item.has_linked_author ? (
+              <Link to={`/u/${item._author_id}`} onClick={(e) => e.stopPropagation()}>
+                <Avatar name={item.author} avatarUrl={item.author_avatar} />
+              </Link>
+            ) : (
+              <Avatar name={item.author} avatarUrl={item.author_avatar} />
+            )}
             <div>
-              <h3 className="text-sm font-bold text-slate-900 dark:text-white leading-tight">
-                {item.author}
-              </h3>
+              {item.has_linked_author ? (
+                <Link
+                  to={`/u/${item._author_id}`}
+                  onClick={(e) => e.stopPropagation()}
+                  className="text-sm font-bold text-slate-900 dark:text-white leading-tight hover:text-usm-blue dark:hover:text-blue-400 transition-colors"
+                >
+                  {item.author}
+                </Link>
+              ) : (
+                <h3 className="text-sm font-bold text-slate-900 dark:text-white leading-tight">
+                  {item.author}
+                </h3>
+              )}
               <p className="text-xs text-slate-400 flex items-center gap-1.5 mt-0.5">
                 <span className={`w-1.5 h-1.5 rounded-full ${schoolStyle.dot}`} />
                 <span>{item.school}</span>

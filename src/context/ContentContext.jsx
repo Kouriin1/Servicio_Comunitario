@@ -33,6 +33,8 @@ function transformPublication(pub) {
     _content_type_id: pub.content_type_id,
     _author_id: pub.author_id,
     _creator_id: pub.creator_id,
+    // Solo es un perfil clickeable si author_id apunta a un usuario diferente al creador (admin)
+    has_linked_author: !!(pub.author_id && pub.author_id !== pub.creator_id),
   };
 }
 
@@ -136,8 +138,8 @@ export function ContentProvider({ children }) {
     const faculty = faculties.find((f) => f.name === item.school);
     const contentType = contentTypesList.find((t) => t.name === item.type);
 
-    // If a user was explicitly tagged, use their ID and Name. Otherwise fallback to the typed name and admin's ID.
-    const finalAuthorId = item.taggedUserId || session?.user?.id || null;
+    // author_id solo se asigna si hay un usuario explícitamente etiquetado
+    const finalAuthorId = item.taggedUserId || null;
     const finalAuthorName = item.taggedUserName || item.author || 'Administrador';
 
     // 1. Create publication

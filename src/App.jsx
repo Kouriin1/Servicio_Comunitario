@@ -7,6 +7,7 @@ import DashboardPage from './pages/DashboardPage';
 import AdminPage from './pages/AdminPage';
 import SettingsPage from './pages/SettingsPage';
 import ProfilePage from './pages/ProfilePage';
+import PublicProfilePage from './pages/PublicProfilePage';
 import ProtectedRoute from './components/ProtectedRoute';
 import ToastContainer from './components/ui/Toast';
 
@@ -47,6 +48,14 @@ function App() {
           element={
             <ProtectedRoute>
               <ProfilePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/u/:userId"
+          element={
+            <ProtectedRoute>
+              <PublicProfilePage />
             </ProtectedRoute>
           }
         />

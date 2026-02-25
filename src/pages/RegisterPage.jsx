@@ -24,11 +24,29 @@ export default function RegisterPage() {
   // Filter out the "Todas" meta-faculty for student registration
   const studentFaculties = faculties.filter((f) => f.code !== 'TODAS');
 
+  const nameRegex = /^[a-zA-ZáéíóúüñÁÉÍÓÚÜÑ\s'-]+$/;
+
   const handleSubmit = async (event) => {
     event.preventDefault();
 
     if (!name.trim() || !lastName.trim() || !email.trim() || !password.trim()) {
       setError('Completa todos los campos para continuar.');
+      return;
+    }
+    if (!nameRegex.test(name.trim())) {
+      setError('El nombre solo puede contener letras, espacios o guiones.');
+      return;
+    }
+    if (name.trim().length < 2) {
+      setError('El nombre debe tener al menos 2 caracteres.');
+      return;
+    }
+    if (!nameRegex.test(lastName.trim())) {
+      setError('El apellido solo puede contener letras, espacios o guiones.');
+      return;
+    }
+    if (lastName.trim().length < 2) {
+      setError('El apellido debe tener al menos 2 caracteres.');
       return;
     }
     if (password.length < 6) {
