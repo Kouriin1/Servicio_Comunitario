@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import pruebaImg from '../../assets/Prueba.jpeg';
 import { useScroll, useTransform } from 'framer-motion';
 import { useRef } from 'react';
 import Button from '../ui/Button';
@@ -17,7 +18,7 @@ export default function Hero() {
       {/* 1. Fondo con imagen USM */}
       <motion.div style={{ y }} className="absolute inset-0 z-0">
         <img
-          src="/src/assets/Prueba.jpeg"
+          src={pruebaImg}
           alt="Campus USM"
           className="w-full h-full object-cover"
         />

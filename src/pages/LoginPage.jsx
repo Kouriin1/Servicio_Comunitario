@@ -1,4 +1,6 @@
 import { motion } from 'framer-motion';
+import lugarImg from '../assets/lugar.png';
+import loguitoImg from '../assets/loguito.png';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Lock, Mail, ChevronRight, ArrowLeft, Loader2, KeyRound, ArrowRight } from 'lucide-react';
@@ -83,7 +85,7 @@ export default function LoginPage() {
           className="absolute inset-0"
         >
           <img
-            src="/src/assets/lugar.png"
+            src={lugarImg}
             alt="USM Campus"
             className="w-full h-full object-cover grayscale opacity-20"
           />
@@ -94,7 +96,7 @@ export default function LoginPage() {
           <motion.img
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            src="/src/assets/loguito.png"
+            src={loguitoImg}
             className="h-40 mx-auto mb-6 drop-shadow-xl"
           />
           <h2 className="text-5xl font-bold text-usm-blue mb-4 tracking-tight">Excelencia Académica</h2>

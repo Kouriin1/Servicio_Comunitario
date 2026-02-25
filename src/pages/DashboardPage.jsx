@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import loguitoImg from '../assets/loguito.png';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import {
@@ -116,7 +117,7 @@ export default function DashboardPage() {
       {/* Logo */}
       <div className="flex items-center gap-3 mb-6 px-1">
         <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-usm-blue to-blue-600 flex items-center justify-center shadow-md shadow-blue-500/30">
-          <img src="/src/assets/loguito.png" className="h-5" alt="USM RED" />
+          <img src={loguitoImg} className="h-5" alt="USM RED" />
         </div>
         <div>
           <span className="text-xl font-extrabold tracking-tight bg-gradient-to-r from-usm-blue to-blue-400 bg-clip-text text-transparent">USM RED</span>

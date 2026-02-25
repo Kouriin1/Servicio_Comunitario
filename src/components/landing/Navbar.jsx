@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { motion, useScroll, useMotionValueEvent } from 'framer-motion';
 import Button from '../ui/Button';
 import { Menu, X } from 'lucide-react';
+import usmLogo from '../../assets/usm_logo.png';
 
 const navLinks = [
   { label: 'Plataforma', href: '#facultades' },
@@ -35,7 +36,7 @@ export default function Navbar() {
     >
       <div className="flex items-center gap-3 z-50">
         <img
-          src="/src/assets/usm_logo.png"
+          src={usmLogo}
           alt="USM Logo"
           className="h-8 sm:h-12 transition-all duration-300 brightness-0 invert"
         />

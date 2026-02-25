@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import usmLogo from '../../assets/usm_logo.png';
 
 export default function Footer() {
     return (
@@ -11,7 +12,7 @@ export default function Footer() {
                     <div className="max-w-sm">
                         <div className="flex items-center gap-3 mb-4">
                             <img
-                                src="/src/assets/usm_logo.png"
+                                src={usmLogo}
                                 alt="USM Logo"
                                 className="h-8 sm:h-9 brightness-0 invert opacity-70"
                             />
