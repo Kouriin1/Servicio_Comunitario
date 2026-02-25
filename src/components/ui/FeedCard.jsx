@@ -5,8 +5,6 @@ import {
   ExternalLink,
   Heart,
   MessageCircle,
-  Share2,
-  Download,
   Trash2,
   FileText,
   Link2,
@@ -14,7 +12,6 @@ import {
   ChevronDown,
   ChevronUp,
   Smile,
-  MoreHorizontal,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useContentContext } from '../../context/ContentContext';
@@ -262,9 +259,6 @@ export default function FeedCard({ item, onToggleSave, isSaved = false, onViewDe
               </p>
             </div>
           </div>
-          <button className="text-slate-300 hover:text-slate-500 dark:hover:text-slate-200 p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
-            <MoreHorizontal className="w-5 h-5" />
-          </button>
         </div>
 
         {/* Content */}
@@ -334,16 +328,9 @@ export default function FeedCard({ item, onToggleSave, isSaved = false, onViewDe
               {showComments ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
             </button>
 
-            {/* Share */}
-            <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-slate-500 dark:text-slate-400 hover:text-green-500 hover:bg-green-50 dark:hover:bg-green-900/10 transition-all">
-              <Share2 className="w-[18px] h-[18px]" strokeWidth={1.75} />
-            </button>
           </div>
 
           <div className="flex items-center gap-1">
-            <button className="p-2 rounded-xl text-slate-400 hover:text-usm-blue hover:bg-blue-50 dark:hover:bg-blue-900/10 transition-colors" title="Descargar">
-              <Download className="w-[18px] h-[18px]" strokeWidth={1.75} />
-            </button>
             <motion.button
               whileTap={{ scale: 0.85 }}
               onClick={() => onToggleSave?.(item.id)}

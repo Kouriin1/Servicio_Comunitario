@@ -1,9 +1,9 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   FilePlus2, ListFilter, Pencil, Trash2, Eye, ArrowLeft, Check,
-  Upload, FileText, Video, Image, Link2, X, Users, Search
+  Upload, FileText, Video, Image, Link2, X, Users, Search, Loader2
 } from 'lucide-react';
 import { useContentContext } from '../context/ContentContext';
 import { useAuth } from '../context/AuthContext';
@@ -41,6 +41,7 @@ function FileTypeIcon({ fileType, className = 'w-4 h-4' }) {
 }
 
 export default function AdminPage() {
+  const navigate = useNavigate();
   const { allContent, addContent, deleteContent, updateContent, faculties, contentTypesList, contentTypes, usersList, fetchUsers } = useContentContext();
   const { user } = useAuth();
   const { showToast } = useToast();
@@ -53,6 +54,7 @@ export default function AdminPage() {
   const [activeTab, setActiveTab] = useState('content');
   const [authorSearch, setAuthorSearch] = useState('');
   const [showAuthorDropdown, setShowAuthorDropdown] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const fileInputRef = useRef(null);
   const editFileInputRef = useRef(null);
   const authorDropdownRef = useRef(null);
@@ -146,6 +148,7 @@ export default function AdminPage() {
       return;
     }
 
+    setSubmitting(true);
     try {
       await addContent({
         ...form,
@@ -160,6 +163,8 @@ export default function AdminPage() {
       setAuthorSearch('');
     } catch (err) {
       showToast(err.message || 'Error al crear publicación', 'error');
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -423,8 +428,9 @@ export default function AdminPage() {
                   onRemoveLink={handleRemoveLink}
                 />
 
-                <Button type="submit" className="w-full flex items-center justify-center gap-2">
-                  <Check className="w-4 h-4" /> Guardar publicación
+                <Button type="submit" disabled={submitting} className="w-full flex items-center justify-center gap-2">
+                  {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
+                  {submitting ? 'Guardando...' : 'Guardar publicación'}
                 </Button>
               </form>
             </motion.article>
@@ -525,9 +531,9 @@ export default function AdminPage() {
                 </thead>
                 <tbody>
                   {usersList.map(u => (
-                    <tr key={u.id} className="border-b border-slate-100 dark:border-slate-700/50 hover:bg-slate-50 dark:hover:bg-slate-700/20">
+                    <tr key={u.id} onClick={() => navigate(`/u/${u.id}`)} className="border-b border-slate-100 dark:border-slate-700/50 hover:bg-slate-50 dark:hover:bg-slate-700/20 cursor-pointer">
                       <td className="py-3 px-4">
-                        <p className="font-medium text-slate-800 dark:text-white">{u.display_name || 'Sin nombre'}</p>
+                        <p className="font-medium text-slate-800 dark:text-white hover:text-usm-blue transition-colors">{u.display_name || 'Sin nombre'}</p>
                       </td>
                       <td className="py-3 px-4 text-sm text-slate-600 dark:text-slate-300">{u.email}</td>
                       <td className="py-3 px-4 text-sm text-slate-600 dark:text-slate-300">{u.faculty?.name || '-'}</td>

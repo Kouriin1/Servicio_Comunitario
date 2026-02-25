@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from './AuthContext';
 
@@ -50,6 +50,8 @@ const PUB_SELECT = `
   profiles:author_id(avatar_url)
 `;
 
+const PAGE_SIZE = 10;
+
 /* ───── Provider ─────────────────────────────────────── */
 
 export function ContentProvider({ children }) {
@@ -59,6 +61,9 @@ export function ContentProvider({ children }) {
   const [faculties, setFaculties] = useState([]);
   const [contentTypesList, setContentTypesList] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [hasMore, setHasMore] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const offsetRef = useRef(0);
 
   // Derived arrays for filter chips (compatible with old mockData exports)
   const schools = ['Todas', ...faculties.filter((f) => f.code !== 'TODAS').map((f) => f.name)];
@@ -94,18 +99,47 @@ export function ContentProvider({ children }) {
 
   async function fetchContent() {
     try {
+      offsetRef.current = 0;
       const { data, error } = await supabase
         .from('publications')
         .select(PUB_SELECT)
         .eq('status', 'published')
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false })
+        .range(0, PAGE_SIZE - 1);
 
       if (error) throw error;
-      setContent((data || []).map(transformPublication));
+      const items = (data || []).map(transformPublication);
+      setContent(items);
+      setHasMore(items.length === PAGE_SIZE);
+      offsetRef.current = items.length;
     } catch (err) {
       console.error('Error fetching content:', err);
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function loadMore() {
+    if (loadingMore || !hasMore) return;
+    setLoadingMore(true);
+    try {
+      const from = offsetRef.current;
+      const { data, error } = await supabase
+        .from('publications')
+        .select(PUB_SELECT)
+        .eq('status', 'published')
+        .order('created_at', { ascending: false })
+        .range(from, from + PAGE_SIZE - 1);
+
+      if (error) throw error;
+      const items = (data || []).map(transformPublication);
+      setContent((prev) => [...prev, ...items]);
+      setHasMore(items.length === PAGE_SIZE);
+      offsetRef.current = from + items.length;
+    } catch (err) {
+      console.error('Error loading more:', err);
+    } finally {
+      setLoadingMore(false);
     }
   }
 
@@ -395,6 +429,9 @@ export function ContentProvider({ children }) {
         usersList,
         fetchUsers,
         loading,
+        hasMore,
+        loadingMore,
+        loadMore,
         refreshContent: fetchContent,
       }}
     >

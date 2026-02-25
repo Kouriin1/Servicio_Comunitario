@@ -1,10 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   Search,
   LayoutDashboard,
-  BookOpen,
   Settings,
   Plus,
   Bell,
@@ -31,13 +30,12 @@ import { FeedCardSkeleton } from '../components/ui/Skeleton';
 
 const menuItems = [
   { key: 'feed', icon: LayoutDashboard, label: 'Feed Principal', color: 'text-blue-500', bg: 'bg-blue-50 dark:bg-blue-900/30' },
-  { key: 'biblioteca', icon: BookOpen, label: 'Mi Biblioteca', color: 'text-emerald-500', bg: 'bg-emerald-50 dark:bg-emerald-900/30' },
   { key: 'config', icon: Settings, label: 'Configuración', color: 'text-slate-500', bg: 'bg-slate-100 dark:bg-slate-700' },
 ];
 
 export default function DashboardPage() {
   const navigate = useNavigate();
-  const { allContent, savedIds, toggleSave, schools, contentTypes, loading: contentLoading } = useContentContext();
+  const { allContent, savedIds, toggleSave, schools, hasMore, loadingMore, loadMore } = useContentContext();
   const { user, logout, session } = useAuth();
   const [activeMenu, setActiveMenu] = useState('feed');
   const [schoolFilter, setSchoolFilter] = useState('Todas');
@@ -49,11 +47,24 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [selectedItem, setSelectedItem] = useState(null);
   const [notifications, setNotifications] = useState([]);
+  const sentinelRef = useRef(null);
 
   useEffect(() => {
     const timer = setTimeout(() => setLoading(false), 600);
     return () => clearTimeout(timer);
   }, []);
+
+  // Infinite scroll — dispara loadMore cuando el sentinel entra en pantalla
+  useEffect(() => {
+    const el = sentinelRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) loadMore(); },
+      { threshold: 0.1 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [hasMore, loadingMore]);
 
   // Fetch notifications from Supabase
   useEffect(() => {
@@ -90,7 +101,7 @@ export default function DashboardPage() {
   const unreadCount = notifications.filter((n) => !n.is_read).length;
 
   const filteredData = allContent.filter((item) => {
-    const dashboardSavedOnly = activeMenu === 'biblioteca' ? true : savedOnly;
+    const dashboardSavedOnly = savedOnly;
 
     const matchSchool = schoolFilter === 'Todas' || item.school === schoolFilter;
     const matchType = typeFilter === 'Todos' || item.type === typeFilter;
@@ -464,6 +475,19 @@ export default function DashboardPage() {
                   <p className="text-slate-500">Intenta con otros filtros o términos de búsqueda.</p>
                 </div>
               )}
+
+              {/* Sentinel de infinite scroll */}
+              <div ref={sentinelRef} className="py-4 flex justify-center">
+                {loadingMore && (
+                  <div className="flex items-center gap-2 text-slate-400 text-sm">
+                    <div className="w-5 h-5 border-2 border-usm-blue border-t-transparent rounded-full animate-spin" />
+                    Cargando más...
+                  </div>
+                )}
+                {!hasMore && filteredData.length > 0 && (
+                  <p className="text-xs text-slate-400">Ya viste todo el contenido disponible.</p>
+                )}
+              </div>
             </div>
           )}
         </main>
