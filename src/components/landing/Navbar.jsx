@@ -32,7 +32,7 @@ export default function Navbar() {
       initial="top"
       animate={scrolled ? "scrolled" : "top"}
       transition={{ duration: 0.3 }}
-      className="fixed top-0 w-full z-50 py-3 sm:py-4 px-4 sm:px-6 md:px-12 flex justify-between items-center transition-colors"
+      className="fixed top-0 w-full z-50 py-3 sm:py-4 px-4 sm:px-6 md:px-12 flex justify-between items-center transition-colors relative"
     >
       <div className="flex items-center gap-3 z-50">
         <img
@@ -63,27 +63,35 @@ export default function Navbar() {
       <button
         className="md:hidden z-50 p-2 rounded-lg text-white"
         onClick={() => setIsOpen(!isOpen)}
+        aria-label="Menú"
       >
-        {isOpen ? <X /> : <Menu />}
+        {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
       </button>
 
-      {/* Mobile Menu Overlay */}
+      {/* Mobile Menu Dropdown */}
       <motion.div
-        initial={{ x: "100%" }}
-        animate={{ x: isOpen ? 0 : "100%" }}
-        transition={{ type: "spring", stiffness: 300, damping: 30 }}
-        className="fixed inset-0 bg-usm-blue z-40 md:hidden flex flex-col justify-center items-center gap-8 text-white"
+        initial={{ opacity: 0, y: -8 }}
+        animate={{ opacity: isOpen ? 1 : 0, y: isOpen ? 0 : -8, pointerEvents: isOpen ? 'auto' : 'none' }}
+        transition={{ duration: 0.2 }}
+        className="absolute top-full left-0 w-full bg-[#002855] border-t border-white/10 md:hidden z-40 shadow-2xl"
       >
-        {navLinks.map((item) => (
-          <a key={item.label} href={item.href} className="text-2xl font-bold hover:text-blue-200" onClick={() => setIsOpen(false)}>
-            {item.label}
-          </a>
-        ))}
-        <Link to="/login" onClick={() => setIsOpen(false)}>
-          <Button className="mt-4 text-xl px-12 py-4">
-            Ingresar
-          </Button>
-        </Link>
+        <div className="flex flex-col px-6 py-4 gap-1">
+          {navLinks.map((item) => (
+            <a
+              key={item.label}
+              href={item.href}
+              className="py-3 text-base font-semibold text-white/90 hover:text-white border-b border-white/10 last:border-0 tracking-wide uppercase"
+              onClick={() => setIsOpen(false)}
+            >
+              {item.label}
+            </a>
+          ))}
+          <Link to="/login" onClick={() => setIsOpen(false)} className="mt-4">
+            <Button className="w-full py-3 text-base font-bold">
+              Ingresar al Campus
+            </Button>
+          </Link>
+        </div>
       </motion.div>
     </motion.nav>
   );
