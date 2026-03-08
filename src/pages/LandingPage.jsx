@@ -53,7 +53,7 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <StatsSection />
+
 
         <section className="bg-slate-50 dark:bg-slate-900 py-16 sm:py-20 text-center relative overflow-hidden" id="nosotros">
           <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6">

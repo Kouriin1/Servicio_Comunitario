@@ -109,7 +109,7 @@ export default function LoginPage() {
         {/* Botón volver a landing */}
         <Link
           to="/"
-          className="self-start mb-4 lg:absolute lg:top-6 lg:left-6 flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white text-sm font-medium rounded-xl transition-colors border border-white/20 shrink-0"
+          className="self-start mb-6 flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white text-sm font-medium rounded-xl transition-colors border border-white/20 shrink-0"
         >
           <ArrowLeft className="w-4 h-4" /> Volver al inicio
         </Link>

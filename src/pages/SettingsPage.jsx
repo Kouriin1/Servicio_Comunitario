@@ -165,7 +165,7 @@ export default function SettingsPage() {
           transition={{ delay: 0.1 }}
           className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-6"
         >
-          <h2 className="text-lg font-bold text-usm-blue dark:text-white mb-4">Peligro</h2>
+
           <button
             onClick={handleLogout}
             className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-xl font-semibold hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors"
