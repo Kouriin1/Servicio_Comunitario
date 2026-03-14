@@ -2,10 +2,17 @@ import Modal from './Modal';
 import { Calendar, MapPin, Clock, User, Building2, FileText, Video, Image, ExternalLink, Download } from 'lucide-react';
 
 const schoolColors = {
-  'Derecho': 'bg-red-500',
+  'Derecho': 'bg-rose-500',
   'Estudios Internacionales': 'bg-blue-500',
-  'Todas': 'bg-usm-blue',
+  'Todas': 'bg-indigo-500',
 };
+
+function formatDate(dateStr) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return dateStr;
+  return d.toLocaleDateString('es-VE', { day: 'numeric', month: 'long', year: 'numeric' });
+}
 
 function MediaViewer({ item }) {
   const hasFile = item.fileType && item.fileUrl;
@@ -16,11 +23,11 @@ function MediaViewer({ item }) {
   return (
     <div className="space-y-3">
       {hasFile && item.fileType === 'video' && (
-        <div className="rounded-xl overflow-hidden bg-black">
+        <div className="rounded-2xl overflow-hidden bg-black shadow-soft">
           <video
             src={item.fileUrl}
             controls
-            className="w-full max-h-[360px]"
+            className="w-full max-h-[480px]"
             preload="metadata"
           >
             Tu navegador no soporta la reproducción de video.
@@ -29,12 +36,12 @@ function MediaViewer({ item }) {
       )}
 
       {hasFile && item.fileType === 'pdf' && (
-        <div className="space-y-2">
-          <div className="rounded-xl overflow-hidden border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700">
+        <div className="space-y-3">
+          <div className="rounded-2xl overflow-hidden border border-slate-200/60 dark:border-slate-600/50 bg-white dark:bg-slate-700/50 shadow-soft">
             <iframe
               src={item.fileUrl}
               title={item.fileName || 'Documento PDF'}
-              className="w-full h-[400px]"
+              className="w-full h-[70vh] min-h-[500px]"
             />
           </div>
           <a
@@ -42,7 +49,7 @@ function MediaViewer({ item }) {
             target="_blank"
             rel="noopener noreferrer"
             download={item.fileName}
-            className="inline-flex items-center gap-2 text-sm text-usm-blue dark:text-blue-300 hover:underline"
+            className="inline-flex items-center gap-2 text-sm text-blue-500 dark:text-blue-400 hover:text-blue-700 font-medium transition-colors"
           >
             <Download className="w-4 h-4" /> Descargar PDF
           </a>
@@ -50,11 +57,11 @@ function MediaViewer({ item }) {
       )}
 
       {hasFile && item.fileType === 'image' && (
-        <div className="rounded-xl overflow-hidden">
+        <div className="rounded-2xl overflow-hidden shadow-soft">
           <img
             src={item.fileUrl}
             alt={item.title}
-            className="w-full max-h-[400px] object-contain bg-slate-100 dark:bg-slate-700"
+            className="w-full max-h-[500px] object-contain bg-slate-100 dark:bg-slate-700"
           />
         </div>
       )}
@@ -64,13 +71,13 @@ function MediaViewer({ item }) {
           href={item.linkUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center gap-3 p-4 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700/50 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors group"
+          className="flex items-center gap-3 p-4 rounded-2xl border border-slate-100/80 dark:border-slate-600/50 bg-slate-50/80 dark:bg-slate-700/50 hover:bg-white dark:hover:bg-slate-700 transition-all group shadow-soft"
         >
-          <div className="w-10 h-10 rounded-lg bg-usm-blue/10 dark:bg-blue-900/30 flex items-center justify-center text-usm-blue dark:text-blue-300">
+          <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-blue-500/20">
             <ExternalLink className="w-5 h-5" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-usm-blue dark:text-blue-300 group-hover:underline truncate">
+            <p className="text-sm font-medium text-blue-500 dark:text-blue-400 group-hover:underline truncate">
               {item.linkUrl}
             </p>
             <p className="text-xs text-slate-400">Abrir enlace externo</p>
@@ -104,12 +111,24 @@ export default function ContentDetailModal({ isOpen, onClose, item }) {
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={item.type}>
       <div className="space-y-5">
+        {/* Título */}
         <div className="flex items-center gap-2">
           <div className={`w-2 h-6 rounded-full ${schoolColors[item.school] || 'bg-gray-500'}`} />
-          <h3 className="text-lg font-bold text-usm-blue dark:text-white leading-tight">{item.title}</h3>
+          <h3 className="text-xl font-bold text-slate-900 dark:text-white leading-tight">{item.title}</h3>
         </div>
 
-        <div className="flex flex-wrap gap-2 text-sm text-slate-500 dark:text-slate-400">
+        {/* Descripción primero */}
+        <div className="bg-slate-50/80 dark:bg-slate-700/30 rounded-2xl p-5">
+          <p className="text-slate-700 dark:text-slate-200 text-[15px] leading-[1.8]">
+            {item.excerpt}
+          </p>
+        </div>
+
+        {/* Media */}
+        <MediaViewer item={item} />
+
+        {/* Detalles / Metadatos después */}
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-slate-500 dark:text-slate-400 pt-3 border-t border-slate-100 dark:border-slate-700/50">
           <span className="flex items-center gap-1.5">
             <User className="w-4 h-4" /> {item.author}
           </span>
@@ -117,7 +136,7 @@ export default function ContentDetailModal({ isOpen, onClose, item }) {
             <Building2 className="w-4 h-4" /> {item.school}
           </span>
           <span className="flex items-center gap-1.5">
-            <Calendar className="w-4 h-4" /> {item.date}
+            <Calendar className="w-4 h-4" /> {formatDate(item.date)}
           </span>
           {item.readTime && (
             <span className="flex items-center gap-1.5">
@@ -135,14 +154,6 @@ export default function ContentDetailModal({ isOpen, onClose, item }) {
               <ExternalLink className="w-3.5 h-3.5" /> Enlace
             </span>
           )}
-        </div>
-
-        <MediaViewer item={item} />
-
-        <div className="bg-slate-50 dark:bg-slate-700/50 rounded-xl p-4">
-          <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed italic">
-            "{item.excerpt}"
-          </p>
         </div>
 
         {!item.fileUrl && !item.linkUrl && (

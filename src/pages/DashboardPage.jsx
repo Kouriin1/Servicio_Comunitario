@@ -116,19 +116,19 @@ export default function DashboardPage() {
     <>
       {/* Logo */}
       <div className="flex items-center gap-3 mb-6 px-1">
-        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-usm-blue to-blue-600 flex items-center justify-center shadow-md shadow-blue-500/30">
+        <div className="w-10 h-10 rounded-2xl bg-white flex items-center justify-center shadow-lg shadow-blue-500/25">
           <img src={loguitoImg} className="h-5" alt="USM RED" />
         </div>
         <div>
-          <span className="text-xl font-extrabold tracking-tight bg-gradient-to-r from-usm-blue to-blue-400 bg-clip-text text-transparent">USM RED</span>
+          <span className="text-xl font-extrabold tracking-tight bg-gradient-to-r from-blue-600 to-indigo-500 bg-clip-text text-transparent">USM RED</span>
           <p className="text-[10px] text-slate-400 font-medium -mt-0.5 tracking-wide">Red Académica Digital</p>
         </div>
       </div>
 
       {/* User mini card */}
-      <div className="mb-5 p-3 rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-slate-700/60 dark:to-slate-800/60 border border-blue-100 dark:border-slate-700">
+      <div className="mb-5 p-3.5 rounded-2xl bg-gradient-to-br from-blue-50/80 to-indigo-50/60 dark:from-slate-700/40 dark:to-slate-800/40 border border-blue-100/50 dark:border-slate-700/50">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-usm-blue to-blue-400 text-white flex items-center justify-center font-bold text-sm shadow shrink-0 overflow-hidden">
+          <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-blue-500 to-indigo-500 text-white flex items-center justify-center font-bold text-sm shadow-md shadow-blue-500/20 shrink-0 overflow-hidden ring-2 ring-white dark:ring-slate-800">
             {user?.avatar_url ? <img src={user.avatar_url} alt="Avatar" className="w-full h-full object-cover" /> : user?.initials || 'US'}
           </div>
           <div className="min-w-0">
@@ -153,9 +153,9 @@ export default function DashboardPage() {
             <button
               key={item.key}
               onClick={() => handleMenuClick(item.key)}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all font-medium group ${isActive
-                ? 'bg-usm-blue text-white shadow-md shadow-usm-blue/25'
-                : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/70'
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl transition-all font-medium group ${isActive
+                ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/25'
+                : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100/80 dark:hover:bg-slate-700/50'
                 }`}
             >
               <span className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-colors ${isActive ? 'bg-white/20' : `${item.bg} ${item.color}`
@@ -201,8 +201,8 @@ export default function DashboardPage() {
     return (
       <div className="space-y-5">
         {/* User Profile Card */}
-        <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
-          <div className="h-24 bg-gradient-to-135 from-usm-blue via-blue-500 to-indigo-600 relative overflow-hidden">
+        <div className="bg-white/90 dark:bg-slate-800/80 rounded-3xl shadow-soft border border-white/60 dark:border-slate-700/50 overflow-hidden backdrop-blur-sm">
+          <div className="h-28 bg-gradient-to-135 from-blue-500 via-indigo-500 to-violet-600 relative overflow-hidden">
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(255,255,255,0.15)_0%,transparent_60%)]" />
             <div className="absolute -bottom-3 -right-3 w-20 h-20 rounded-full bg-white/10" />
             <div className="absolute top-2 left-2 flex items-center gap-1 bg-white/20 backdrop-blur-sm rounded-full px-2 py-0.5">
@@ -212,7 +212,7 @@ export default function DashboardPage() {
           </div>
           <div className="px-5 pb-5">
             <div className="flex items-end justify-between -mt-7 mb-3">
-              <div className="w-14 h-14 rounded-full bg-gradient-to-tr from-usm-blue to-blue-400 text-white flex items-center justify-center font-bold text-lg shadow-lg border-4 border-white dark:border-slate-800 overflow-hidden shrink-0">
+              <div className="w-15 h-15 rounded-full bg-gradient-to-tr from-blue-500 to-indigo-500 text-white flex items-center justify-center font-bold text-lg shadow-xl shadow-blue-500/25 border-4 border-white dark:border-slate-800 overflow-hidden shrink-0">
                 {user?.avatar_url ? <img src={user.avatar_url} alt="Avatar" className="w-full h-full object-cover" /> : user?.initials || 'US'}
               </div>
               <span className="text-[10px] bg-blue-50 dark:bg-blue-900/30 text-usm-blue dark:text-blue-300 font-bold px-2 py-1 rounded-full border border-blue-100 dark:border-blue-800">
@@ -224,13 +224,13 @@ export default function DashboardPage() {
               {user?.role === 'admin'
                 ? <><Shield className="w-3 h-3 text-usm-blue" /> Administrador</> : <><GraduationCap className="w-3 h-3 text-emerald-500" /> Usuario · USM</>}
             </p>
-            <div className="grid grid-cols-2 gap-2">
-              <div className="bg-gradient-to-br from-blue-50 to-blue-100/50 dark:from-blue-900/20 dark:to-blue-900/10 rounded-xl p-3 text-center border border-blue-100 dark:border-blue-900/30">
-                <p className="text-xl font-extrabold text-usm-blue">{totalPublications}</p>
+            <div className="grid grid-cols-2 gap-2.5">
+              <div className="bg-gradient-to-br from-blue-50/80 to-blue-100/40 dark:from-blue-900/15 dark:to-blue-900/5 rounded-2xl p-3.5 text-center border border-blue-100/50 dark:border-blue-900/20">
+                <p className="text-xl font-extrabold text-blue-600">{totalPublications}</p>
                 <p className="text-[10px] text-slate-500 font-semibold tracking-wide">Publicaciones</p>
               </div>
-              <div className="bg-gradient-to-br from-yellow-50 to-amber-100/50 dark:from-yellow-900/20 dark:to-amber-900/10 rounded-xl p-3 text-center border border-yellow-100 dark:border-yellow-900/30">
-                <p className="text-xl font-extrabold text-usm-yellow">{totalSaved}</p>
+              <div className="bg-gradient-to-br from-amber-50/80 to-amber-100/40 dark:from-amber-900/15 dark:to-amber-900/5 rounded-2xl p-3.5 text-center border border-amber-100/50 dark:border-amber-900/20">
+                <p className="text-xl font-extrabold text-amber-500">{totalSaved}</p>
                 <p className="text-[10px] text-slate-500 font-semibold tracking-wide">Guardados</p>
               </div>
             </div>
@@ -238,9 +238,9 @@ export default function DashboardPage() {
         </div>
 
         {/* Content Stats with progress bars */}
-        <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-sm border border-slate-200 dark:border-slate-700">
+        <div className="bg-white/90 dark:bg-slate-800/80 rounded-3xl p-5 shadow-soft border border-white/60 dark:border-slate-700/50 backdrop-blur-sm">
           <h3 className="font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2 text-sm">
-            <BookOpenCheck className="w-4 h-4 text-usm-blue" /> Contenido Disponible
+            <BookOpenCheck className="w-4 h-4 text-blue-500" /> Contenido Disponible
           </h3>
           <div className="space-y-3.5">
             {statsItems.map((s) => (
@@ -266,15 +266,15 @@ export default function DashboardPage() {
         </div>
 
         {/* Trending */}
-        <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-sm border border-slate-200 dark:border-slate-700">
+        <div className="bg-white/90 dark:bg-slate-800/80 rounded-3xl p-5 shadow-soft border border-white/60 dark:border-slate-700/50 backdrop-blur-sm">
           <h3 className="font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2 text-sm">
-            <TrendingUp className="w-4 h-4 text-purple-500" /> Temas Populares
+            <TrendingUp className="w-4 h-4 text-violet-500" /> Temas Populares
           </h3>
           <div className="flex flex-wrap gap-2">
             {trendingTags.map((tag) => (
               <button
                 key={tag}
-                className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-50 dark:bg-slate-700/70 border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 text-xs font-medium hover:bg-usm-blue/10 hover:text-usm-blue hover:border-usm-blue/30 transition-all"
+                className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-slate-50/80 dark:bg-slate-700/50 border border-slate-200/60 dark:border-slate-600/50 text-slate-600 dark:text-slate-300 text-xs font-medium hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200/60 dark:hover:bg-blue-900/10 dark:hover:text-blue-400 transition-all"
               >
                 <Hash className="w-3 h-3" />{tag.slice(1)}
               </button>
@@ -286,19 +286,19 @@ export default function DashboardPage() {
 
         {/* Quick Links */}
         {user?.role === 'admin' && (
-          <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-sm border border-slate-200 dark:border-slate-700">
+          <div className="bg-white/90 dark:bg-slate-800/80 rounded-3xl p-5 shadow-soft border border-white/60 dark:border-slate-700/50 backdrop-blur-sm">
             <h3 className="font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2 text-sm">
-              <FileText className="w-4 h-4 text-green-500" /> Acceso Rápido
+              <FileText className="w-4 h-4 text-emerald-500" /> Acceso Rápido
             </h3>
             <Link
               to="/admin"
-              className="flex items-center gap-3 p-3 rounded-xl bg-usm-blue/5 dark:bg-blue-900/20 hover:bg-usm-blue/10 dark:hover:bg-blue-900/30 transition-colors group"
+              className="flex items-center gap-3 p-3.5 rounded-2xl bg-blue-50/50 dark:bg-blue-900/15 hover:bg-blue-50 dark:hover:bg-blue-900/25 transition-all group border border-blue-100/40 dark:border-blue-900/20"
             >
-              <div className="w-10 h-10 rounded-lg bg-usm-blue/10 flex items-center justify-center text-usm-blue">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white shadow-md shadow-blue-500/20">
                 <Plus className="w-5 h-5" />
               </div>
               <div>
-                <p className="text-sm font-semibold text-usm-blue group-hover:underline">Panel Administrador</p>
+                <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 group-hover:underline">Panel Administrador</p>
                 <p className="text-xs text-slate-400">Crear y gestionar contenido</p>
               </div>
             </Link>
@@ -309,7 +309,7 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] dark:bg-slate-900 flex">
+    <div className="min-h-screen bg-usm-bg dark:bg-[#0c1222] flex">
       {/* Sidebar Mobile Overlay */}
       <AnimatePresence>
         {mobileMenuOpen && (
@@ -326,7 +326,7 @@ export default function DashboardPage() {
               animate={{ x: 0 }}
               exit={{ x: -280 }}
               transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-              className="fixed left-0 top-0 bottom-0 w-64 bg-white dark:bg-slate-800 p-6 flex flex-col z-50 md:hidden shadow-lg"
+              className="fixed left-0 top-0 bottom-0 w-64 bg-white dark:bg-slate-800 p-6 flex flex-col z-50 md:hidden shadow-soft-lg border-r border-slate-200/60 dark:border-slate-700/50"
             >
               <button
                 onClick={() => setMobileMenuOpen(false)}
@@ -341,34 +341,34 @@ export default function DashboardPage() {
       </AnimatePresence>
 
       {/* Contenido Principal Grid 3 Columnas */}
-      <div className="max-w-[1600px] mx-auto w-full flex gap-4 sm:gap-6 p-3 sm:p-4 md:p-6 lg:p-8">
+<div className="max-w-[1600px] mx-auto w-full flex gap-5 sm:gap-6 p-3 sm:p-4 md:p-6 lg:p-8">
 
         {/* Columna Izquierda (Navegación Desktop) */}
         <aside className="hidden md:block w-64 shrink-0 sticky top-6 h-fit">
-          <div className="bg-white dark:bg-slate-800/95 rounded-2xl p-4 shadow-sm border border-slate-200 dark:border-slate-700 min-h-[80vh] flex flex-col backdrop-blur-sm">
+          <div className="bg-white dark:bg-slate-800/90 rounded-3xl p-5 shadow-soft border border-slate-200/60 dark:border-slate-700/50 min-h-[80vh] flex flex-col">
             {sidebarContent}
           </div>
         </aside>
 
         {/* Columna Central (Feed) */}
         <main className="flex-1 min-w-0">
-          <header className="sticky top-0 z-30 bg-[#F8FAFC]/95 dark:bg-slate-900/95 backdrop-blur-md pb-3 sm:pb-4 pt-2 mb-3 sm:mb-4">
+          <header className="sticky top-0 z-30 bg-usm-bg/80 dark:bg-[#0c1222]/80 backdrop-blur-xl pb-3 sm:pb-4 pt-3 mb-4">
             <div className="flex items-center justify-between gap-2 sm:gap-4 mb-4 sm:mb-6">
               <div className="flex items-center gap-3 w-full">
                 <button
                   onClick={() => setMobileMenuOpen(true)}
-                  className="md:hidden p-2 bg-white dark:bg-slate-800 rounded-xl shadow-sm text-slate-600 dark:text-slate-300 shrink-0 border border-slate-200 dark:border-slate-700"
+                  className="md:hidden p-2.5 bg-white/90 dark:bg-slate-800/80 rounded-2xl shadow-soft text-slate-600 dark:text-slate-300 shrink-0 border border-white/60 dark:border-slate-700/50 backdrop-blur-sm"
                 >
                   <Menu className="w-6 h-6" />
                 </button>
                 <div className="relative flex-grow max-w-2xl">
-                  <Search className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 text-slate-400 w-4 sm:w-5 h-4 sm:h-5" />
+                  <Search className="absolute left-4 sm:left-5 top-1/2 -translate-y-1/2 text-slate-400 w-4 sm:w-[18px] h-4 sm:h-[18px]" />
                   <input
                     type="text"
                     placeholder="Buscar publicaciones..."
                     value={query}
                     onChange={(event) => setQuery(event.target.value)}
-                    className="w-full pl-10 sm:pl-12 pr-3 sm:pr-4 py-2.5 sm:py-3.5 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm focus:ring-2 focus:ring-usm-blue-bright transition-all dark:text-white dark:placeholder-slate-400 text-xs sm:text-sm"
+                    className="w-full pl-11 sm:pl-13 pr-4 sm:pr-5 py-3 sm:py-3.5 rounded-2xl bg-white/90 dark:bg-slate-800/80 border border-slate-200/60 dark:border-slate-700/50 shadow-soft focus:ring-2 focus:ring-blue-500/30 focus:border-blue-300 dark:focus:border-blue-600 transition-all dark:text-white dark:placeholder-slate-500 text-sm backdrop-blur-sm"
                   />
                 </div>
               </div>
@@ -376,7 +376,7 @@ export default function DashboardPage() {
               <div className="flex items-center gap-2 sm:gap-3 shrink-0">
                 <button
                   onClick={() => setShowNotifications((prev) => !prev)}
-                  className="relative p-3 bg-white dark:bg-slate-800 rounded-full shadow-sm text-slate-600 dark:text-slate-300 hover:text-usm-blue border border-slate-200 dark:border-slate-700 transition-colors"
+                  className="relative p-3 bg-white/90 dark:bg-slate-800/80 rounded-2xl shadow-soft text-slate-500 dark:text-slate-400 hover:text-blue-500 border border-slate-200/60 dark:border-slate-700/50 transition-all hover:shadow-soft-lg backdrop-blur-sm"
                 >
                   <Bell className="w-5 h-5" />
                   {unreadCount > 0 && (
@@ -389,10 +389,10 @@ export default function DashboardPage() {
                       initial={{ opacity: 0, y: 10, scale: 0.95 }}
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                      className="absolute right-0 top-16 w-72 sm:w-80 bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden z-50 max-h-[70vh] overflow-y-auto"
+                      className="absolute right-0 top-16 w-72 sm:w-80 bg-white/95 dark:bg-slate-800/95 rounded-3xl shadow-soft-lg border border-white/60 dark:border-slate-700/50 overflow-hidden z-50 max-h-[70vh] overflow-y-auto backdrop-blur-xl"
                     >
-                      <div className="p-4 border-b border-slate-100 dark:border-slate-700">
-                        <h4 className="font-bold text-usm-blue dark:text-white">Notificaciones</h4>
+                      <div className="p-4 border-b border-slate-100/80 dark:border-slate-700/50">
+                        <h4 className="font-bold text-slate-800 dark:text-white">Notificaciones</h4>
                       </div>
                       {notifications.length === 0 ? (
                         <div className="p-6 text-center text-sm text-slate-400">
@@ -414,36 +414,40 @@ export default function DashboardPage() {
                   )}
                 </AnimatePresence>
                 <Link to="/profile">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-usm-blue to-blue-500 text-white flex items-center justify-center font-bold shadow-md cursor-pointer hover:scale-105 transition-transform overflow-hidden">
+                  <motion.div whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.95 }} className="w-10 h-10 rounded-full bg-gradient-to-tr from-blue-500 to-indigo-500 text-white flex items-center justify-center font-bold shadow-lg shadow-blue-500/20 cursor-pointer overflow-hidden ring-2 ring-white dark:ring-slate-800">
                     {user?.avatar_url ? <img src={user.avatar_url} alt="Avatar" className="w-full h-full object-cover" /> : user?.initials || 'US'}
-                  </div>
+                  </motion.div>
                 </Link>
               </div>
             </div>
 
             {/* Filtros Scrollable */}
             <div className="flex items-center gap-2 sm:gap-3 overflow-x-auto pb-2 scrollbar-hide mask-fade-right">
-              <button
+              <motion.button
                 onClick={() => setSavedOnly((prev) => !prev)}
-                className={`px-4 py-2 rounded-full text-sm font-bold transition-colors shrink-0 flex items-center gap-2 ${savedOnly
-                  ? 'bg-usm-yellow text-slate-900'
-                  : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-usm-yellow'
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+                className={`px-5 py-2.5 rounded-2xl text-sm font-bold transition-all shrink-0 flex items-center gap-2 ${savedOnly
+                  ? 'bg-gradient-to-r from-amber-400 to-amber-500 text-white shadow-md shadow-amber-400/25'
+                  : 'bg-white/90 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 border border-slate-200/60 dark:border-slate-700/50 hover:border-amber-300 shadow-soft backdrop-blur-sm'
                   }`}
               >
                 <BookmarkCheck className="w-4 h-4" /> Guardados
-              </button>
+              </motion.button>
               <div className="w-px h-6 bg-slate-200 dark:bg-slate-700 mx-1 shrink-0" />
               {schools.map((s) => (
-                <button
+                <motion.button
                   key={s}
                   onClick={() => setSchoolFilter(s)}
-                  className={`px-5 py-2 rounded-full text-sm font-semibold transition-all shrink-0 border ${schoolFilter === s
-                    ? 'bg-usm-blue text-white border-usm-blue shadow-md shadow-blue-900/20'
-                    : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700'
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.97 }}
+                  className={`px-5 py-2.5 rounded-2xl text-sm font-semibold transition-all shrink-0 border ${schoolFilter === s
+                    ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white border-blue-500 shadow-lg shadow-blue-500/25'
+                    : 'bg-white/90 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 border-slate-200/60 dark:border-slate-700/50 hover:bg-white dark:hover:bg-slate-700/50 shadow-soft backdrop-blur-sm'
                     }`}
                 >
                   {s}
-                </button>
+                </motion.button>
               ))}
             </div>
           </header>
@@ -469,10 +473,10 @@ export default function DashboardPage() {
               </AnimatePresence>
               {!loading && filteredData.length === 0 && (
                 <div className="py-20 text-center">
-                  <div className="w-20 h-20 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-400">
+                  <div className="w-20 h-20 bg-slate-100/80 dark:bg-slate-800/50 rounded-3xl flex items-center justify-center mx-auto mb-4 text-slate-400">
                     <Search className="w-8 h-8" />
                   </div>
-                  <h3 className="text-lg font-bold text-slate-700 dark:text-slate-200">No hay resultados</h3>
+                  <h3 className="text-lg font-bold text-slate-700 dark:text-slate-200 mb-1">No hay resultados</h3>
                   <p className="text-slate-500">Intenta con otros filtros o términos de búsqueda.</p>
                 </div>
               )}
@@ -506,7 +510,7 @@ export default function DashboardPage() {
           <motion.button
             whileHover={{ scale: 1.08 }}
             whileTap={{ scale: 0.95 }}
-            className="w-16 h-16 bg-usm-blue text-white rounded-full shadow-2xl shadow-usm-blue/40 flex items-center justify-center border-4 border-white dark:border-slate-900"
+            className="w-16 h-16 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-full shadow-2xl shadow-blue-500/30 flex items-center justify-center border-4 border-white dark:border-slate-900"
           >
             <Plus className="w-8 h-8" />
           </motion.button>

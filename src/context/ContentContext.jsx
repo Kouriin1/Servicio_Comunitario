@@ -168,6 +168,15 @@ export function ContentProvider({ children }) {
     }
   }
 
+  async function updateUserRole(userId, newRole) {
+    const { error } = await supabase.rpc('set_user_role', {
+      target_user_id: userId,
+      new_role: newRole,
+    });
+    if (error) throw error;
+    setUsersList(prev => prev.map(u => u.id === userId ? { ...u, role: newRole } : u));
+  }
+
   const addContent = async (item) => {
     const faculty = faculties.find((f) => f.name === item.school);
     const contentType = contentTypesList.find((t) => t.name === item.type);
@@ -428,6 +437,7 @@ export function ContentProvider({ children }) {
         contentTypes,
         usersList,
         fetchUsers,
+        updateUserRole,
         loading,
         hasMore,
         loadingMore,

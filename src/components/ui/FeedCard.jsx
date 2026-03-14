@@ -12,6 +12,8 @@ import {
   ChevronDown,
   ChevronUp,
   Smile,
+  Eye,
+  Download,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useContentContext } from '../../context/ContentContext';
@@ -29,58 +31,111 @@ function timeAgo(dateStr) {
 }
 
 const SCHOOL_COLORS = {
-  Derecho: { badge: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300', dot: 'bg-red-400' },
-  'Estudios Internacionales': { badge: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300', dot: 'bg-blue-400' },
-  Todas: { badge: 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300', dot: 'bg-slate-400' },
+  Derecho: { badge: 'bg-rose-50 text-rose-600 dark:bg-rose-900/20 dark:text-rose-300', dot: 'bg-rose-400' },
+  'Estudios Internacionales': { badge: 'bg-sky-50 text-sky-600 dark:bg-sky-900/20 dark:text-sky-300', dot: 'bg-sky-400' },
+  Todas: { badge: 'bg-slate-50 text-slate-500 dark:bg-slate-700/50 dark:text-slate-300', dot: 'bg-slate-400' },
 };
 
 const TYPE_COLORS = {
-  Tesis: 'bg-usm-blue/10 text-usm-blue dark:bg-blue-900/30 dark:text-blue-300',
-  Artículo: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300',
-  Evento: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300',
+  Tesis: 'bg-blue-50 text-blue-600 ring-1 ring-blue-100 dark:bg-blue-900/20 dark:text-blue-300 dark:ring-blue-800/30',
+  Artículo: 'bg-emerald-50 text-emerald-600 ring-1 ring-emerald-100 dark:bg-emerald-900/20 dark:text-emerald-300 dark:ring-emerald-800/30',
+  Evento: 'bg-violet-50 text-violet-600 ring-1 ring-violet-100 dark:bg-violet-900/20 dark:text-violet-300 dark:ring-violet-800/30',
+  Resumen: 'bg-amber-50 text-amber-600 ring-1 ring-amber-100 dark:bg-amber-900/20 dark:text-amber-300 dark:ring-amber-800/30',
 };
 
 // ─── Media Previews ──────────────────────────────────────────────────────────
 
 function MediaPreview({ item, onClick }) {
   if (!item.fileType || !item.fileUrl) return null;
-  const base = 'relative mt-3 mb-3 rounded-xl overflow-hidden cursor-pointer group bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700';
 
   if (item.fileType === 'image') {
     return (
-      <div className={base} onClick={onClick}>
-        <img src={item.fileUrl} alt={item.title} className="w-full max-h-[400px] object-cover hover:scale-105 transition-transform duration-500" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-      </div>
+      <motion.div
+        whileHover={{ scale: 1.005 }}
+        transition={{ duration: 0.3 }}
+        className="relative -mx-6 mt-4 mb-1 cursor-pointer group overflow-hidden"
+        onClick={onClick}
+      >
+        <img
+          src={item.fileUrl}
+          alt={item.title}
+          className="w-full aspect-[16/10] object-cover transition-transform duration-700 group-hover:scale-[1.03]"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+        <div className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-1 group-hover:translate-y-0">
+          <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/90 backdrop-blur-sm text-xs font-semibold text-slate-700 shadow-lg">
+            <Eye className="w-3.5 h-3.5" /> Ver
+          </span>
+        </div>
+      </motion.div>
     );
   }
 
   if (item.fileType === 'video') {
     return (
-      <div className={`${base} aspect-video`} onClick={onClick}>
+      <motion.div
+        whileHover={{ scale: 1.005 }}
+        transition={{ duration: 0.3 }}
+        className="relative -mx-6 mt-4 mb-1 aspect-video cursor-pointer group overflow-hidden"
+        onClick={onClick}
+      >
         <video src={item.fileUrl} className="w-full h-full object-cover" preload="metadata" muted playsInline />
-        <div className="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/40 transition-colors">
-          <div className="w-14 h-14 rounded-full bg-white/90 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-            <svg className="w-6 h-6 text-slate-800 ml-1" fill="currentColor" viewBox="0 0 24 24">
+        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent group-hover:from-black/50 transition-colors duration-500" />
+        <div className="absolute inset-0 flex items-center justify-center">
+          <motion.div
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.95 }}
+            className="w-16 h-16 rounded-full bg-white/95 backdrop-blur-sm flex items-center justify-center shadow-2xl shadow-black/20"
+          >
+            <svg className="w-7 h-7 text-slate-800 ml-1" fill="currentColor" viewBox="0 0 24 24">
               <path d="M8 5v14l11-7z" />
             </svg>
-          </div>
+          </motion.div>
         </div>
-      </div>
+        <div className="absolute bottom-3 left-3">
+          <span className="px-2.5 py-1 rounded-full bg-black/50 backdrop-blur-sm text-[10px] font-bold text-white uppercase tracking-wider">
+            Video
+          </span>
+        </div>
+      </motion.div>
     );
   }
 
   if (item.fileType === 'pdf') {
     return (
-      <div className={`${base} h-32 flex items-center gap-4 p-4 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors`} onClick={onClick}>
-        <div className="bg-red-100 text-red-600 p-3 rounded-lg">
-          <FileText className="w-8 h-8" />
+      <motion.div
+        whileHover={{ y: -2 }}
+        transition={{ duration: 0.2 }}
+        className="mt-4 mb-1 rounded-2xl overflow-hidden cursor-pointer group"
+        onClick={onClick}
+      >
+        <div className="relative bg-gradient-to-br from-red-50 via-orange-50/50 to-amber-50/30 dark:from-red-900/10 dark:via-slate-800/50 dark:to-slate-800/30 border border-red-100/60 dark:border-red-900/20 p-5 flex items-center gap-4 transition-all group-hover:border-red-200 dark:group-hover:border-red-800/30 group-hover:shadow-soft">
+          <div className="relative">
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-red-500 to-rose-600 flex items-center justify-center shadow-lg shadow-red-500/20 group-hover:shadow-red-500/30 transition-shadow">
+              <FileText className="w-7 h-7 text-white" />
+            </div>
+            <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-white dark:bg-slate-800 flex items-center justify-center shadow-sm">
+              <Download className="w-3 h-3 text-red-500" />
+            </div>
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-bold text-slate-800 dark:text-white mb-0.5 truncate">
+              {item.fileName || 'Documento PDF'}
+            </p>
+            <p className="text-xs text-slate-400 dark:text-slate-500 mb-2">
+              {item.fileSize ? `${(item.fileSize / 1024).toFixed(0)} KB · ` : ''}Archivo PDF
+            </p>
+            <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-red-600 dark:text-red-400 group-hover:text-red-700 transition-colors">
+              <Eye className="w-3.5 h-3.5" /> Previsualizar documento
+            </span>
+          </div>
+          <div className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+            <div className="w-10 h-10 rounded-xl bg-white dark:bg-slate-700 shadow-sm flex items-center justify-center text-red-500">
+              <ExternalLink className="w-4 h-4" />
+            </div>
+          </div>
         </div>
-        <div>
-          <p className="font-bold text-slate-700 dark:text-white mb-1">Documento PDF</p>
-          <p className="text-xs text-slate-500">Click para previsualizar</p>
-        </div>
-      </div>
+      </motion.div>
     );
   }
   return null;
@@ -89,21 +144,23 @@ function MediaPreview({ item, onClick }) {
 function LinkPreview({ item }) {
   if (!item.linkUrl) return null;
   return (
-    <a
+    <motion.a
       href={item.linkUrl}
       target="_blank"
       rel="noopener noreferrer"
-      className="flex items-center gap-3 mt-3 mb-3 p-4 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700/50 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors group"
+      whileHover={{ y: -1 }}
+      transition={{ duration: 0.2 }}
+      className="flex items-center gap-3 mt-4 mb-1 p-4 rounded-2xl border border-slate-100 dark:border-slate-700/50 bg-slate-50/80 dark:bg-slate-800/50 hover:bg-white dark:hover:bg-slate-700/50 transition-all group hover:shadow-soft"
     >
-      <div className="w-10 h-10 rounded-lg bg-usm-blue/10 dark:bg-blue-900/30 flex items-center justify-center text-usm-blue dark:text-blue-300 shrink-0">
+      <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white shrink-0 shadow-md shadow-blue-500/20">
         <ExternalLink className="w-5 h-5" />
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium text-usm-blue dark:text-blue-300 group-hover:underline truncate">{item.linkUrl}</p>
-        <p className="text-xs text-slate-400">Abrir enlace externo</p>
+        <p className="text-sm font-semibold text-slate-700 dark:text-slate-200 group-hover:text-blue-600 dark:group-hover:text-blue-400 truncate transition-colors">{item.linkUrl}</p>
+        <p className="text-xs text-slate-400 mt-0.5">Abrir enlace externo</p>
       </div>
-      <Link2 className="w-4 h-4 text-slate-400 shrink-0" />
-    </a>
+      <Link2 className="w-4 h-4 text-slate-300 group-hover:text-blue-400 shrink-0 transition-colors" />
+    </motion.a>
   );
 }
 
@@ -111,17 +168,17 @@ function LinkPreview({ item }) {
 
 function Avatar({ name, size = 'md', avatarUrl }) {
   if (avatarUrl) {
-    const sizeClass = size === 'sm' ? 'w-7 h-7' : 'w-10 h-10';
-    return <img src={avatarUrl} alt={name || 'Avatar'} className={`${sizeClass} rounded-full object-cover shrink-0 border bg-white`} />;
+    const sizeClass = size === 'sm' ? 'w-7 h-7' : 'w-11 h-11';
+    return <img src={avatarUrl} alt={name || 'Avatar'} className={`${sizeClass} rounded-full object-cover shrink-0 ring-2 ring-white dark:ring-slate-800`} />;
   }
   const initials = name
     ? name.split(' ').slice(0, 2).map((w) => w[0]).join('').toUpperCase()
     : 'U';
-  const sizeClass = size === 'sm' ? 'w-7 h-7 text-[10px]' : 'w-10 h-10 text-sm';
-  const gradients = ['from-blue-500 to-cyan-400', 'from-purple-500 to-pink-400', 'from-green-500 to-emerald-400', 'from-orange-500 to-amber-400', 'from-red-500 to-rose-400'];
+  const sizeClass = size === 'sm' ? 'w-7 h-7 text-[10px]' : 'w-11 h-11 text-sm';
+  const gradients = ['from-blue-500 to-cyan-400', 'from-violet-500 to-purple-400', 'from-emerald-500 to-teal-400', 'from-orange-500 to-amber-400', 'from-rose-500 to-pink-400'];
   const idx = (name?.charCodeAt(0) ?? 0) % gradients.length;
   return (
-    <div className={`${sizeClass} rounded-full bg-gradient-to-br ${gradients[idx]} text-white flex items-center justify-center font-bold shrink-0`}>
+    <div className={`${sizeClass} rounded-full bg-gradient-to-br ${gradients[idx]} text-white flex items-center justify-center font-bold shrink-0 ring-2 ring-white dark:ring-slate-800`}>
       {initials}
     </div>
   );
@@ -135,12 +192,12 @@ function CommentItem({ comment, isAdmin, onDelete, publicationId }) {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 8 }}
+      initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
       className="flex items-start gap-2.5 group relative"
     >
       <Avatar name={authorName} size="sm" avatarUrl={comment.profiles?.avatar_url} />
-      <div className="flex-1 bg-white dark:bg-slate-800 rounded-xl px-3 py-2 border border-slate-100 dark:border-slate-700">
+      <div className="flex-1 bg-white/80 dark:bg-slate-800/80 rounded-2xl px-3.5 py-2.5 border border-slate-100/80 dark:border-slate-700/50">
         <div className="flex items-baseline justify-between gap-2">
           <div className="flex items-baseline gap-2">
             <span className="text-xs font-bold text-slate-800 dark:text-white">{authorName}</span>
@@ -156,7 +213,7 @@ function CommentItem({ comment, isAdmin, onDelete, publicationId }) {
             </button>
           )}
         </div>
-        <p className="text-xs text-slate-600 dark:text-slate-300 mt-0.5 leading-relaxed">{comment.content}</p>
+        <p className="text-[13px] text-slate-600 dark:text-slate-300 mt-0.5 leading-relaxed">{comment.content}</p>
       </div>
     </motion.div>
   );
@@ -169,7 +226,7 @@ export default function FeedCard({ item, onToggleSave, isSaved = false, onViewDe
   const { user } = useAuth();
 
   const schoolStyle = SCHOOL_COLORS[item.school] || SCHOOL_COLORS['Todas'];
-  const typeColor = TYPE_COLORS[item.type] || 'bg-slate-100 text-slate-600';
+  const typeColor = TYPE_COLORS[item.type] || 'bg-slate-50 text-slate-500';
 
   // State derived directly from the loaded item
   const [likeAnim, setLikeAnim] = useState(false);
@@ -221,18 +278,21 @@ export default function FeedCard({ item, onToggleSave, isSaved = false, onViewDe
   return (
     <motion.div
       layout
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.95 }}
-      className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden"
+      exit={{ opacity: 0, y: -8, scale: 0.98 }}
+      transition={{ duration: 0.3, ease: 'easeOut' }}
+      className="bg-white dark:bg-slate-800/90 rounded-3xl shadow-soft hover:shadow-soft-lg border border-slate-100/80 dark:border-slate-700/50 overflow-hidden transition-shadow duration-500"
     >
-      <div className="p-5">
+      <div className="px-6 pt-5 pb-4">
         {/* Header */}
-        <div className="flex items-start justify-between mb-4">
+        <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
             {item.has_linked_author ? (
               <Link to={`/u/${item._author_id}`} onClick={(e) => e.stopPropagation()}>
-                <Avatar name={item.author} avatarUrl={item.author_avatar} />
+                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                  <Avatar name={item.author} avatarUrl={item.author_avatar} />
+                </motion.div>
               </Link>
             ) : (
               <Avatar name={item.author} avatarUrl={item.author_avatar} />
@@ -242,41 +302,41 @@ export default function FeedCard({ item, onToggleSave, isSaved = false, onViewDe
                 <Link
                   to={`/u/${item._author_id}`}
                   onClick={(e) => e.stopPropagation()}
-                  className="text-sm font-bold text-slate-900 dark:text-white leading-tight hover:text-usm-blue dark:hover:text-blue-400 transition-colors"
+                  className="text-[15px] font-bold text-slate-900 dark:text-white leading-tight hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                 >
                   {item.author}
                 </Link>
               ) : (
-                <h3 className="text-sm font-bold text-slate-900 dark:text-white leading-tight">
+                <h3 className="text-[15px] font-bold text-slate-900 dark:text-white leading-tight">
                   {item.author}
                 </h3>
               )}
               <p className="text-xs text-slate-400 flex items-center gap-1.5 mt-0.5">
                 <span className={`w-1.5 h-1.5 rounded-full ${schoolStyle.dot}`} />
                 <span>{item.school}</span>
-                <span>·</span>
+                <span className="text-slate-300">·</span>
                 <span>{timeAgo(item.date)}</span>
               </p>
             </div>
           </div>
+          <span className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] uppercase font-bold tracking-wider ${typeColor}`}>
+            {item.type}
+          </span>
         </div>
 
         {/* Content */}
-        <div className="mb-4">
-          <span className={`inline-block px-2.5 py-0.5 rounded-md text-[10px] uppercase font-bold tracking-widest mb-2.5 ${typeColor}`}>
-            {item.type}
-          </span>
+        <div className="mb-2">
           <h2
-            className="text-base font-bold text-slate-900 dark:text-white mb-2 cursor-pointer hover:text-usm-blue dark:hover:text-blue-400 transition-colors leading-snug"
+            className="text-lg font-bold text-slate-900 dark:text-white mb-2 cursor-pointer hover:text-blue-600 dark:hover:text-blue-400 transition-colors leading-snug"
             onClick={() => onViewDetail?.()}
           >
             {item.title}
           </h2>
-          <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed">
+          <p className="text-slate-500 dark:text-slate-400 text-[15px] leading-[1.7]">
             {item.excerpt}
             <button
               onClick={() => onViewDetail?.()}
-              className="text-usm-blue dark:text-blue-400 text-xs font-bold ml-1 hover:underline"
+              className="text-blue-500 dark:text-blue-400 text-sm font-semibold ml-1.5 hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
             >
               Leer más
             </button>
@@ -286,60 +346,57 @@ export default function FeedCard({ item, onToggleSave, isSaved = false, onViewDe
         </div>
 
         {/* Action Bar */}
-        <div className="flex items-center justify-between pt-3.5 border-t border-slate-100 dark:border-slate-700">
-          <div className="flex items-center gap-1">
+        <div className="flex items-center justify-between pt-3 mt-2 border-t border-slate-100/80 dark:border-slate-700/40">
+          <div className="flex items-center gap-0.5">
             {/* Like */}
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-medium">
-              <motion.button
-                onClick={handleLike}
-                whileTap={{ scale: 0.8 }}
-                className={`flex items-center transition-all ${liked
-                  ? 'text-red-500 hover:text-red-600'
-                  : 'text-slate-500 dark:text-slate-400 hover:text-red-500'
-                  }`}
-              >
-                <motion.div animate={likeAnim ? { scale: [1, 1.5, 0.9, 1.1, 1] } : {}} transition={{ duration: 0.4 }}>
-                  <Heart className="w-[18px] h-[18px] transition-all" fill={liked ? 'currentColor' : 'none'} strokeWidth={liked ? 0 : 1.75} />
-                </motion.div>
-              </motion.button>
-
+            <motion.button
+              onClick={handleLike}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.85 }}
+              className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-sm font-medium transition-all ${liked
+                ? 'text-rose-500 bg-rose-50/80 dark:bg-rose-900/15'
+                : 'text-slate-500 dark:text-slate-400 hover:text-rose-500 hover:bg-rose-50/80 dark:hover:bg-rose-900/10'
+                }`}
+            >
+              <motion.div animate={likeAnim ? { scale: [1, 1.4, 0.9, 1.15, 1] } : {}} transition={{ duration: 0.4 }}>
+                <Heart className="w-[18px] h-[18px]" fill={liked ? 'currentColor' : 'none'} strokeWidth={liked ? 0 : 1.75} />
+              </motion.div>
               <button
-                className={`text-xs tabular-nums transition-colors ${user?.role === 'admin' ? 'hover:underline cursor-pointer text-slate-700 dark:text-slate-300' : 'text-slate-500 dark:text-slate-400 cursor-default'}`}
-                onClick={() => {
-                  if (user?.role === 'admin' && likeCount > 0) {
-                    setShowLikesModal(true);
-                  }
+                className={`text-xs tabular-nums transition-colors ${user?.role === 'admin' && likeCount > 0 ? 'hover:underline cursor-pointer' : 'cursor-default'}`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (user?.role === 'admin' && likeCount > 0) setShowLikesModal(true);
                 }}
               >
                 {likeCount}
               </button>
-            </div>
+            </motion.button>
 
             {/* Comment toggle */}
-            <button
+            <motion.button
               onClick={() => setShowComments((p) => !p)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-medium transition-all ${showComments
-                ? 'text-usm-blue bg-blue-50 dark:bg-blue-900/20'
-                : 'text-slate-500 dark:text-slate-400 hover:text-usm-blue hover:bg-blue-50 dark:hover:bg-blue-900/10'
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.9 }}
+              className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl font-medium transition-all ${showComments
+                ? 'text-blue-500 bg-blue-50/80 dark:bg-blue-900/15'
+                : 'text-slate-500 dark:text-slate-400 hover:text-blue-500 hover:bg-blue-50/80 dark:hover:bg-blue-900/10'
                 }`}
             >
               <MessageCircle className="w-[18px] h-[18px]" fill={showComments ? 'currentColor' : 'none'} strokeWidth={showComments ? 0 : 1.75} />
               <span className="text-xs tabular-nums">{comments.length}</span>
               {showComments ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
-            </button>
-
-          </div>
-
-          <div className="flex items-center gap-1">
-            <motion.button
-              whileTap={{ scale: 0.85 }}
-              onClick={() => onToggleSave?.(item.id)}
-              className={`p-2 rounded-xl transition-all ${isSaved ? 'text-usm-yellow bg-yellow-50 dark:bg-yellow-900/20' : 'text-slate-400 hover:text-usm-yellow hover:bg-yellow-50 dark:hover:bg-yellow-900/10'}`}
-              title={isSaved ? 'Guardado' : 'Guardar'}
-            >
-              <Bookmark className="w-[18px] h-[18px]" fill={isSaved ? 'currentColor' : 'none'} strokeWidth={isSaved ? 0 : 1.75} />
             </motion.button>
           </div>
+
+          <motion.button
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.85 }}
+            onClick={() => onToggleSave?.(item.id)}
+            className={`p-2.5 rounded-xl transition-all ${isSaved ? 'text-amber-500 bg-amber-50/80 dark:bg-amber-900/15' : 'text-slate-400 hover:text-amber-500 hover:bg-amber-50/80 dark:hover:bg-amber-900/10'}`}
+            title={isSaved ? 'Guardado' : 'Guardar'}
+          >
+            <Bookmark className="w-[18px] h-[18px]" fill={isSaved ? 'currentColor' : 'none'} strokeWidth={isSaved ? 0 : 1.75} />
+          </motion.button>
         </div>
       </div>
 
@@ -354,10 +411,10 @@ export default function FeedCard({ item, onToggleSave, isSaved = false, onViewDe
             transition={{ duration: 0.25, ease: 'easeInOut' }}
             className="overflow-hidden"
           >
-            <div className="px-5 pb-5 pt-4 border-t border-slate-100 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-900/40">
+            <div className="px-6 pb-5 pt-4 border-t border-slate-100/80 dark:border-slate-700/40 bg-gradient-to-b from-slate-50/60 to-white/0 dark:from-slate-900/30 dark:to-transparent">
               <div className="space-y-3">
                 {comments.length === 0 && (
-                  <p className="text-xs text-slate-400 text-center py-3">Sé el primero en comentar.</p>
+                  <p className="text-xs text-slate-400 text-center py-4">Sé el primero en comentar.</p>
                 )}
                 <AnimatePresence initial={false}>
                   {comments.map((c) => (
@@ -373,24 +430,25 @@ export default function FeedCard({ item, onToggleSave, isSaved = false, onViewDe
               </div>
 
               {/* Input */}
-              <div className="flex items-center gap-2 mt-4">
+              <div className="flex items-center gap-2.5 mt-4">
                 <Avatar name="Tú" size="sm" avatarUrl={user?.avatar_url} />
-                <div className="flex-1 flex items-center gap-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-full px-3 py-1.5 focus-within:ring-2 focus-within:ring-usm-blue/50 transition-all">
+                <div className="flex-1 flex items-center gap-2 bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-slate-600/50 rounded-full px-4 py-2 focus-within:ring-2 focus-within:ring-blue-500/30 focus-within:border-blue-300 dark:focus-within:border-blue-600 transition-all">
                   <input
                     type="text"
                     value={commentText}
                     onChange={(e) => setCommentText(e.target.value)}
                     onKeyDown={handleKeyDown}
                     placeholder="Escribe un comentario..."
-                    className="flex-1 bg-transparent text-xs text-slate-700 dark:text-slate-200 placeholder-slate-400 outline-none"
+                    className="flex-1 bg-transparent text-sm text-slate-700 dark:text-slate-200 placeholder-slate-400 outline-none"
                   />
-                  <Smile className="w-4 h-4 text-slate-300 hover:text-yellow-500 cursor-pointer transition-colors" />
+                  <Smile className="w-4 h-4 text-slate-300 hover:text-amber-400 cursor-pointer transition-colors" />
                 </div>
                 <motion.button
+                  whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.85 }}
                   onClick={handleAddComment}
                   disabled={!commentText.trim()}
-                  className="w-8 h-8 rounded-full bg-usm-blue text-white flex items-center justify-center hover:bg-blue-600 transition-colors disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
+                  className="w-9 h-9 rounded-full bg-gradient-to-r from-blue-500 to-blue-600 text-white flex items-center justify-center hover:from-blue-600 hover:to-blue-700 transition-all disabled:opacity-30 disabled:cursor-not-allowed shrink-0 shadow-md shadow-blue-500/20"
                 >
                   <Send className="w-3.5 h-3.5" />
                 </motion.button>
@@ -409,22 +467,22 @@ export default function FeedCard({ item, onToggleSave, isSaved = false, onViewDe
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setShowLikesModal(false)}
-              className="fixed inset-0 bg-slate-900/40 z-50 backdrop-blur-sm"
+              className="fixed inset-0 bg-slate-900/30 z-50 backdrop-blur-sm"
             />
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-sm bg-white dark:bg-slate-800 rounded-2xl shadow-xl z-50 overflow-hidden text-left border border-slate-200 dark:border-slate-700"
+              className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-sm bg-white dark:bg-slate-800 rounded-3xl shadow-soft-lg z-50 overflow-hidden text-left border border-slate-200/80 dark:border-slate-700/50"
             >
-              <div className="flex items-center justify-between p-4 border-b border-slate-100 dark:border-slate-700">
+              <div className="flex items-center justify-between p-5 border-b border-slate-100 dark:border-slate-700/50">
                 <h3 className="font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                  <Heart className="w-4 h-4 text-red-500" fill="currentColor" />
+                  <Heart className="w-4 h-4 text-rose-500" fill="currentColor" />
                   Me gusta
                 </h3>
                 <button
                   onClick={() => setShowLikesModal(false)}
-                  className="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700"
+                  className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700"
                 >
                   <ChevronDown className="w-5 h-5 rotate-90" />
                 </button>
