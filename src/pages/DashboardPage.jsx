@@ -48,7 +48,10 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [selectedItem, setSelectedItem] = useState(null);
   const [notifications, setNotifications] = useState([]);
+  const [highlightedId, setHighlightedId] = useState(null);
+  const [notifLoading, setNotifLoading] = useState(false);
   const sentinelRef = useRef(null);
+  const postRefs = useRef({});
 
   useEffect(() => {
     const timer = setTimeout(() => setLoading(false), 600);
@@ -81,6 +84,80 @@ export default function DashboardPage() {
     }
     fetchNotifications();
   }, [session]);
+
+  const handleNotificationClick = async (n) => {
+    // Mark as read
+    if (!n.is_read) {
+      supabase.from('notifications').update({ is_read: true }).eq('id', n.id).then();
+      setNotifications(prev => prev.map(notif => notif.id === n.id ? { ...notif, is_read: true } : notif));
+    }
+    setShowNotifications(false);
+
+    if (!n.publication_id) return;
+
+    // Reset filters so the post is visible
+    setSchoolFilter('Todas');
+    setTypeFilter('Todos');
+    setQuery('');
+    setSavedOnly(false);
+
+    // Check if post is already in the feed
+    const existing = allContent.find(p => p.id === n.publication_id);
+    if (existing) {
+      // Small delay for filters to apply
+      setTimeout(() => {
+        const el = postRefs.current[n.publication_id];
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          setHighlightedId(n.publication_id);
+          setTimeout(() => setHighlightedId(null), 2500);
+        }
+      }, 100);
+      return;
+    }
+
+    // Post not in feed — fetch it directly
+    setNotifLoading(true);
+    try {
+      const { data } = await supabase
+        .from('publications')
+        .select(`
+          *,
+          faculty:faculties(id, name, code, color),
+          content_type:content_types(id, name, icon, color),
+          media_files(id, file_type, file_name, public_url, thumbnail_url, external_url, storage_path),
+          likes(user_id),
+          comments(id, content, created_at, is_deleted, user_id, profiles:user_id(display_name, avatar_url)),
+          profiles:author_id(avatar_url)
+        `)
+        .eq('id', n.publication_id)
+        .single();
+
+      if (data) {
+        // Open in detail modal as fallback
+        const media = data.media_files?.[0];
+        setSelectedItem({
+          id: data.id,
+          title: data.title,
+          author: data.author_name || 'Anónimo',
+          school: data.faculty?.name || 'General',
+          type: data.content_type?.name || 'Artículo',
+          date: data.created_at,
+          excerpt: data.description || '',
+          readTime: data.read_time_min ? `${data.read_time_min} min` : null,
+          location: data.event_location || null,
+          fileUrl: media?.public_url || null,
+          fileType: media?.file_type || null,
+          fileName: media?.file_name || null,
+          linkUrl: data.external_url || null,
+        });
+      }
+    } catch {
+      // silently fail
+    } finally {
+      setNotifLoading(false);
+    }
+  };
 
   const handleMenuClick = (key) => {
     setActiveMenu(key);
@@ -402,11 +479,15 @@ export default function DashboardPage() {
                         notifications.map((n) => (
                           <div
                             key={n.id}
-                            className={`p-4 border-b border-slate-50 dark:border-slate-700 last:border-none hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors ${!n.is_read ? 'bg-blue-50/50 dark:bg-blue-900/10' : ''
+                            onClick={() => handleNotificationClick(n)}
+                            className={`p-4 border-b border-slate-50 dark:border-slate-700 last:border-none hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors cursor-pointer ${!n.is_read ? 'bg-blue-50/50 dark:bg-blue-900/10' : ''
                               }`}
                           >
                             <p className="text-sm text-slate-700 dark:text-slate-200">{n.message || `Nueva ${n.type}`}</p>
-                            <p className="text-xs text-slate-400 mt-1">{new Date(n.created_at).toLocaleDateString('es-VE')}</p>
+                            <div className="flex items-center justify-between mt-1">
+                              <p className="text-xs text-slate-400">{new Date(n.created_at).toLocaleDateString('es-VE')}</p>
+                              {!n.is_read && <span className="w-2 h-2 rounded-full bg-blue-500" />}
+                            </div>
                           </div>
                         ))
                       )}
@@ -452,6 +533,13 @@ export default function DashboardPage() {
             </div>
           </header>
 
+          {notifLoading && (
+            <div className="flex items-center justify-center gap-3 py-8">
+              <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+              <span className="text-sm text-slate-500 dark:text-slate-400">Buscando publicación...</span>
+            </div>
+          )}
+
           {loading ? (
             <div className="space-y-6">
               {Array.from({ length: 3 }).map((_, i) => (
@@ -462,13 +550,18 @@ export default function DashboardPage() {
             <div className="space-y-6">
               <AnimatePresence mode="popLayout">
                 {filteredData.map((item) => (
-                  <FeedCard
+                  <div
                     key={item.id}
-                    item={item}
-                    onToggleSave={toggleSave}
-                    isSaved={savedIds.includes(item.id)}
-                    onViewDetail={() => setSelectedItem(item)}
-                  />
+                    ref={el => { postRefs.current[item.id] = el; }}
+                    className={`transition-all duration-700 rounded-3xl ${highlightedId === item.id ? 'ring-2 ring-blue-500 ring-offset-2 dark:ring-offset-slate-900' : ''}`}
+                  >
+                    <FeedCard
+                      item={item}
+                      onToggleSave={toggleSave}
+                      isSaved={savedIds.includes(item.id)}
+                      onViewDetail={() => setSelectedItem(item)}
+                    />
+                  </div>
                 ))}
               </AnimatePresence>
               {!loading && filteredData.length === 0 && (
