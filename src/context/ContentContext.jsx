@@ -177,6 +177,20 @@ export function ContentProvider({ children }) {
     setUsersList(prev => prev.map(u => u.id === userId ? { ...u, role: newRole } : u));
   }
 
+  async function banUser(userId) {
+    const { error } = await supabase.rpc('ban_user', { target_user_id: userId });
+    if (error) throw error;
+    setUsersList(prev => prev.map(u => u.id === userId ? { ...u, is_banned: true, role: 'student' } : u));
+    // Remove banned user's publications from local state
+    setContent(prev => prev.filter(p => p._author_id !== userId && p._creator_id !== userId));
+  }
+
+  async function unbanUser(userId) {
+    const { error } = await supabase.rpc('unban_user', { target_user_id: userId });
+    if (error) throw error;
+    setUsersList(prev => prev.map(u => u.id === userId ? { ...u, is_banned: false } : u));
+  }
+
   const addContent = async (item) => {
     const faculty = faculties.find((f) => f.name === item.school);
     const contentType = contentTypesList.find((t) => t.name === item.type);
@@ -438,6 +452,8 @@ export function ContentProvider({ children }) {
         usersList,
         fetchUsers,
         updateUserRole,
+        banUser,
+        unbanUser,
         loading,
         hasMore,
         loadingMore,

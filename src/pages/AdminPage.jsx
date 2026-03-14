@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   FilePlus2, ListFilter, Pencil, Trash2, Eye, ArrowLeft, Check,
-  Upload, FileText, Video, Image, Link2, X, Users, Search, Loader2, ShieldCheck, ShieldOff
+  Upload, FileText, Video, Image, Link2, X, Users, Search, Loader2, ShieldCheck, ShieldOff, Ban, UserCheck
 } from 'lucide-react';
 import { useContentContext } from '../context/ContentContext';
 import { useAuth } from '../context/AuthContext';
@@ -44,7 +44,7 @@ function FileTypeIcon({ fileType, className = 'w-4 h-4' }) {
 
 export default function AdminPage() {
   const navigate = useNavigate();
-  const { allContent, addContent, deleteContent, updateContent, faculties, contentTypesList, contentTypes, usersList, fetchUsers, updateUserRole } = useContentContext();
+  const { allContent, addContent, deleteContent, updateContent, faculties, contentTypesList, contentTypes, usersList, fetchUsers, updateUserRole, banUser, unbanUser } = useContentContext();
   const { user } = useAuth();
   const { showToast } = useToast();
   const [selectedType, setSelectedType] = useState('Todos');
@@ -64,6 +64,8 @@ export default function AdminPage() {
   const isSuperAdmin = user?.email === SUPER_ADMIN_EMAIL;
   const [adminSearch, setAdminSearch] = useState('');
   const [togglingRole, setTogglingRole] = useState(null);
+  const [togglingBan, setTogglingBan] = useState(null);
+  const [banConfirm, setBanConfirm] = useState(null);
 
   useEffect(() => {
     fetchUsers();
@@ -210,6 +212,31 @@ export default function AdminPage() {
       showToast('Publicación eliminada', 'info');
     } catch (err) {
       showToast(err.message || 'Error al eliminar', 'error');
+    }
+  };
+
+  const handleBan = async (u) => {
+    setTogglingBan(u.id);
+    try {
+      await banUser(u.id);
+      showToast(`${u.display_name || 'Usuario'} ha sido baneado y su contenido eliminado`, 'success');
+    } catch {
+      showToast('Error al banear usuario', 'error');
+    } finally {
+      setTogglingBan(null);
+      setBanConfirm(null);
+    }
+  };
+
+  const handleUnban = async (u) => {
+    setTogglingBan(u.id);
+    try {
+      await unbanUser(u.id);
+      showToast(`${u.display_name || 'Usuario'} ha sido desbaneado`, 'success');
+    } catch {
+      showToast('Error al desbanear usuario', 'error');
+    } finally {
+      setTogglingBan(null);
     }
   };
 
@@ -558,8 +585,9 @@ export default function AdminPage() {
                     <th className="py-3 px-4 font-semibold text-sm text-slate-500 dark:text-slate-400">Usuario</th>
                     <th className="py-3 px-4 font-semibold text-sm text-slate-500 dark:text-slate-400">Correo</th>
                     <th className="py-3 px-4 font-semibold text-sm text-slate-500 dark:text-slate-400">Escuela</th>
+                    <th className="py-3 px-4 font-semibold text-sm text-slate-500 dark:text-slate-400 text-center">Estado</th>
                     <th className="py-3 px-4 font-semibold text-sm text-slate-500 dark:text-slate-400 text-center">Rol</th>
-                    <th className="py-3 px-4 font-semibold text-sm text-slate-500 dark:text-slate-400 text-center">Acción</th>
+                    <th className="py-3 px-4 font-semibold text-sm text-slate-500 dark:text-slate-400 text-center">Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -572,13 +600,25 @@ export default function AdminPage() {
                     .map(u => {
                       const isSuper = u.email === SUPER_ADMIN_EMAIL;
                       const isAdmin = u.role === 'admin';
+                      const isBanned = !!u.is_banned;
                       return (
-                        <tr key={u.id} className="border-b border-slate-100 dark:border-slate-700/50 hover:bg-slate-50 dark:hover:bg-slate-700/20">
+                        <tr key={u.id} className={`border-b border-slate-100 dark:border-slate-700/50 hover:bg-slate-50 dark:hover:bg-slate-700/20 ${isBanned ? 'opacity-60' : ''}`}>
                           <td className="py-3 px-4">
                             <p className="font-medium text-slate-800 dark:text-white">{u.display_name || 'Sin nombre'}</p>
                           </td>
                           <td className="py-3 px-4 text-sm text-slate-600 dark:text-slate-300">{u.email}</td>
                           <td className="py-3 px-4 text-sm text-slate-600 dark:text-slate-300">{u.faculty?.name || '-'}</td>
+                          <td className="py-3 px-4 text-center">
+                            {isBanned ? (
+                              <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400">
+                                Baneado
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
+                                Activo
+                              </span>
+                            )}
+                          </td>
                           <td className="py-3 px-4 text-center">
                             <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${isAdmin ? 'bg-usm-blue/10 text-usm-blue dark:bg-blue-900/30 dark:text-blue-300' : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'}`}>
                               {isSuper ? 'Super Admin' : isAdmin ? 'Admin' : 'Usuario'}
@@ -588,32 +628,52 @@ export default function AdminPage() {
                             {isSuper ? (
                               <span className="text-xs text-slate-400">—</span>
                             ) : (
-                              <button
-                                disabled={togglingRole === u.id}
-                                onClick={async () => {
-                                  setTogglingRole(u.id);
-                                  try {
-                                    await updateUserRole(u.id, isAdmin ? 'student' : 'admin');
-                                    showToast(isAdmin ? `${u.display_name || 'Usuario'} ya no es administrador` : `${u.display_name || 'Usuario'} ahora es administrador`, 'success');
-                                  } catch {
-                                    showToast('Error al cambiar el rol', 'error');
-                                  } finally {
-                                    setTogglingRole(null);
-                                  }
-                                }}
-                                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${isAdmin
-                                  ? 'bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30'
-                                  : 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/30'
-                                }`}
-                              >
-                                {togglingRole === u.id ? (
-                                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                                ) : isAdmin ? (
-                                  <><ShieldOff className="w-3.5 h-3.5" /> Quitar Admin</>
-                                ) : (
-                                  <><ShieldCheck className="w-3.5 h-3.5" /> Hacer Admin</>
+                              <div className="flex items-center justify-center gap-2">
+                                {!isBanned && (
+                                  <button
+                                    disabled={togglingRole === u.id}
+                                    onClick={async () => {
+                                      setTogglingRole(u.id);
+                                      try {
+                                        await updateUserRole(u.id, isAdmin ? 'student' : 'admin');
+                                        showToast(isAdmin ? `${u.display_name || 'Usuario'} ya no es administrador` : `${u.display_name || 'Usuario'} ahora es administrador`, 'success');
+                                      } catch {
+                                        showToast('Error al cambiar el rol', 'error');
+                                      } finally {
+                                        setTogglingRole(null);
+                                      }
+                                    }}
+                                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${isAdmin
+                                      ? 'bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30'
+                                      : 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/30'
+                                    }`}
+                                  >
+                                    {togglingRole === u.id ? (
+                                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                    ) : isAdmin ? (
+                                      <><ShieldOff className="w-3.5 h-3.5" /> Quitar Admin</>
+                                    ) : (
+                                      <><ShieldCheck className="w-3.5 h-3.5" /> Hacer Admin</>
+                                    )}
+                                  </button>
                                 )}
-                              </button>
+                                <button
+                                  disabled={togglingBan === u.id}
+                                  onClick={() => isBanned ? handleUnban(u) : setBanConfirm(u)}
+                                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${isBanned
+                                    ? 'bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900/30'
+                                    : 'bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30'
+                                  }`}
+                                >
+                                  {togglingBan === u.id ? (
+                                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                  ) : isBanned ? (
+                                    <><UserCheck className="w-3.5 h-3.5" /> Desbanear</>
+                                  ) : (
+                                    <><Ban className="w-3.5 h-3.5" /> Banear</>
+                                  )}
+                                </button>
+                              </div>
                             )}
                           </td>
                         </tr>
@@ -621,7 +681,7 @@ export default function AdminPage() {
                     })}
                   {usersList.length === 0 && (
                     <tr>
-                      <td colSpan="5" className="py-8 text-center text-slate-400">No hay usuarios cargados.</td>
+                      <td colSpan="6" className="py-8 text-center text-slate-400">No hay usuarios cargados.</td>
                     </tr>
                   )}
                 </tbody>
@@ -742,6 +802,15 @@ export default function AdminPage() {
         onConfirm={() => handleDelete(deleteTarget?.id)}
         title="Eliminar publicación"
         message={`¿Estás seguro de eliminar "${deleteTarget?.title}"? Esta acción no se puede deshacer.`}
+      />
+
+      {/* Ban Confirm */}
+      <ConfirmDialog
+        isOpen={!!banConfirm}
+        onClose={() => setBanConfirm(null)}
+        onConfirm={() => handleBan(banConfirm)}
+        title="Banear usuario"
+        message={`¿Estás seguro de banear a "${banConfirm?.display_name || banConfirm?.email}"? Se eliminarán TODAS sus publicaciones, comentarios, likes y contenido asociado. Esta acción NO se puede revertir para el contenido.`}
       />
 
       {/* View Detail */}

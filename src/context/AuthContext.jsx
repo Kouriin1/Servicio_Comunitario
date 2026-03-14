@@ -103,12 +103,17 @@ export function AuthProvider({ children }) {
     });
     if (error) throw error;
 
-    // Fetch role to determine redirect
+    // Fetch role and ban status to determine redirect
     const { data: prof } = await supabase
       .from('profiles')
-      .select('role')
+      .select('role, is_banned')
       .eq('id', data.user.id)
       .single();
+
+    if (prof?.is_banned) {
+      await supabase.auth.signOut();
+      throw new Error('Tu cuenta ha sido suspendida. Contacta al administrador.');
+    }
 
     return prof?.role === 'admin' ? '/admin' : '/dashboard';
   };
