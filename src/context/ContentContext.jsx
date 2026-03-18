@@ -238,6 +238,10 @@ export function ContentProvider({ children }) {
         .from('publications-media')
         .upload(filePath, item.file, { cacheControl: '3600', upsert: false });
 
+      if (upErr) {
+        console.error("Error uploading file to storage:", upErr);
+      }
+
       if (!upErr) {
         const { data: urlData } = supabase.storage
           .from('publications-media')

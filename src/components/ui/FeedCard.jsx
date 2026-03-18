@@ -101,7 +101,39 @@ function MediaPreview({ item, onClick }) {
     );
   }
 
-  if (item.fileType === 'pdf') {
+  if (item.fileType === 'pdf' || item.fileType === 'document') {
+    const isPdf = item.fileType === 'pdf';
+    
+    let docColor = isPdf ? 'red' : 'blue';
+    let docTitle = isPdf ? 'Documento PDF' : 'Documento Adjunto';
+    let docDesc = isPdf ? 'Archivo PDF' : 'Archivo de Office';
+    
+    if (!isPdf && item.fileName) {
+      const ext = item.fileName.split('.').pop().toLowerCase();
+      if (['xls', 'xlsx'].includes(ext)) {
+        docColor = 'emerald';
+        docTitle = item.fileName;
+        docDesc = 'Hoja de Cálculo (Excel)';
+      } else if (['ppt', 'pptx'].includes(ext)) {
+        docColor = 'orange';
+        docTitle = item.fileName;
+        docDesc = 'Presentación (PowerPoint)';
+      } else if (['doc', 'docx'].includes(ext)) {
+        docColor = 'blue';
+        docTitle = item.fileName;
+        docDesc = 'Documento de Word';
+      }
+    }
+
+    const colorMap = {
+      red: { bg: 'from-red-500 to-rose-600 shadow-red-500/20 group-hover:shadow-red-500/30', text: 'text-red-500', groupHoverText: 'group-hover:text-red-700' },
+      blue: { bg: 'from-blue-500 to-indigo-600 shadow-blue-500/20 group-hover:shadow-blue-500/30', text: 'text-blue-500', groupHoverText: 'group-hover:text-blue-700' },
+      emerald: { bg: 'from-emerald-500 to-teal-600 shadow-emerald-500/20 group-hover:shadow-emerald-500/30', text: 'text-emerald-500', groupHoverText: 'group-hover:text-emerald-700' },
+      orange: { bg: 'from-orange-500 to-amber-600 shadow-orange-500/20 group-hover:shadow-orange-500/30', text: 'text-orange-500', groupHoverText: 'group-hover:text-amber-700' },
+    };
+    
+    const c = colorMap[docColor] || colorMap.blue;
+
     return (
       <motion.div
         whileHover={{ y: -2 }}
@@ -109,28 +141,28 @@ function MediaPreview({ item, onClick }) {
         className="mt-4 mb-1 rounded-2xl overflow-hidden cursor-pointer group"
         onClick={onClick}
       >
-        <div className="relative bg-gradient-to-br from-red-50 via-orange-50/50 to-amber-50/30 dark:from-red-900/10 dark:via-slate-800/50 dark:to-slate-800/30 border border-red-100/60 dark:border-red-900/20 p-5 flex items-center gap-4 transition-all group-hover:border-red-200 dark:group-hover:border-red-800/30 group-hover:shadow-soft">
+        <div className="relative bg-gradient-to-br from-slate-50 via-slate-50/50 to-slate-100/30 dark:from-slate-800/10 dark:via-slate-800/50 dark:to-slate-800/30 border border-slate-200/60 dark:border-slate-700/50 p-5 flex items-center gap-4 transition-all group-hover:border-slate-300 dark:group-hover:border-slate-600 group-hover:shadow-soft">
           <div className="relative">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-red-500 to-rose-600 flex items-center justify-center shadow-lg shadow-red-500/20 group-hover:shadow-red-500/30 transition-shadow">
+            <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${c.bg} flex items-center justify-center shadow-lg transition-shadow`}>
               <FileText className="w-7 h-7 text-white" />
             </div>
             <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-white dark:bg-slate-800 flex items-center justify-center shadow-sm">
-              <Download className="w-3 h-3 text-red-500" />
+              <Download className={`w-3 h-3 ${c.text}`} />
             </div>
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-bold text-slate-800 dark:text-white mb-0.5 truncate">
-              {item.fileName || 'Documento PDF'}
+              {item.fileName || docTitle}
             </p>
             <p className="text-xs text-slate-400 dark:text-slate-500 mb-2">
-              {item.fileSize ? `${(item.fileSize / 1024).toFixed(0)} KB · ` : ''}Archivo PDF
+              {item.fileSize ? `${(item.fileSize / 1024).toFixed(0)} KB · ` : ''}{docDesc}
             </p>
-            <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-red-600 dark:text-red-400 group-hover:text-red-700 transition-colors">
+            <span className={`inline-flex items-center gap-1.5 text-xs font-semibold ${c.text} ${c.groupHoverText} transition-colors`}>
               <Eye className="w-3.5 h-3.5" /> Previsualizar documento
             </span>
           </div>
           <div className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
-            <div className="w-10 h-10 rounded-xl bg-white dark:bg-slate-700 shadow-sm flex items-center justify-center text-red-500">
+            <div className={`w-10 h-10 rounded-xl bg-white dark:bg-slate-700 shadow-sm flex items-center justify-center ${c.text}`}>
               <ExternalLink className="w-4 h-4" />
             </div>
           </div>

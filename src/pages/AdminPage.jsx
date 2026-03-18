@@ -20,6 +20,7 @@ const emptyForm = {
 
 const ACCEPTED_FILES = {
   pdf: '.pdf',
+  document: '.doc,.docx,.ppt,.pptx,.xls,.xlsx',
   video: '.mp4,.webm,.ogg,.mov',
   image: '.jpg,.jpeg,.png,.gif,.webp',
 };
@@ -31,11 +32,19 @@ function getFileType(file) {
   if (file.type.startsWith('video/')) return 'video';
   if (file.type === 'application/pdf') return 'pdf';
   if (file.type.startsWith('image/')) return 'image';
+  if (
+    file.name.match(/\.(doc|docx|ppt|pptx|xls|xlsx)$/i) ||
+    file.type.includes('document') ||
+    file.type.includes('presentation') ||
+    file.type.includes('msword') ||
+    file.type.includes('mspowerpoint')
+  ) return 'document';
   return 'link';
 }
 
 function FileTypeIcon({ fileType, className = 'w-4 h-4' }) {
   if (fileType === 'pdf') return <FileText className={className} />;
+  if (fileType === 'document') return <FileText className={className} />;
   if (fileType === 'video') return <Video className={className} />;
   if (fileType === 'image') return <Image className={className} />;
   if (fileType === 'link') return <Link2 className={className} />;

@@ -56,6 +56,31 @@ function MediaViewer({ item }) {
         </div>
       )}
 
+      {hasFile && item.fileType === 'document' && (
+        <div className="space-y-3">
+          <div className="rounded-2xl overflow-hidden border border-slate-200/60 dark:border-slate-600/50 bg-white dark:bg-slate-700/50 shadow-soft">
+            <iframe
+              src={`https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(item.fileUrl)}`}
+              title={item.fileName || 'Documento de Office'}
+              className="w-full h-[70vh] min-h-[500px]"
+              frameBorder="0"
+            />
+          </div>
+          <div className="flex flex-col sm:flex-row gap-4 justify-between items-center text-sm text-slate-500 dark:text-slate-400">
+            <span>Si la previsualización no carga, puedes descargarlo:</span>
+            <a
+              href={item.fileUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              download={item.fileName}
+              className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-xl font-medium transition-colors shadow-sm shadow-blue-500/20"
+            >
+              <Download className="w-5 h-5" /> Descargar archivo original
+            </a>
+          </div>
+        </div>
+      )}
+
       {hasFile && item.fileType === 'image' && (
         <div className="rounded-2xl overflow-hidden shadow-soft">
           <img
