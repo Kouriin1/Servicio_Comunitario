@@ -31,12 +31,19 @@ function timeAgo(dateStr) {
 }
 
 const SCHOOL_COLORS = {
+  'Facultad de Derecho': { badge: 'bg-rose-50 text-rose-600 dark:bg-rose-900/20 dark:text-rose-300', dot: 'bg-rose-400' },
+  'Facultad de Estudios Internacionales': { badge: 'bg-sky-50 text-sky-600 dark:bg-sky-900/20 dark:text-sky-300', dot: 'bg-sky-400' },
   Derecho: { badge: 'bg-rose-50 text-rose-600 dark:bg-rose-900/20 dark:text-rose-300', dot: 'bg-rose-400' },
   'Estudios Internacionales': { badge: 'bg-sky-50 text-sky-600 dark:bg-sky-900/20 dark:text-sky-300', dot: 'bg-sky-400' },
   Todas: { badge: 'bg-slate-50 text-slate-500 dark:bg-slate-700/50 dark:text-slate-300', dot: 'bg-slate-400' },
 };
 
 const TYPE_COLORS = {
+  'Trabajos de grado': 'bg-blue-50 text-blue-600 ring-1 ring-blue-100 dark:bg-blue-900/20 dark:text-blue-300 dark:ring-blue-800/30',
+  'Artículos científicos': 'bg-emerald-50 text-emerald-600 ring-1 ring-emerald-100 dark:bg-emerald-900/20 dark:text-emerald-300 dark:ring-emerald-800/30',
+  'Artículos académicos': 'bg-teal-50 text-teal-600 ring-1 ring-teal-100 dark:bg-teal-900/20 dark:text-teal-300 dark:ring-teal-800/30',
+  'Ensayos': 'bg-indigo-50 text-indigo-600 ring-1 ring-indigo-100 dark:bg-indigo-900/20 dark:text-indigo-300 dark:ring-indigo-800/30',
+  'Opinión': 'bg-orange-50 text-orange-600 ring-1 ring-orange-100 dark:bg-orange-900/20 dark:text-orange-300 dark:ring-orange-800/30',
   Tesis: 'bg-blue-50 text-blue-600 ring-1 ring-blue-100 dark:bg-blue-900/20 dark:text-blue-300 dark:ring-blue-800/30',
   Artículo: 'bg-emerald-50 text-emerald-600 ring-1 ring-emerald-100 dark:bg-emerald-900/20 dark:text-emerald-300 dark:ring-emerald-800/30',
   Evento: 'bg-violet-50 text-violet-600 ring-1 ring-violet-100 dark:bg-violet-900/20 dark:text-violet-300 dark:ring-violet-800/30',

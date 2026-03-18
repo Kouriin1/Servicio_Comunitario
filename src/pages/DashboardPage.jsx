@@ -262,19 +262,19 @@ export default function DashboardPage() {
   );
 
   const totalPublications = allContent.length;
-  const totalTheses = allContent.filter(i => i.type === 'Tesis').length;
-  const totalArticles = allContent.filter(i => i.type === 'Artículo').length;
+  const totalTheses = allContent.filter(i => i.type === 'Tesis' || i.type === 'Trabajos de grado').length;
+  const totalArticles = allContent.filter(i => i.type === 'Artículo' || i.type === 'Artículos científicos' || i.type === 'Artículos académicos').length;
   const totalEvents = allContent.filter(i => i.type === 'Evento').length;
   const totalSaved = savedIds.length;
 
   const RightSidebar = () => {
     const total = totalTheses + totalArticles + totalEvents || 1;
     const statsItems = [
-      { label: 'Tesis', count: totalTheses, color: 'bg-usm-blue', text: 'text-usm-blue', dot: 'bg-blue-500' },
+      { label: 'Trabajos de Grado', count: totalTheses, color: 'bg-usm-blue', text: 'text-usm-blue', dot: 'bg-blue-500' },
       { label: 'Artículos', count: totalArticles, color: 'bg-emerald-500', text: 'text-emerald-600 dark:text-emerald-400', dot: 'bg-emerald-500' },
       { label: 'Eventos', count: totalEvents, color: 'bg-purple-500', text: 'text-purple-600 dark:text-purple-400', dot: 'bg-purple-500' },
     ];
-    const trendingTags = ['#Derecho', '#EstudiosInternacionales', '#Tesis2026', '#ActoDeGrado', '#DerechoPenal'];
+    const trendingTags = ['#Derecho', '#EstudiosInternacionales', '#TrabajosDeGrado', '#ActoDeGrado', '#DerechoPenal'];
     return (
       <div className="space-y-5">
         {/* User Profile Card */}
@@ -508,12 +508,12 @@ export default function DashboardPage() {
                 onClick={() => setSavedOnly((prev) => !prev)}
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
-                className={`px-5 py-2.5 rounded-2xl text-sm font-bold transition-all shrink-0 flex items-center gap-2 ${savedOnly
+                className={`px-5 py-2.5 rounded-2xl text-sm font-bold transition-all shrink-0 whitespace-nowrap flex items-center gap-2 ${savedOnly
                   ? 'bg-gradient-to-r from-amber-400 to-amber-500 text-white shadow-md shadow-amber-400/25'
                   : 'bg-white/90 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 border border-slate-200/60 dark:border-slate-700/50 hover:border-amber-300 shadow-soft backdrop-blur-sm'
                   }`}
               >
-                <BookmarkCheck className="w-4 h-4" /> Guardados
+                <BookmarkCheck className="w-4 h-4 shrink-0" /> <span className="whitespace-nowrap">Guardados</span>
               </motion.button>
               <div className="w-px h-6 bg-slate-200 dark:bg-slate-700 mx-1 shrink-0" />
               {schools.map((s) => (
@@ -522,7 +522,7 @@ export default function DashboardPage() {
                   onClick={() => setSchoolFilter(s)}
                   whileHover={{ scale: 1.03 }}
                   whileTap={{ scale: 0.97 }}
-                  className={`px-5 py-2.5 rounded-2xl text-sm font-semibold transition-all shrink-0 border ${schoolFilter === s
+                  className={`px-5 py-2.5 rounded-2xl text-sm font-semibold transition-all shrink-0 whitespace-nowrap border ${schoolFilter === s
                     ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white border-blue-500 shadow-lg shadow-blue-500/25'
                     : 'bg-white/90 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 border-slate-200/60 dark:border-slate-700/50 hover:bg-white dark:hover:bg-slate-700/50 shadow-soft backdrop-blur-sm'
                     }`}
@@ -530,6 +530,7 @@ export default function DashboardPage() {
                   {s}
                 </motion.button>
               ))}
+              <div className="w-4 h-full shrink-0" aria-hidden="true" />
             </div>
           </header>
 

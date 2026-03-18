@@ -2,6 +2,8 @@ import Modal from './Modal';
 import { Calendar, MapPin, Clock, User, Building2, FileText, Video, Image, ExternalLink, Download } from 'lucide-react';
 
 const schoolColors = {
+  'Facultad de Derecho': 'bg-rose-500',
+  'Facultad de Estudios Internacionales': 'bg-blue-500',
   'Derecho': 'bg-rose-500',
   'Estudios Internacionales': 'bg-blue-500',
   'Todas': 'bg-indigo-500',

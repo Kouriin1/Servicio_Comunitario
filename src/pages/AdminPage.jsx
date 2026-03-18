@@ -14,7 +14,7 @@ import ConfirmDialog from '../components/ui/ConfirmDialog';
 import ContentDetailModal from '../components/ui/ContentDetailModal';
 
 const emptyForm = {
-  title: '', excerpt: '', type: 'Tesis', school: 'Derecho', author: '', taggedUserId: null, taggedUserName: null,
+  title: '', excerpt: '', type: 'Trabajos de grado', school: 'Facultad de Derecho', author: '', taggedUserId: null, taggedUserName: null,
   file: null, fileUrl: null, fileType: null, fileName: null, linkUrl: null,
 };
 

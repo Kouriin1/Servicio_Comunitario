@@ -448,7 +448,7 @@ export function ContentProvider({ children }) {
         getPublicationLikes,
         allContent: content,
         events: content.filter((i) => i.type === 'Evento'),
-        works: content.filter((i) => i.type === 'Tesis' || i.type === 'Artículo'),
+        works: content.filter((i) => ['Tesis', 'Trabajos de grado', 'Artículo', 'Artículos científicos', 'Artículos académicos', 'Ensayos'].includes(i.type)),
         faculties,
         contentTypesList,
         schools,

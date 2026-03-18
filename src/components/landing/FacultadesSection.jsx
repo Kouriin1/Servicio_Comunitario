@@ -19,7 +19,7 @@ const facultades = [
         shadowColor: 'shadow-emerald-500/20',
     },
     {
-        name: 'Derecho',
+        name: 'Facultad de Derecho',
         shortName: 'Ciencias Jurídicas',
         icon: Scale,
         description: 'Formación jurídica sólida con compromiso ético y vocación de servicio.',

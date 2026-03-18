@@ -21,13 +21,21 @@ import { useContentContext } from "../context/ContentContext";
 import ContentDetailModal from "../components/ui/ContentDetailModal";
 
 const SCHOOL_COLORS = {
+  "Facultad de Derecho": { bg: "bg-red-100 dark:bg-red-900/20", text: "text-red-600 dark:text-red-300", border: "border-red-200 dark:border-red-800" },
+  "Facultad de Estudios Internacionales": { bg: "bg-sky-100 dark:bg-sky-900/20", text: "text-sky-600 dark:text-sky-300", border: "border-sky-200 dark:border-sky-800" },
   Derecho: { bg: "bg-red-100 dark:bg-red-900/20", text: "text-red-600 dark:text-red-300", border: "border-red-200 dark:border-red-800" },
   "Estudios Internacionales": { bg: "bg-sky-100 dark:bg-sky-900/20", text: "text-sky-600 dark:text-sky-300", border: "border-sky-200 dark:border-sky-800" },
 };
 
 const TYPE_COLORS = {
+  "Trabajos de grado": "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300",
+  "Artículos científicos": "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300",
+  "Artículos académicos": "bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-300",
+  "Ensayos": "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300",
+  "Opinión": "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300",
   Tesis: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300",
   Articulo: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300",
+  Artículo: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300",
   Evento: "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300",
   Resumen: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300",
 };
