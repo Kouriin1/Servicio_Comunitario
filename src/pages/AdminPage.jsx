@@ -14,7 +14,7 @@ import ConfirmDialog from '../components/ui/ConfirmDialog';
 import ContentDetailModal from '../components/ui/ContentDetailModal';
 
 const emptyForm = {
-  title: '', excerpt: '', type: 'Trabajos de grado', school: 'Facultad de Derecho', author: '', taggedUserId: null, taggedUserName: null,
+  title: '', excerpt: '', type: 'Trabajos de grado', school: 'Facultad de Derecho', author: '', taggedUserId: null, taggedUserName: null, eventDate: '',
   file: null, fileUrl: null, fileType: null, fileName: null, linkUrl: null,
 };
 
@@ -172,6 +172,7 @@ export default function AdminPage() {
         author: form.author.trim() || user?.name || 'Administrador',
         taggedUserId: form.taggedUserId,
         taggedUserName: form.taggedUserName,
+        eventDate: form.type === 'Evento' ? form.eventDate : undefined,
         readTime: form.type !== 'Evento' ? '5 min' : undefined,
         location: form.type === 'Evento' ? 'Por definir' : undefined,
       });
@@ -458,6 +459,16 @@ export default function AdminPage() {
                   ))}
                 </select>
 
+                {form.type === 'Evento' && (
+                  <input
+                    type="datetime-local"
+                    value={form.eventDate}
+                    onChange={(e) => setForm({ ...form, eventDate: e.target.value })}
+                    className="w-full rounded-xl border border-slate-200 dark:border-slate-600 px-4 py-3 bg-white dark:bg-slate-700 dark:text-white"
+                    required
+                  />
+                )}
+
                 <select
                   value={form.school}
                   onChange={(e) => setForm({ ...form, school: e.target.value })}
@@ -655,7 +666,7 @@ export default function AdminPage() {
                                     className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${isAdmin
                                       ? 'bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30'
                                       : 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/30'
-                                    }`}
+                                      }`}
                                   >
                                     {togglingRole === u.id ? (
                                       <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -672,7 +683,7 @@ export default function AdminPage() {
                                   className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${isBanned
                                     ? 'bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900/30'
                                     : 'bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30'
-                                  }`}
+                                    }`}
                                 >
                                   {togglingBan === u.id ? (
                                     <Loader2 className="w-3.5 h-3.5 animate-spin" />

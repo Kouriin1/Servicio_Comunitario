@@ -16,6 +16,7 @@ function transformPublication(pub) {
     school: pub.faculty?.name || 'General',
     type: pub.content_type?.name || 'Artículo',
     date: pub.created_at,
+    eventDate: pub.event_date || null,
     excerpt: pub.description || '',
     readTime: pub.read_time_min ? `${pub.read_time_min} min` : null,
     location: pub.event_location || null,
@@ -108,10 +109,21 @@ export function ContentProvider({ children }) {
         .range(0, PAGE_SIZE - 1);
 
       if (error) throw error;
-      const items = (data || []).map(transformPublication);
+      
+      const now = new Date();
+      const filteredData = (data || []).filter(pub => {
+         if (pub.content_type?.name === 'Evento' && pub.event_date) {
+            const expires = new Date(pub.event_date);
+            expires.setDate(expires.getDate() + 1);
+            return expires >= now;
+         }
+         return true;
+      });
+
+      const items = filteredData.map(transformPublication);
       setContent(items);
-      setHasMore(items.length === PAGE_SIZE);
-      offsetRef.current = items.length;
+      setHasMore(data?.length === PAGE_SIZE);
+      offsetRef.current = data?.length || 0;
     } catch (err) {
       console.error('Error fetching content:', err);
     } finally {
@@ -132,10 +144,21 @@ export function ContentProvider({ children }) {
         .range(from, from + PAGE_SIZE - 1);
 
       if (error) throw error;
-      const items = (data || []).map(transformPublication);
+
+      const now = new Date();
+      const filteredData = (data || []).filter(pub => {
+         if (pub.content_type?.name === 'Evento' && pub.event_date) {
+            const expires = new Date(pub.event_date);
+            expires.setDate(expires.getDate() + 1);
+            return expires >= now;
+         }
+         return true;
+      });
+
+      const items = filteredData.map(transformPublication);
       setContent((prev) => [...prev, ...items]);
-      setHasMore(items.length === PAGE_SIZE);
-      offsetRef.current = from + items.length;
+      setHasMore(data?.length === PAGE_SIZE);
+      offsetRef.current = from + (data?.length || 0);
     } catch (err) {
       console.error('Error loading more:', err);
     } finally {
@@ -212,6 +235,7 @@ export function ContentProvider({ children }) {
         content_type_id: contentType?.id || null,
         external_url: item.linkUrl || null,
         read_time_min: item.type !== 'Evento' ? 5 : null,
+        event_date: item.eventDate || null,
         event_location: item.type === 'Evento' ? (item.location || 'Por definir') : null,
         status: 'published',
       })
@@ -221,7 +245,7 @@ export function ContentProvider({ children }) {
     if (error) throw error;
 
     // 1.5 Send Notification if a user was tagged
-    if (item.taggedUserId && item.taggedUserId !== session?.user?.id) {
+    if (item.taggedUserId && item.taggedUserId !== session?.user?.id && item.type !== 'Evento') {
       await supabase.from('notifications').insert({
         user_id: item.taggedUserId,
         actor_id: session?.user?.id,
@@ -229,6 +253,22 @@ export function ContentProvider({ children }) {
         publication_id: pub.id,
         message: '¡El administrador ha subido una nueva publicación a tu nombre!',
       });
+    }
+
+    // 1.6 Global Event Notifications
+    if (item.type === 'Evento') {
+      const allUsers = usersList.filter(u => u.id !== session?.user?.id);
+      if (allUsers.length > 0) {
+        const notifs = allUsers.map(u => ({
+           user_id: u.id,
+           actor_id: session?.user?.id,
+           type: 'mention',
+           publication_id: pub.id,
+           message: `¡Nuevo evento programado: ${item.title}!`,
+        }));
+        const { error: notifsErr } = await supabase.from('notifications').insert(notifs);
+        if (notifsErr) console.error("Error sending global event notifications:", notifsErr);
+      }
     }
 
     // 2. Upload file to Storage + create media_files record
