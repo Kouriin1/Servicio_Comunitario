@@ -1,9 +1,14 @@
 @import "tailwindcss";
 
 @theme {
-  --color-usm-blue: #002855;
-  --color-usm-blue-bright: #0D6EFD;
-  --color-usm-yellow: #FFB81C;
+  /* ── Paleta fluida moderna ── */
+  --color-usm-blue: #1E3A5F;
+  --color-usm-blue-bright: #3B82F6;
+  --color-usm-blue-light: #60A5FA;
+  --color-usm-yellow: #F59E0B;
+  --color-usm-bg: #F0F4F8;
+  --color-usm-surface: #FFFFFF;
+  --color-usm-accent: #6366F1;
 
   --animate-float: float 6s ease-in-out infinite;
   --animate-shine: shine 3s linear infinite;
@@ -35,20 +40,22 @@
 
     0%,
     100% {
-      box-shadow: 0 0 0 0 rgba(13, 110, 253, 0);
+      box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
     }
 
     50% {
-      box-shadow: 0 0 20px 4px rgba(13, 110, 253, 0.15);
+      box-shadow: 0 0 24px 6px rgba(59, 130, 246, 0.12);
     }
   }
 }
 
 :root {
   font-family: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
+  line-height: 1.6;
   font-weight: 400;
   overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
@@ -56,13 +63,13 @@ body {
   min-width: 320px;
   min-height: 100vh;
   min-height: 100dvh;
-  background-color: #ffffff;
-  color: #1a1a1a;
+  background-color: #F0F4F8;
+  color: #1e293b;
   -webkit-text-size-adjust: 100%;
 }
 
 .dark body {
-  background-color: #0f172a;
+  background-color: #0c1222;
   color: #e2e8f0;
 }
 
@@ -94,18 +101,49 @@ button, a {
 
 /* Scrollbar moderna */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #002855;
-  border-radius: 4px;
+  background: #cbd5e1;
+  border-radius: 100px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #0D6EFD;
+  background: #94a3b8;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #334155;
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+}
+
+/* Glassmorphism helpers */
+.glass {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+}
+.dark .glass {
+  background: rgba(15, 23, 42, 0.75);
+}
+
+/* Sombras suaves en capas */
+.shadow-soft {
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.03),
+    0 4px 12px rgba(0, 0, 0, 0.04),
+    0 8px 32px rgba(0, 0, 0, 0.03);
+}
+.shadow-soft-lg {
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.02),
+    0 8px 24px rgba(0, 0, 0, 0.06),
+    0 16px 48px rgba(0, 0, 0, 0.04);
 }

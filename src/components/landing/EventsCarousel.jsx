@@ -55,17 +55,23 @@ export default function EventsCarousel() {
               className="min-w-[260px] sm:min-w-[300px] md:min-w-[400px] snap-start"
             >
               <Card className="h-full flex flex-col p-0 overflow-hidden group">
-                <div className="h-48 bg-usm-blue relative overflow-hidden">
+                <div className="h-48 bg-usm-blue relative overflow-hidden group-hover:scale-105 transition-transform duration-500">
+                  {event.fileUrl ? (
+                    <img src={event.fileUrl} alt={event.title} className="w-full h-full object-cover" />
+                  ) : (
+                    <>
+                      <div className="absolute inset-0 bg-gradient-to-br from-usm-blue-bright/40 to-usm-blue" />
+                      <div className="absolute inset-0 opacity-30 [background-image:linear-gradient(to_right,rgba(255,255,255,0.14)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.14)_1px,transparent_1px)] [background-size:26px_26px]" />
+                    </>
+                  )}
                   <div className="absolute top-4 left-4 bg-white/90 text-usm-blue font-bold px-3 py-1 rounded-md text-sm z-10">
                     {event.school}
                   </div>
-                  <div className="absolute inset-0 bg-gradient-to-br from-usm-blue-bright/40 to-usm-blue" />
-                  <div className="absolute inset-0 opacity-30 [background-image:linear-gradient(to_right,rgba(255,255,255,0.14)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.14)_1px,transparent_1px)] [background-size:26px_26px]" />
                 </div>
                 <div className="p-6 flex-grow">
                   <div className="flex items-center gap-2 text-usm-blue-bright dark:text-blue-300 mb-3 font-semibold text-sm">
                     <CalendarIcon className="w-4 h-4" />
-                    {event.date}
+                    {event.eventDate ? new Intl.DateTimeFormat('es-VE', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(event.eventDate)) : new Intl.DateTimeFormat('es-VE', { dateStyle: 'medium' }).format(new Date(event.date))}
                   </div>
                   <h3 className="text-xl font-bold text-usm-blue dark:text-white mb-4 line-clamp-2">{event.title}</h3>
                   <div className="flex items-center gap-2 text-gray-500 dark:text-slate-400 text-sm mb-6">

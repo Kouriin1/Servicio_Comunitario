@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   FilePlus2, ListFilter, Pencil, Trash2, Eye, ArrowLeft, Check,
-  Upload, FileText, Video, Image, Link2, X, Users, Search, Loader2
+  Upload, FileText, Video, Image, Link2, X, Users, Search, Loader2, ShieldCheck, ShieldOff, Ban, UserCheck
 } from 'lucide-react';
 import { useContentContext } from '../context/ContentContext';
 import { useAuth } from '../context/AuthContext';
@@ -14,26 +14,37 @@ import ConfirmDialog from '../components/ui/ConfirmDialog';
 import ContentDetailModal from '../components/ui/ContentDetailModal';
 
 const emptyForm = {
-  title: '', excerpt: '', type: 'Tesis', school: 'Derecho', author: '', taggedUserId: null, taggedUserName: null,
+  title: '', excerpt: '', type: 'Trabajos de grado', school: 'Facultad de Derecho', author: '', taggedUserId: null, taggedUserName: null, eventDate: '',
   file: null, fileUrl: null, fileType: null, fileName: null, linkUrl: null,
 };
 
 const ACCEPTED_FILES = {
   pdf: '.pdf',
+  document: '.doc,.docx,.ppt,.pptx,.xls,.xlsx',
   video: '.mp4,.webm,.ogg,.mov',
   image: '.jpg,.jpeg,.png,.gif,.webp',
 };
 const ALL_ACCEPTED = Object.values(ACCEPTED_FILES).join(',');
 
+const SUPER_ADMIN_EMAIL = 'usmjorguer1123@gmail.com';
+
 function getFileType(file) {
   if (file.type.startsWith('video/')) return 'video';
   if (file.type === 'application/pdf') return 'pdf';
   if (file.type.startsWith('image/')) return 'image';
+  if (
+    file.name.match(/\.(doc|docx|ppt|pptx|xls|xlsx)$/i) ||
+    file.type.includes('document') ||
+    file.type.includes('presentation') ||
+    file.type.includes('msword') ||
+    file.type.includes('mspowerpoint')
+  ) return 'document';
   return 'link';
 }
 
 function FileTypeIcon({ fileType, className = 'w-4 h-4' }) {
   if (fileType === 'pdf') return <FileText className={className} />;
+  if (fileType === 'document') return <FileText className={className} />;
   if (fileType === 'video') return <Video className={className} />;
   if (fileType === 'image') return <Image className={className} />;
   if (fileType === 'link') return <Link2 className={className} />;
@@ -42,7 +53,7 @@ function FileTypeIcon({ fileType, className = 'w-4 h-4' }) {
 
 export default function AdminPage() {
   const navigate = useNavigate();
-  const { allContent, addContent, deleteContent, updateContent, faculties, contentTypesList, contentTypes, usersList, fetchUsers } = useContentContext();
+  const { allContent, addContent, deleteContent, updateContent, faculties, contentTypesList, contentTypes, usersList, fetchUsers, updateUserRole, banUser, unbanUser } = useContentContext();
   const { user } = useAuth();
   const { showToast } = useToast();
   const [selectedType, setSelectedType] = useState('Todos');
@@ -58,6 +69,12 @@ export default function AdminPage() {
   const fileInputRef = useRef(null);
   const editFileInputRef = useRef(null);
   const authorDropdownRef = useRef(null);
+
+  const isSuperAdmin = user?.email === SUPER_ADMIN_EMAIL;
+  const [adminSearch, setAdminSearch] = useState('');
+  const [togglingRole, setTogglingRole] = useState(null);
+  const [togglingBan, setTogglingBan] = useState(null);
+  const [banConfirm, setBanConfirm] = useState(null);
 
   useEffect(() => {
     fetchUsers();
@@ -155,6 +172,7 @@ export default function AdminPage() {
         author: form.author.trim() || user?.name || 'Administrador',
         taggedUserId: form.taggedUserId,
         taggedUserName: form.taggedUserName,
+        eventDate: form.type === 'Evento' ? form.eventDate : undefined,
         readTime: form.type !== 'Evento' ? '5 min' : undefined,
         location: form.type === 'Evento' ? 'Por definir' : undefined,
       });
@@ -204,6 +222,31 @@ export default function AdminPage() {
       showToast('Publicación eliminada', 'info');
     } catch (err) {
       showToast(err.message || 'Error al eliminar', 'error');
+    }
+  };
+
+  const handleBan = async (u) => {
+    setTogglingBan(u.id);
+    try {
+      await banUser(u.id);
+      showToast(`${u.display_name || 'Usuario'} ha sido baneado y su contenido eliminado`, 'success');
+    } catch {
+      showToast('Error al banear usuario', 'error');
+    } finally {
+      setTogglingBan(null);
+      setBanConfirm(null);
+    }
+  };
+
+  const handleUnban = async (u) => {
+    setTogglingBan(u.id);
+    try {
+      await unbanUser(u.id);
+      showToast(`${u.display_name || 'Usuario'} ha sido desbaneado`, 'success');
+    } catch {
+      showToast('Error al desbanear usuario', 'error');
+    } finally {
+      setTogglingBan(null);
     }
   };
 
@@ -321,6 +364,17 @@ export default function AdminPage() {
           >
             Usuarios
           </button>
+          {isSuperAdmin && (
+            <button
+              onClick={() => setActiveTab('admins')}
+              className={`px-4 py-2 font-medium text-sm border-b-2 transition-colors ${activeTab === 'admins'
+                ? 'border-usm-blue text-usm-blue dark:border-blue-400 dark:text-blue-400'
+                : 'border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300'
+                }`}
+            >
+              Administradores
+            </button>
+          )}
         </div>
 
         {activeTab === 'content' ? (
@@ -404,6 +458,16 @@ export default function AdminPage() {
                     <option key={t.id} value={t.name}>{t.name}</option>
                   ))}
                 </select>
+
+                {form.type === 'Evento' && (
+                  <input
+                    type="datetime-local"
+                    value={form.eventDate}
+                    onChange={(e) => setForm({ ...form, eventDate: e.target.value })}
+                    className="w-full rounded-xl border border-slate-200 dark:border-slate-600 px-4 py-3 bg-white dark:bg-slate-700 dark:text-white"
+                    required
+                  />
+                )}
 
                 <select
                   value={form.school}
@@ -512,6 +576,137 @@ export default function AdminPage() {
                 )}
               </div>
             </motion.article>
+          </section>
+        ) : activeTab === 'admins' && isSuperAdmin ? (
+          <section className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-4 sm:p-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+              <div className="flex items-center gap-2 text-usm-blue dark:text-blue-300">
+                <ShieldCheck className="w-5 h-5" />
+                <h2 className="text-xl font-bold">Gestionar Administradores</h2>
+              </div>
+              <div className="relative max-w-xs w-full">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <input
+                  type="text"
+                  placeholder="Buscar por nombre o correo..."
+                  value={adminSearch}
+                  onChange={(e) => setAdminSearch(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-600 text-sm dark:bg-slate-700 dark:text-white"
+                />
+              </div>
+            </div>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">
+              Solo tú (<span className="font-medium">{SUPER_ADMIN_EMAIL}</span>) puedes asignar o remover administradores. Los administradores asignados tendrán acceso completo al panel excepto esta sección.
+            </p>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="border-b border-slate-200 dark:border-slate-700">
+                    <th className="py-3 px-4 font-semibold text-sm text-slate-500 dark:text-slate-400">Usuario</th>
+                    <th className="py-3 px-4 font-semibold text-sm text-slate-500 dark:text-slate-400">Correo</th>
+                    <th className="py-3 px-4 font-semibold text-sm text-slate-500 dark:text-slate-400">Escuela</th>
+                    <th className="py-3 px-4 font-semibold text-sm text-slate-500 dark:text-slate-400 text-center">Estado</th>
+                    <th className="py-3 px-4 font-semibold text-sm text-slate-500 dark:text-slate-400 text-center">Rol</th>
+                    <th className="py-3 px-4 font-semibold text-sm text-slate-500 dark:text-slate-400 text-center">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {usersList
+                    .filter(u => {
+                      if (!adminSearch) return true;
+                      const q = adminSearch.toLowerCase();
+                      return (u.display_name || '').toLowerCase().includes(q) || u.email.toLowerCase().includes(q);
+                    })
+                    .map(u => {
+                      const isSuper = u.email === SUPER_ADMIN_EMAIL;
+                      const isAdmin = u.role === 'admin';
+                      const isBanned = !!u.is_banned;
+                      return (
+                        <tr key={u.id} className={`border-b border-slate-100 dark:border-slate-700/50 hover:bg-slate-50 dark:hover:bg-slate-700/20 ${isBanned ? 'opacity-60' : ''}`}>
+                          <td className="py-3 px-4">
+                            <p className="font-medium text-slate-800 dark:text-white">{u.display_name || 'Sin nombre'}</p>
+                          </td>
+                          <td className="py-3 px-4 text-sm text-slate-600 dark:text-slate-300">{u.email}</td>
+                          <td className="py-3 px-4 text-sm text-slate-600 dark:text-slate-300">{u.faculty?.name || '-'}</td>
+                          <td className="py-3 px-4 text-center">
+                            {isBanned ? (
+                              <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400">
+                                Baneado
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
+                                Activo
+                              </span>
+                            )}
+                          </td>
+                          <td className="py-3 px-4 text-center">
+                            <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${isAdmin ? 'bg-usm-blue/10 text-usm-blue dark:bg-blue-900/30 dark:text-blue-300' : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'}`}>
+                              {isSuper ? 'Super Admin' : isAdmin ? 'Admin' : 'Usuario'}
+                            </span>
+                          </td>
+                          <td className="py-3 px-4 text-center">
+                            {isSuper ? (
+                              <span className="text-xs text-slate-400">—</span>
+                            ) : (
+                              <div className="flex items-center justify-center gap-2">
+                                {!isBanned && (
+                                  <button
+                                    disabled={togglingRole === u.id}
+                                    onClick={async () => {
+                                      setTogglingRole(u.id);
+                                      try {
+                                        await updateUserRole(u.id, isAdmin ? 'student' : 'admin');
+                                        showToast(isAdmin ? `${u.display_name || 'Usuario'} ya no es administrador` : `${u.display_name || 'Usuario'} ahora es administrador`, 'success');
+                                      } catch {
+                                        showToast('Error al cambiar el rol', 'error');
+                                      } finally {
+                                        setTogglingRole(null);
+                                      }
+                                    }}
+                                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${isAdmin
+                                      ? 'bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30'
+                                      : 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/30'
+                                      }`}
+                                  >
+                                    {togglingRole === u.id ? (
+                                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                    ) : isAdmin ? (
+                                      <><ShieldOff className="w-3.5 h-3.5" /> Quitar Admin</>
+                                    ) : (
+                                      <><ShieldCheck className="w-3.5 h-3.5" /> Hacer Admin</>
+                                    )}
+                                  </button>
+                                )}
+                                <button
+                                  disabled={togglingBan === u.id}
+                                  onClick={() => isBanned ? handleUnban(u) : setBanConfirm(u)}
+                                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${isBanned
+                                    ? 'bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900/30'
+                                    : 'bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30'
+                                    }`}
+                                >
+                                  {togglingBan === u.id ? (
+                                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                  ) : isBanned ? (
+                                    <><UserCheck className="w-3.5 h-3.5" /> Desbanear</>
+                                  ) : (
+                                    <><Ban className="w-3.5 h-3.5" /> Banear</>
+                                  )}
+                                </button>
+                              </div>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  {usersList.length === 0 && (
+                    <tr>
+                      <td colSpan="6" className="py-8 text-center text-slate-400">No hay usuarios cargados.</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
           </section>
         ) : (
           <section className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-4 sm:p-6">
@@ -627,6 +822,15 @@ export default function AdminPage() {
         onConfirm={() => handleDelete(deleteTarget?.id)}
         title="Eliminar publicación"
         message={`¿Estás seguro de eliminar "${deleteTarget?.title}"? Esta acción no se puede deshacer.`}
+      />
+
+      {/* Ban Confirm */}
+      <ConfirmDialog
+        isOpen={!!banConfirm}
+        onClose={() => setBanConfirm(null)}
+        onConfirm={() => handleBan(banConfirm)}
+        title="Banear usuario"
+        message={`¿Estás seguro de banear a "${banConfirm?.display_name || banConfirm?.email}"? Se eliminarán TODAS sus publicaciones, comentarios, likes y contenido asociado. Esta acción NO se puede revertir para el contenido.`}
       />
 
       {/* View Detail */}
