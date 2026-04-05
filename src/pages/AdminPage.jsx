@@ -14,7 +14,7 @@ import ConfirmDialog from '../components/ui/ConfirmDialog';
 import ContentDetailModal from '../components/ui/ContentDetailModal';
 
 const emptyForm = {
-  title: '', excerpt: '', type: 'Trabajos de grado', school: 'Facultad de Derecho', author: '', taggedUserId: null, taggedUserName: null, eventDate: '',
+  title: '', excerpt: '', type: 'Trabajos de grado', school: '', author: '', taggedUserId: null, taggedUserName: null, eventDate: '',
   file: null, fileUrl: null, fileType: null, fileName: null, linkUrl: null,
 };
 
@@ -53,7 +53,7 @@ function FileTypeIcon({ fileType, className = 'w-4 h-4' }) {
 
 export default function AdminPage() {
   const navigate = useNavigate();
-  const { allContent, addContent, deleteContent, updateContent, faculties, contentTypesList, contentTypes, usersList, fetchUsers, updateUserRole, banUser, unbanUser } = useContentContext();
+  const { allContent, addContent, deleteContent, updateContent, contentTypesList, contentTypes, faculties, usersList, fetchUsers, updateUserRole, banUser, unbanUser } = useContentContext();
   const { user } = useAuth();
   const { showToast } = useToast();
   const [selectedType, setSelectedType] = useState('Todos');
@@ -474,8 +474,9 @@ export default function AdminPage() {
                   onChange={(e) => setForm({ ...form, school: e.target.value })}
                   className="w-full rounded-xl border border-slate-200 dark:border-slate-600 px-4 py-3 bg-white dark:bg-slate-700 dark:text-white"
                 >
+                  <option value="">Seleccionar escuela</option>
                   {faculties.map((f) => (
-                    <option key={f.id} value={f.name}>{f.name}</option>
+                    <option key={f.id} value={f.name}>{f.code === 'TODAS' ? 'Facultad de Derecho' : f.name}</option>
                   ))}
                 </select>
 
@@ -790,8 +791,9 @@ export default function AdminPage() {
               onChange={(e) => setEditingItem({ ...editingItem, school: e.target.value })}
               className="w-full rounded-xl border border-slate-200 dark:border-slate-600 px-4 py-3 bg-white dark:bg-slate-700 dark:text-white"
             >
+              <option value="">Seleccionar escuela</option>
               {faculties.map((f) => (
-                <option key={f.id} value={f.name}>{f.name}</option>
+                <option key={f.id} value={f.name}>{f.code === 'TODAS' ? 'Facultad de Derecho' : f.name}</option>
               ))}
             </select>
 

@@ -31,8 +31,8 @@ function timeAgo(dateStr) {
 }
 
 const SCHOOL_COLORS = {
-  'Facultad de Derecho': { badge: 'bg-rose-50 text-rose-600 dark:bg-rose-900/20 dark:text-rose-300', dot: 'bg-rose-400' },
-  'Facultad de Estudios Internacionales': { badge: 'bg-sky-50 text-sky-600 dark:bg-sky-900/20 dark:text-sky-300', dot: 'bg-sky-400' },
+  'Escuela de Derecho': { badge: 'bg-rose-50 text-rose-600 dark:bg-rose-900/20 dark:text-rose-300', dot: 'bg-rose-400' },
+  'Escuela de Estudios Internacionales': { badge: 'bg-sky-50 text-sky-600 dark:bg-sky-900/20 dark:text-sky-300', dot: 'bg-sky-400' },
   Derecho: { badge: 'bg-rose-50 text-rose-600 dark:bg-rose-900/20 dark:text-rose-300', dot: 'bg-rose-400' },
   'Estudios Internacionales': { badge: 'bg-sky-50 text-sky-600 dark:bg-sky-900/20 dark:text-sky-300', dot: 'bg-sky-400' },
   Todas: { badge: 'bg-slate-50 text-slate-500 dark:bg-slate-700/50 dark:text-slate-300', dot: 'bg-slate-400' },

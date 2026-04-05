@@ -4,6 +4,19 @@ import { useAuth } from './AuthContext';
 
 const ContentContext = createContext(null);
 
+/* ───── Sanitize file name for Supabase Storage keys ──── */
+function sanitizeFileName(name) {
+  const dot = name.lastIndexOf('.');
+  const ext = dot !== -1 ? name.slice(dot) : '';
+  const base = dot !== -1 ? name.slice(0, dot) : name;
+  return base
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // strip accents
+    .replace(/[^a-zA-Z0-9._-]/g, '_')                 // replace special chars
+    .replace(/_+/g, '_')                               // collapse underscores
+    .replace(/^_|_$/g, '')                              // trim underscores
+    + ext.toLowerCase();
+}
+
 /* ───── Transform Supabase row → UI-compatible item ──── */
 
 function transformPublication(pub) {
@@ -66,8 +79,8 @@ export function ContentProvider({ children }) {
   const [loadingMore, setLoadingMore] = useState(false);
   const offsetRef = useRef(0);
 
-  // Derived arrays for filter chips (compatible with old mockData exports)
-  const schools = ['Todas', ...faculties.filter((f) => f.code !== 'TODAS').map((f) => f.name)];
+  // Derived arrays for filter chips
+  const schools = ['Todas', ...faculties.filter(f => f.code !== 'TODAS').map(f => f.name)];
   const contentTypes = ['Todos', ...contentTypesList.map((t) => t.name)];
 
   /* ───── Initial fetches ────────────────────────────── */
@@ -273,33 +286,34 @@ export function ContentProvider({ children }) {
 
     // 2. Upload file to Storage + create media_files record
     if (item.file) {
-      const filePath = `${session.user.id}/${pub.id}/${Date.now()}_${item.file.name}`;
+      const safeName = sanitizeFileName(item.file.name);
+      const filePath = `${session.user.id}/${pub.id}/${Date.now()}_${safeName}`;
       const { error: upErr } = await supabase.storage
         .from('publications-media')
         .upload(filePath, item.file, { cacheControl: '3600', upsert: false });
 
       if (upErr) {
-        console.error("Error uploading file to storage:", upErr);
+        // Rollback: delete the publication that was just created
+        await supabase.from('publications').delete().eq('id', pub.id);
+        throw new Error(`No se pudo subir el archivo "${item.file.name}". Verifica que el formato sea compatible (PDF, Word, PowerPoint, Excel, MP4, WebM, JPG, PNG) y que no supere los 100MB.`);
       }
 
-      if (!upErr) {
-        const { data: urlData } = supabase.storage
-          .from('publications-media')
-          .getPublicUrl(filePath);
+      const { data: urlData } = supabase.storage
+        .from('publications-media')
+        .getPublicUrl(filePath);
 
-        const { error: mediaErr } = await supabase.from('media_files').insert({
-          publication_id: pub.id,
-          file_type: item.fileType,
-          file_name: item.file.name,
-          file_size_bytes: item.file.size,
-          mime_type: item.file.type,
-          storage_path: filePath,
-          public_url: urlData.publicUrl,
-        });
+      const { error: mediaErr } = await supabase.from('media_files').insert({
+        publication_id: pub.id,
+        file_type: item.fileType,
+        file_name: item.file.name,
+        file_size_bytes: item.file.size,
+        mime_type: item.file.type,
+        storage_path: filePath,
+        public_url: urlData.publicUrl,
+      });
 
-        if (mediaErr) {
-          console.error("Error inserting media files into db:", mediaErr);
-        }
+      if (mediaErr) {
+        console.error("Error inserting media files into db:", mediaErr);
       }
     }
 
@@ -360,8 +374,13 @@ export function ContentProvider({ children }) {
         await supabase.from('media_files').delete().eq('publication_id', id);
       }
 
-      const filePath = `${session.user.id}/${id}/${Date.now()}_${data.file.name}`;
-      await supabase.storage.from('publications-media').upload(filePath, data.file);
+      const safeName = sanitizeFileName(data.file.name);
+      const filePath = `${session.user.id}/${id}/${Date.now()}_${safeName}`;
+      const { error: upErr } = await supabase.storage.from('publications-media').upload(filePath, data.file);
+
+      if (upErr) {
+        throw new Error(`No se pudo subir el archivo "${data.file.name}". Verifica que el formato sea compatible (PDF, Word, PowerPoint, Excel, MP4, WebM, JPG, PNG) y que no supere los 100MB.`);
+      }
 
       const { data: urlData } = supabase.storage
         .from('publications-media')

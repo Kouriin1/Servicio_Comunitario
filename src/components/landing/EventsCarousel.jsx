@@ -1,12 +1,15 @@
 import { motion } from 'framer-motion';
 import { useContent } from '../../hooks/useContent';
+import { useNavigate } from 'react-router-dom';
 import Card from '../ui/Card';
 import { Calendar as CalendarIcon, MapPin, ChevronRight, ChevronLeft } from 'lucide-react';
 import { useRef } from 'react';
 import Button from '../ui/Button';
+import usmLogo from '../../assets/usm_logo.png';
 
 export default function EventsCarousel() {
   const { events } = useContent();
+  const navigate = useNavigate();
   const containerRef = useRef(null);
 
   const scroll = (direction) => {
@@ -55,15 +58,13 @@ export default function EventsCarousel() {
               className="min-w-[260px] sm:min-w-[300px] md:min-w-[400px] snap-start"
             >
               <Card className="h-full flex flex-col p-0 overflow-hidden group">
-                <div className="h-48 bg-usm-blue relative overflow-hidden group-hover:scale-105 transition-transform duration-500">
-                  {event.fileUrl ? (
-                    <img src={event.fileUrl} alt={event.title} className="w-full h-full object-cover" />
-                  ) : (
-                    <>
-                      <div className="absolute inset-0 bg-gradient-to-br from-usm-blue-bright/40 to-usm-blue" />
-                      <div className="absolute inset-0 opacity-30 [background-image:linear-gradient(to_right,rgba(255,255,255,0.14)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.14)_1px,transparent_1px)] [background-size:26px_26px]" />
-                    </>
-                  )}
+                <div className="h-48 bg-white relative overflow-hidden group-hover:scale-105 transition-transform duration-500">
+                  <img
+                    src={event.fileUrl || usmLogo}
+                    alt={event.title}
+                    className={event.fileUrl ? 'w-full h-full object-cover' : 'w-full h-full object-contain p-4'}
+                    onError={(e) => { e.target.onerror = null; e.target.src = usmLogo; e.target.className = 'w-full h-full object-contain p-4'; }}
+                  />
                   <div className="absolute top-4 left-4 bg-white/90 text-usm-blue font-bold px-3 py-1 rounded-md text-sm z-10">
                     {event.school}
                   </div>
@@ -80,7 +81,7 @@ export default function EventsCarousel() {
                   </div>
                 </div>
                 <div className="p-6 pt-0 mt-auto">
-                  <Button variant="ghost" className="w-full justify-between group/btn">
+                  <Button variant="ghost" className="w-full justify-between group/btn" onClick={() => navigate('/login')}>
                     Ver Detalles
                     <ChevronRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
                   </Button>
