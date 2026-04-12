@@ -519,7 +519,7 @@ export default function DashboardPage() {
               {schools.map((s) => (
                 <motion.button
                   key={s}
-                  onClick={() => setSchoolFilter(s)}
+                  onClick={() => { setSchoolFilter(s); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
                   whileHover={{ scale: 1.03 }}
                   whileTap={{ scale: 0.97 }}
                   className={`px-5 py-2.5 rounded-2xl text-sm font-semibold transition-all shrink-0 whitespace-nowrap border ${schoolFilter === s
@@ -549,7 +549,7 @@ export default function DashboardPage() {
             </div>
           ) : (
             <div className="space-y-6">
-              <AnimatePresence mode="popLayout">
+              <AnimatePresence mode="sync">
                 {filteredData.map((item) => (
                   <div
                     key={item.id}
