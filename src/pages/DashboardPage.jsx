@@ -181,7 +181,17 @@ export default function DashboardPage() {
   const filteredData = allContent.filter((item) => {
     const dashboardSavedOnly = savedOnly;
 
-    const matchSchool = schoolFilter === 'Todas' || item.school === schoolFilter;
+    const itemSchool = (item.school || '').trim().toLowerCase();
+    const isLawFacultyGroup = schoolFilter === 'Facultad de Derecho' && (
+      itemSchool === 'facultad de derecho' ||
+      itemSchool === 'escuela de derecho' ||
+      itemSchool === 'escuela de estudios internacionales' ||
+      itemSchool === 'derecho' ||
+      itemSchool === 'estudios internacionales' ||
+      itemSchool === 'todas las facultades'
+    );
+
+    const matchSchool = schoolFilter === 'Todas' || item.school === schoolFilter || isLawFacultyGroup;
     const matchType = typeFilter === 'Todos' || item.type === typeFilter;
     const matchSearch = `${item.title} ${item.author}`.toLowerCase().includes(query.toLowerCase());
     const matchSaved = !dashboardSavedOnly || savedIds.includes(item.id);

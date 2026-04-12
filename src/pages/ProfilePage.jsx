@@ -21,6 +21,8 @@ import { useContentContext } from "../context/ContentContext";
 import ContentDetailModal from "../components/ui/ContentDetailModal";
 
 const SCHOOL_COLORS = {
+  "Facultad de Derecho": { bg: "bg-indigo-100 dark:bg-indigo-900/20", text: "text-indigo-600 dark:text-indigo-300", border: "border-indigo-200 dark:border-indigo-800" },
+  "Todas las Facultades": { bg: "bg-indigo-100 dark:bg-indigo-900/20", text: "text-indigo-600 dark:text-indigo-300", border: "border-indigo-200 dark:border-indigo-800" },
   "Escuela de Derecho": { bg: "bg-red-100 dark:bg-red-900/20", text: "text-red-600 dark:text-red-300", border: "border-red-200 dark:border-red-800" },
   "Escuela de Estudios Internacionales": { bg: "bg-sky-100 dark:bg-sky-900/20", text: "text-sky-600 dark:text-sky-300", border: "border-sky-200 dark:border-sky-800" },
   Derecho: { bg: "bg-red-100 dark:bg-red-900/20", text: "text-red-600 dark:text-red-300", border: "border-red-200 dark:border-red-800" },

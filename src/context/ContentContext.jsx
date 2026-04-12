@@ -17,6 +17,55 @@ function sanitizeFileName(name) {
     + ext.toLowerCase();
 }
 
+function getSchoolLabel(faculty) {
+  if (!faculty) return 'General';
+  const rawName = (faculty.name || '').trim();
+  const rawNameLower = rawName.toLowerCase();
+
+  if (faculty.code === 'TODAS' || rawNameLower === 'todas las facultades') {
+    return 'Facultad de Derecho';
+  }
+  if (rawNameLower === 'derecho') {
+    return 'Escuela de Derecho';
+  }
+  if (rawNameLower === 'estudios internacionales') {
+    return 'Escuela de Estudios Internacionales';
+  }
+
+  return rawName || 'General';
+}
+
+function findFacultyBySchoolSelection(faculties, selectedSchool) {
+  if (!selectedSchool) return null;
+  const normalizedSelection = selectedSchool.trim().toLowerCase();
+
+  return faculties.find((f) => {
+    const rawName = (f.name || '').trim().toLowerCase();
+    const displayName = getSchoolLabel(f).toLowerCase();
+
+    if (rawName === normalizedSelection || displayName === normalizedSelection) {
+      return true;
+    }
+
+    // Compatibilidad con etiquetas antiguas/alternas
+    if (normalizedSelection === 'facultad de derecho') {
+      return f.code === 'TODAS' || rawName === 'todas las facultades';
+    }
+    if (normalizedSelection === 'escuela de derecho') {
+      return rawName === 'derecho';
+    }
+    if (normalizedSelection === 'escuela de estudios internacionales') {
+      return rawName === 'estudios internacionales';
+    }
+
+    return false;
+  }) || null;
+}
+
+function buildUploadValidationMessage(fileName) {
+  return `No se pudo subir el archivo "${fileName}". Formatos permitidos: PDF, Word (DOC/DOCX), PowerPoint (PPT/PPTX), Excel (XLS/XLSX), video (MP4/WebM/OGG/MOV) e imagen (JPG/JPEG/PNG/GIF/WEBP), maximo 100MB.`;
+}
+
 /* ───── Transform Supabase row → UI-compatible item ──── */
 
 function transformPublication(pub) {
@@ -26,7 +75,7 @@ function transformPublication(pub) {
     title: pub.title,
     author: pub.author_name || 'Anónimo',
     author_avatar: pub.profiles?.avatar_url || null,
-    school: pub.faculty?.name || 'General',
+    school: getSchoolLabel(pub.faculty),
     type: pub.content_type?.name || 'Artículo',
     date: pub.created_at,
     eventDate: pub.event_date || null,
@@ -80,7 +129,10 @@ export function ContentProvider({ children }) {
   const offsetRef = useRef(0);
 
   // Derived arrays for filter chips
-  const schools = ['Todas', ...faculties.filter(f => f.code !== 'TODAS').map(f => f.name)];
+  const schools = [
+    'Todas',
+    ...Array.from(new Set((faculties || []).map((f) => getSchoolLabel(f)).filter((name) => !!name && name !== 'General'))),
+  ];
   const contentTypes = ['Todos', ...contentTypesList.map((t) => t.name)];
 
   /* ───── Initial fetches ────────────────────────────── */
@@ -228,8 +280,12 @@ export function ContentProvider({ children }) {
   }
 
   const addContent = async (item) => {
-    const faculty = faculties.find((f) => f.name === item.school);
+    const faculty = findFacultyBySchoolSelection(faculties, item.school);
     const contentType = contentTypesList.find((t) => t.name === item.type);
+
+    if (item.file && !item.fileType) {
+      throw new Error(buildUploadValidationMessage(item.file?.name || 'archivo'));
+    }
 
     // author_id solo se asigna si hay un usuario explícitamente etiquetado
     const finalAuthorId = item.taggedUserId || null;
@@ -288,14 +344,21 @@ export function ContentProvider({ children }) {
     if (item.file) {
       const safeName = sanitizeFileName(item.file.name);
       const filePath = `${session.user.id}/${pub.id}/${Date.now()}_${safeName}`;
+
+      const uploadOptions = {
+        cacheControl: '3600',
+        upsert: false,
+        ...(item.fileMimeType ? { contentType: item.fileMimeType } : {}),
+      };
+
       const { error: upErr } = await supabase.storage
         .from('publications-media')
-        .upload(filePath, item.file, { cacheControl: '3600', upsert: false });
+        .upload(filePath, item.file, uploadOptions);
 
       if (upErr) {
         // Rollback: delete the publication that was just created
         await supabase.from('publications').delete().eq('id', pub.id);
-        throw new Error(`No se pudo subir el archivo "${item.file.name}". Verifica que el formato sea compatible (PDF, Word, PowerPoint, Excel, MP4, WebM, JPG, PNG) y que no supere los 100MB.`);
+        throw new Error(buildUploadValidationMessage(item.file.name));
       }
 
       const { data: urlData } = supabase.storage
@@ -307,13 +370,15 @@ export function ContentProvider({ children }) {
         file_type: item.fileType,
         file_name: item.file.name,
         file_size_bytes: item.file.size,
-        mime_type: item.file.type,
+        mime_type: item.fileMimeType || item.file.type,
         storage_path: filePath,
         public_url: urlData.publicUrl,
       });
 
       if (mediaErr) {
-        console.error("Error inserting media files into db:", mediaErr);
+        await supabase.storage.from('publications-media').remove([filePath]);
+        await supabase.from('publications').delete().eq('id', pub.id);
+        throw new Error(buildUploadValidationMessage(item.file.name));
       }
     }
 
@@ -344,8 +409,12 @@ export function ContentProvider({ children }) {
   };
 
   const updateContent = async (id, data) => {
-    const faculty = faculties.find((f) => f.name === data.school);
+    const faculty = findFacultyBySchoolSelection(faculties, data.school);
     const contentType = contentTypesList.find((t) => t.name === data.type);
+
+    if (data.file && !data.fileType) {
+      throw new Error(buildUploadValidationMessage(data.file?.name || 'archivo'));
+    }
 
     const { error } = await supabase
       .from('publications')
@@ -362,39 +431,58 @@ export function ContentProvider({ children }) {
 
     // Handle new file upload
     if (data.file) {
-      // Remove old media
+      // Keep old media until the new upload is fully persisted.
       const { data: oldMedia } = await supabase
         .from('media_files')
         .select('id, storage_path')
         .eq('publication_id', id);
 
-      if (oldMedia?.length) {
-        const paths = oldMedia.map((m) => m.storage_path).filter(Boolean);
-        if (paths.length) await supabase.storage.from('publications-media').remove(paths);
-        await supabase.from('media_files').delete().eq('publication_id', id);
-      }
-
       const safeName = sanitizeFileName(data.file.name);
       const filePath = `${session.user.id}/${id}/${Date.now()}_${safeName}`;
-      const { error: upErr } = await supabase.storage.from('publications-media').upload(filePath, data.file);
+
+      const uploadOptions = {
+        cacheControl: '3600',
+        upsert: false,
+        ...(data.fileMimeType ? { contentType: data.fileMimeType } : {}),
+      };
+
+      const { error: upErr } = await supabase.storage.from('publications-media').upload(filePath, data.file, uploadOptions);
 
       if (upErr) {
-        throw new Error(`No se pudo subir el archivo "${data.file.name}". Verifica que el formato sea compatible (PDF, Word, PowerPoint, Excel, MP4, WebM, JPG, PNG) y que no supere los 100MB.`);
+        throw new Error(buildUploadValidationMessage(data.file.name));
       }
 
       const { data: urlData } = supabase.storage
         .from('publications-media')
         .getPublicUrl(filePath);
 
-      await supabase.from('media_files').insert({
+      const { data: insertedMedia, error: mediaErr } = await supabase.from('media_files').insert({
         publication_id: id,
         file_type: data.fileType,
         file_name: data.file.name,
         file_size_bytes: data.file.size,
-        mime_type: data.file.type,
+        mime_type: data.fileMimeType || data.file.type,
         storage_path: filePath,
         public_url: urlData.publicUrl,
-      });
+      }).select('id').single();
+
+      if (mediaErr) {
+        await supabase.storage.from('publications-media').remove([filePath]);
+        throw new Error(buildUploadValidationMessage(data.file.name));
+      }
+
+      // New media is saved; now remove previous media safely.
+      if (oldMedia?.length) {
+        const oldPaths = oldMedia.map((m) => m.storage_path).filter(Boolean);
+        if (oldPaths.length) {
+          await supabase.storage.from('publications-media').remove(oldPaths);
+        }
+        await supabase
+          .from('media_files')
+          .delete()
+          .eq('publication_id', id)
+          .neq('id', insertedMedia.id);
+      }
     } else if (data.fileRemoved) {
       const { data: oldMedia } = await supabase
         .from('media_files')

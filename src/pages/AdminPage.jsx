@@ -15,31 +15,107 @@ import ContentDetailModal from '../components/ui/ContentDetailModal';
 
 const emptyForm = {
   title: '', excerpt: '', type: 'Trabajos de grado', school: '', author: '', taggedUserId: null, taggedUserName: null, eventDate: '',
-  file: null, fileUrl: null, fileType: null, fileName: null, linkUrl: null,
+  file: null, fileUrl: null, fileType: null, fileMimeType: null, fileName: null, linkUrl: null,
 };
 
-const ACCEPTED_FILES = {
-  pdf: '.pdf',
-  document: '.doc,.docx,.ppt,.pptx,.xls,.xlsx',
-  video: '.mp4,.webm,.ogg,.mov',
-  image: '.jpg,.jpeg,.png,.gif,.webp',
+const MAX_FILE_SIZE_BYTES = 100 * 1024 * 1024;
+
+const EXTENSION_TO_FILE_TYPE = {
+  pdf: 'pdf',
+  doc: 'document',
+  docx: 'document',
+  ppt: 'document',
+  pptx: 'document',
+  xls: 'document',
+  xlsx: 'document',
+  mp4: 'video',
+  webm: 'video',
+  ogg: 'video',
+  mov: 'video',
+  jpg: 'image',
+  jpeg: 'image',
+  png: 'image',
+  gif: 'image',
+  webp: 'image',
 };
-const ALL_ACCEPTED = Object.values(ACCEPTED_FILES).join(',');
+
+const EXTENSION_TO_MIME = {
+  pdf: 'application/pdf',
+  doc: 'application/msword',
+  docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  ppt: 'application/vnd.ms-powerpoint',
+  pptx: 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+  xls: 'application/vnd.ms-excel',
+  xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  mp4: 'video/mp4',
+  webm: 'video/webm',
+  ogg: 'video/ogg',
+  mov: 'video/quicktime',
+  jpg: 'image/jpeg',
+  jpeg: 'image/jpeg',
+  png: 'image/png',
+  gif: 'image/gif',
+  webp: 'image/webp',
+};
+
+const MIME_TO_FILE_TYPE = Object.entries(EXTENSION_TO_MIME).reduce((acc, [ext, mime]) => {
+  acc[mime] = EXTENSION_TO_FILE_TYPE[ext];
+  return acc;
+}, {});
+
+const ALLOWED_MIME_TYPES = new Set(Object.values(EXTENSION_TO_MIME));
+const ALL_ACCEPTED = [...new Set([...Object.keys(EXTENSION_TO_FILE_TYPE).map((ext) => `.${ext}`), 'video/*', 'image/*'])].join(',');
 
 const SUPER_ADMIN_EMAIL = 'usmjorguer1123@gmail.com';
 
-function getFileType(file) {
-  if (file.type.startsWith('video/')) return 'video';
-  if (file.type === 'application/pdf') return 'pdf';
-  if (file.type.startsWith('image/')) return 'image';
-  if (
-    file.name.match(/\.(doc|docx|ppt|pptx|xls|xlsx)$/i) ||
-    file.type.includes('document') ||
-    file.type.includes('presentation') ||
-    file.type.includes('msword') ||
-    file.type.includes('mspowerpoint')
-  ) return 'document';
-  return 'link';
+function getFacultyLabel(faculty) {
+  const name = (faculty?.name || '').trim();
+  const lowerName = name.toLowerCase();
+
+  if (faculty?.code === 'TODAS' || lowerName === 'todas las facultades') return 'Facultad de Derecho';
+  if (lowerName === 'derecho') return 'Escuela de Derecho';
+  if (lowerName === 'estudios internacionales') return 'Escuela de Estudios Internacionales';
+
+  return name;
+}
+
+function getFileExtension(fileName = '') {
+  const normalized = fileName.trim().toLowerCase();
+  const dot = normalized.lastIndexOf('.');
+  return dot >= 0 ? normalized.slice(dot + 1) : '';
+}
+
+function resolveFileMetadata(file) {
+  const extension = getFileExtension(file?.name || '');
+  const typeFromMime = MIME_TO_FILE_TYPE[file?.type] || null;
+  const typeFromExtension = EXTENSION_TO_FILE_TYPE[extension] || null;
+  const fileType = typeFromMime || typeFromExtension;
+
+  const mimeType = ALLOWED_MIME_TYPES.has(file?.type)
+    ? file.type
+    : EXTENSION_TO_MIME[extension] || file?.type || null;
+
+  return { fileType, mimeType };
+}
+
+function validateSelectedFile(file) {
+  if (!file) {
+    return { isValid: false, message: 'No se selecciono ningun archivo.' };
+  }
+
+  if (file.size > MAX_FILE_SIZE_BYTES) {
+    return { isValid: false, message: 'El archivo excede el limite de 100MB.' };
+  }
+
+  const { fileType, mimeType } = resolveFileMetadata(file);
+  if (!fileType || !mimeType || !ALLOWED_MIME_TYPES.has(mimeType)) {
+    return {
+      isValid: false,
+      message: 'Formato no permitido. Usa PDF, Word (DOC/DOCX), PowerPoint (PPT/PPTX), Excel (XLS/XLSX), video (MP4/WebM/OGG/MOV) o imagen (JPG/JPEG/PNG/GIF/WEBP).',
+    };
+  }
+
+  return { isValid: true, fileType, mimeType };
 }
 
 function FileTypeIcon({ fileType, className = 'w-4 h-4' }) {
@@ -112,28 +188,31 @@ export default function AdminPage() {
 
   const handleFileSelect = (file, isEdit = false) => {
     if (!file) return;
-    const maxSize = 100 * 1024 * 1024; // 100MB
-    if (file.size > maxSize) {
-      showToast('El archivo excede el límite de 100MB', 'error');
+
+    const validation = validateSelectedFile(file);
+    if (!validation.isValid) {
+      showToast(validation.message, 'error');
       return;
     }
-    const fileType = getFileType(file);
+
+    const { fileType, mimeType } = validation;
     const fileUrl = URL.createObjectURL(file);
+
     if (isEdit && editingItem) {
-      setEditingItem({ ...editingItem, file, fileUrl, fileType, fileName: file.name });
+      setEditingItem({ ...editingItem, file, fileUrl, fileType, fileMimeType: mimeType, fileName: file.name, fileRemoved: false });
     } else {
-      setForm({ ...form, file, fileUrl, fileType, fileName: file.name });
+      setForm({ ...form, file, fileUrl, fileType, fileMimeType: mimeType, fileName: file.name });
     }
-    showToast(`${file.name} adjuntado`, 'success');
+    showToast(`Archivo listo para publicar: ${file.name}`, 'success');
   };
 
   const handleRemoveFile = (isEdit = false) => {
     if (isEdit && editingItem) {
       if (editingItem.fileUrl?.startsWith('blob:')) URL.revokeObjectURL(editingItem.fileUrl);
-      setEditingItem({ ...editingItem, file: null, fileUrl: null, fileType: null, fileName: null, fileRemoved: true });
+      setEditingItem({ ...editingItem, file: null, fileUrl: null, fileType: null, fileMimeType: null, fileName: null, fileRemoved: true });
     } else {
       if (form.fileUrl?.startsWith('blob:')) URL.revokeObjectURL(form.fileUrl);
-      setForm({ ...form, file: null, fileUrl: null, fileType: null, fileName: null });
+      setForm({ ...form, file: null, fileUrl: null, fileType: null, fileMimeType: null, fileName: null });
     }
   };
 
@@ -204,6 +283,7 @@ export default function AdminPage() {
         file: editingItem.file || null,
         fileUrl: editingItem.fileUrl,
         fileType: editingItem.fileType,
+        fileMimeType: editingItem.fileMimeType,
         fileName: editingItem.fileName,
         fileRemoved: editingItem.fileRemoved || false,
         linkUrl: editingItem.linkUrl,
@@ -283,7 +363,7 @@ export default function AdminPage() {
             <p className="text-sm font-medium text-slate-600 dark:text-slate-300">
               Click para subir archivo
             </p>
-            <p className="text-xs text-slate-400 mt-1">PDF, Video (MP4, WebM), Imagen (JPG, PNG) - Max 100MB</p>
+            <p className="text-xs text-slate-400 mt-1">PDF, Word, PowerPoint, Excel, video (MP4/WebM/OGG/MOV) e imagen (JPG/JPEG/PNG/GIF/WEBP) - Max 100MB</p>
           </div>
           <input
             ref={inputRef}
@@ -476,7 +556,7 @@ export default function AdminPage() {
                 >
                   <option value="">Seleccionar escuela</option>
                   {faculties.map((f) => (
-                    <option key={f.id} value={f.name}>{f.code === 'TODAS' ? 'Facultad de Derecho' : f.name}</option>
+                    <option key={f.id} value={getFacultyLabel(f)}>{getFacultyLabel(f)}</option>
                   ))}
                 </select>
 
@@ -793,7 +873,7 @@ export default function AdminPage() {
             >
               <option value="">Seleccionar escuela</option>
               {faculties.map((f) => (
-                <option key={f.id} value={f.name}>{f.code === 'TODAS' ? 'Facultad de Derecho' : f.name}</option>
+                <option key={f.id} value={getFacultyLabel(f)}>{getFacultyLabel(f)}</option>
               ))}
             </select>
 
