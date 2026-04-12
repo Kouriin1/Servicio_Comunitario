@@ -2,8 +2,10 @@ import Modal from './Modal';
 import { Calendar, MapPin, Clock, User, Building2, FileText, Video, Image, ExternalLink, Download } from 'lucide-react';
 
 const schoolColors = {
-  'Facultad de Derecho': 'bg-rose-500',
-  'Facultad de Estudios Internacionales': 'bg-blue-500',
+  'Facultad de Derecho': 'bg-indigo-500',
+  'Todas las Facultades': 'bg-indigo-500',
+  'Escuela de Derecho': 'bg-rose-500',
+  'Escuela de Estudios Internacionales': 'bg-blue-500',
   'Derecho': 'bg-rose-500',
   'Estudios Internacionales': 'bg-blue-500',
   'Todas': 'bg-indigo-500',
@@ -119,6 +121,7 @@ function FileTypeBadge({ fileType }) {
   if (!fileType) return null;
   const config = {
     pdf: { icon: <FileText className="w-3.5 h-3.5" />, label: 'PDF', color: 'bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400' },
+    document: { icon: <FileText className="w-3.5 h-3.5" />, label: 'Documento', color: 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400' },
     video: { icon: <Video className="w-3.5 h-3.5" />, label: 'Video', color: 'bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400' },
     image: { icon: <Image className="w-3.5 h-3.5" />, label: 'Imagen', color: 'bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400' },
     link: { icon: <ExternalLink className="w-3.5 h-3.5" />, label: 'Enlace', color: 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400' },
