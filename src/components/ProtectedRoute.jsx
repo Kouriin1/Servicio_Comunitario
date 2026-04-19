@@ -2,7 +2,7 @@ import { Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 export default function ProtectedRoute({ children, adminOnly = false }) {
-  const { user, loading } = useAuth();
+  const { user, loading, session } = useAuth();
 
   if (loading) {
     return (
@@ -13,6 +13,12 @@ export default function ProtectedRoute({ children, adminOnly = false }) {
   }
 
   if (!user) return <Navigate to="/login" replace />;
+
+  const meta = session?.user?.user_metadata || {};
+  if (meta.invited && !meta.registration_complete) {
+    return <Navigate to="/registro/completar" replace />;
+  }
+
   if (adminOnly && user.role !== 'admin') return <Navigate to="/dashboard" replace />;
 
   return children;

@@ -147,6 +147,43 @@ export function AuthProvider({ children }) {
     setSession(null);
   };
 
+  const sendInvite = async ({ email, firstName, lastName, facultyId }) => {
+    const { data: { session: current } } = await supabase.auth.getSession();
+    if (!current?.access_token) throw new Error('No autenticado');
+
+    const redirect_to = `${window.location.origin}/registro/completar`;
+
+    const { data, error } = await supabase.functions.invoke('send-invite', {
+      headers: {
+        Authorization: `Bearer ${current.access_token}`,
+      },
+      body: {
+        email,
+        first_name: firstName || '',
+        last_name: lastName || '',
+        faculty_id: facultyId || null,
+        redirect_to,
+      },
+    });
+
+    if (error) {
+      // Intentar leer el body del response para tener el mensaje real
+      let serverMsg = error.message;
+      try {
+        const ctx = error.context;
+        if (ctx && typeof ctx.json === 'function') {
+          const body = await ctx.json();
+          serverMsg = body?.message || body?.details || body?.error || serverMsg;
+        }
+      } catch { /* noop */ }
+      throw new Error(serverMsg || 'Error al enviar la invitación');
+    }
+    if (data?.error) {
+      throw new Error(data.message || data.details || data.error);
+    }
+    return data;
+  };
+
   /* ───── Profile actions ───────────────────────────────── */
 
   const updateProfile = async (updates) => {
@@ -201,7 +238,7 @@ export function AuthProvider({ children }) {
 
   return (
     <AuthContext.Provider
-      value={{ user, loading, login, register, logout, updateProfile, uploadAvatar, session, profile }}
+      value={{ user, loading, login, register, logout, updateProfile, uploadAvatar, sendInvite, session, profile }}
     >
       {children}
     </AuthContext.Provider>

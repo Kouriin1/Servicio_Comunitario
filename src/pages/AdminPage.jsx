@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   FilePlus2, ListFilter, Pencil, Trash2, Eye, ArrowLeft, Check,
-  Upload, FileText, Video, Image, Link2, X, Users, Search, Loader2, ShieldCheck, ShieldOff, Ban, UserCheck
+  Upload, FileText, Video, Image, Link2, X, Users, Search, Loader2, ShieldCheck, ShieldOff, Ban, UserCheck, Mail, Send
 } from 'lucide-react';
 import { useContentContext } from '../context/ContentContext';
 import { useAuth } from '../context/AuthContext';
@@ -130,7 +130,7 @@ function FileTypeIcon({ fileType, className = 'w-4 h-4' }) {
 export default function AdminPage() {
   const navigate = useNavigate();
   const { allContent, addContent, deleteContent, updateContent, contentTypesList, contentTypes, faculties, usersList, fetchUsers, updateUserRole, banUser, unbanUser } = useContentContext();
-  const { user } = useAuth();
+  const { user, sendInvite } = useAuth();
   const { showToast } = useToast();
   const [selectedType, setSelectedType] = useState('Todos');
   const [form, setForm] = useState(emptyForm);
@@ -151,6 +151,47 @@ export default function AdminPage() {
   const [togglingRole, setTogglingRole] = useState(null);
   const [togglingBan, setTogglingBan] = useState(null);
   const [banConfirm, setBanConfirm] = useState(null);
+
+  const [inviteForm, setInviteForm] = useState({ email: '', firstName: '', lastName: '', facultyId: '' });
+  const [sendingInvite, setSendingInvite] = useState(false);
+  const inviteFaculties = useMemo(() => faculties.filter((f) => f.code !== 'TODAS'), [faculties]);
+
+  const handleSendInvite = async (event) => {
+    event.preventDefault();
+    const email = inviteForm.email.trim().toLowerCase();
+    if (!email) {
+      showToast('El correo es requerido', 'error');
+      return;
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      showToast('Formato de correo inválido', 'error');
+      return;
+    }
+
+    setSendingInvite(true);
+    try {
+      await sendInvite({
+        email,
+        firstName: inviteForm.firstName.trim(),
+        lastName: inviteForm.lastName.trim(),
+        facultyId: inviteForm.facultyId || null,
+      });
+      showToast(`Invitación enviada a ${email}`, 'success');
+      setInviteForm({ email: '', firstName: '', lastName: '', facultyId: '' });
+    } catch (err) {
+      const msg = err.message || '';
+      if (msg.includes('ya tiene una cuenta activa')) {
+        showToast('Este correo ya está registrado en USM RED.', 'error');
+      } else if (msg.includes('invitación pendiente')) {
+        showToast('Ya existe una invitación pendiente para este correo.', 'info');
+      } else {
+        showToast(msg || 'Error al enviar la invitación', 'error');
+      }
+    } finally {
+      setSendingInvite(false);
+    }
+  };
 
   useEffect(() => {
     fetchUsers();
@@ -443,6 +484,15 @@ export default function AdminPage() {
               }`}
           >
             Usuarios
+          </button>
+          <button
+            onClick={() => setActiveTab('invites')}
+            className={`px-4 py-2 font-medium text-sm border-b-2 transition-colors ${activeTab === 'invites'
+              ? 'border-usm-blue text-usm-blue dark:border-blue-400 dark:text-blue-400'
+              : 'border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300'
+              }`}
+          >
+            Invitaciones
           </button>
           {isSuperAdmin && (
             <button
@@ -788,6 +838,73 @@ export default function AdminPage() {
                 </tbody>
               </table>
             </div>
+          </section>
+        ) : activeTab === 'invites' ? (
+          <section className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-4 sm:p-6">
+            <div className="flex items-center gap-2 mb-4 text-usm-blue dark:text-blue-300">
+              <Mail className="w-5 h-5" />
+              <h2 className="text-xl font-bold">Invitar usuarios externos</h2>
+            </div>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">
+              Envía una invitación por correo a cualquier persona. El invitado recibirá un enlace para activar su cuenta y definir su contraseña, sin importar el dominio de su correo.
+            </p>
+
+            <form onSubmit={handleSendInvite} className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl">
+              <label className="block md:col-span-2">
+                <span className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-1 block">Correo del invitado <span className="text-red-500">*</span></span>
+                <input
+                  type="email"
+                  value={inviteForm.email}
+                  onChange={(e) => setInviteForm({ ...inviteForm, email: e.target.value })}
+                  className="w-full rounded-xl border border-slate-200 dark:border-slate-600 px-4 py-3 dark:bg-slate-700 dark:text-white"
+                  placeholder="correo@ejemplo.com"
+                  required
+                />
+              </label>
+
+              <label className="block">
+                <span className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-1 block">Nombre</span>
+                <input
+                  type="text"
+                  value={inviteForm.firstName}
+                  onChange={(e) => setInviteForm({ ...inviteForm, firstName: e.target.value })}
+                  className="w-full rounded-xl border border-slate-200 dark:border-slate-600 px-4 py-3 dark:bg-slate-700 dark:text-white"
+                  placeholder="Opcional"
+                />
+              </label>
+
+              <label className="block">
+                <span className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-1 block">Apellido</span>
+                <input
+                  type="text"
+                  value={inviteForm.lastName}
+                  onChange={(e) => setInviteForm({ ...inviteForm, lastName: e.target.value })}
+                  className="w-full rounded-xl border border-slate-200 dark:border-slate-600 px-4 py-3 dark:bg-slate-700 dark:text-white"
+                  placeholder="Opcional"
+                />
+              </label>
+
+              <label className="block md:col-span-2">
+                <span className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-1 block">Escuela</span>
+                <select
+                  value={inviteForm.facultyId}
+                  onChange={(e) => setInviteForm({ ...inviteForm, facultyId: e.target.value })}
+                  className="w-full rounded-xl border border-slate-200 dark:border-slate-600 px-4 py-3 bg-white dark:bg-slate-700 dark:text-white"
+                >
+                  <option value="">Sin escuela asignada</option>
+                  {inviteFaculties.map((f) => (
+                    <option key={f.id} value={f.id}>{f.name}</option>
+                  ))}
+                </select>
+              </label>
+
+              <div className="md:col-span-2 pt-2">
+                <Button type="submit" disabled={sendingInvite} className="flex items-center justify-center gap-2">
+                  {sendingInvite ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                  {sendingInvite ? 'Enviando...' : 'Enviar invitación'}
+                </Button>
+              </div>
+            </form>
           </section>
         ) : (
           <section className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-4 sm:p-6">
