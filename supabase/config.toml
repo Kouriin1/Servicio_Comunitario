@@ -1,0 +1,8 @@
+# Configuración de Supabase CLI para este proyecto.
+# https://supabase.com/docs/guides/cli/config
+
+[functions.send-invite]
+# Desactivamos la verificación de JWT a nivel gateway porque el proyecto
+# firma con ES256 y el runtime de Edge Functions solo verifica HS256.
+# La función hace su propia validación con auth.getUser() + chequeo de role='admin'.
+verify_jwt = false
