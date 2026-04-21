@@ -448,8 +448,8 @@ export default function AdminPage() {
   );
 
   return (
-    <div className="min-h-screen bg-slate-100 dark:bg-slate-900 p-3 sm:p-6 md:p-8">
-      <div className="max-w-7xl mx-auto space-y-6 sm:space-y-8">
+    <div className="min-h-screen bg-slate-100 dark:bg-slate-900 p-3 sm:p-6 md:p-8 overflow-x-hidden">
+      <div className="max-w-7xl mx-auto space-y-6 sm:space-y-8 overflow-hidden">
         <header className="bg-usm-blue rounded-2xl p-4 sm:p-6 md:p-8 text-white">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
@@ -466,10 +466,10 @@ export default function AdminPage() {
         </header>
 
         {/* Generic Tabs Navigation */}
-        <div className="flex space-x-2 border-b border-slate-200 dark:border-slate-700 pb-px">
+        <div className="flex overflow-x-auto scrollbar-hide -mx-3 px-3 sm:mx-0 sm:px-0 border-b border-slate-200 dark:border-slate-700 pb-px">
           <button
             onClick={() => setActiveTab('content')}
-            className={`px-4 py-2 font-medium text-sm border-b-2 transition-colors ${activeTab === 'content'
+            className={`px-4 py-2 font-medium text-sm border-b-2 transition-colors whitespace-nowrap shrink-0 ${activeTab === 'content'
               ? 'border-usm-blue text-usm-blue dark:border-blue-400 dark:text-blue-400'
               : 'border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300'
               }`}
@@ -478,7 +478,7 @@ export default function AdminPage() {
           </button>
           <button
             onClick={() => setActiveTab('users')}
-            className={`px-4 py-2 font-medium text-sm border-b-2 transition-colors ${activeTab === 'users'
+            className={`px-4 py-2 font-medium text-sm border-b-2 transition-colors whitespace-nowrap shrink-0 ${activeTab === 'users'
               ? 'border-usm-blue text-usm-blue dark:border-blue-400 dark:text-blue-400'
               : 'border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300'
               }`}
@@ -487,7 +487,7 @@ export default function AdminPage() {
           </button>
           <button
             onClick={() => setActiveTab('invites')}
-            className={`px-4 py-2 font-medium text-sm border-b-2 transition-colors ${activeTab === 'invites'
+            className={`px-4 py-2 font-medium text-sm border-b-2 transition-colors whitespace-nowrap shrink-0 ${activeTab === 'invites'
               ? 'border-usm-blue text-usm-blue dark:border-blue-400 dark:text-blue-400'
               : 'border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300'
               }`}
@@ -497,7 +497,7 @@ export default function AdminPage() {
           {isSuperAdmin && (
             <button
               onClick={() => setActiveTab('admins')}
-              className={`px-4 py-2 font-medium text-sm border-b-2 transition-colors ${activeTab === 'admins'
+              className={`px-4 py-2 font-medium text-sm border-b-2 transition-colors whitespace-nowrap shrink-0 ${activeTab === 'admins'
                 ? 'border-usm-blue text-usm-blue dark:border-blue-400 dark:text-blue-400'
                 : 'border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300'
                 }`}
@@ -715,7 +715,7 @@ export default function AdminPage() {
                 <ShieldCheck className="w-5 h-5" />
                 <h2 className="text-xl font-bold">Gestionar Administradores</h2>
               </div>
-              <div className="relative max-w-xs w-full">
+              <div className="relative w-full sm:max-w-xs">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                 <input
                   type="text"
@@ -726,10 +726,12 @@ export default function AdminPage() {
                 />
               </div>
             </div>
-            <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">
-              Solo tú (<span className="font-medium">{SUPER_ADMIN_EMAIL}</span>) puedes asignar o remover administradores. Los administradores asignados tendrán acceso completo al panel excepto esta sección.
+            <p className="text-sm text-slate-500 dark:text-slate-400 mb-4 break-words">
+              Solo tú (<span className="font-medium break-all">{SUPER_ADMIN_EMAIL}</span>) puedes asignar o remover administradores. Los administradores asignados tendrán acceso completo al panel excepto esta sección.
             </p>
-            <div className="overflow-x-auto">
+
+            {/* Desktop Table */}
+            <div className="hidden md:block overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="border-b border-slate-200 dark:border-slate-700">
@@ -838,6 +840,97 @@ export default function AdminPage() {
                 </tbody>
               </table>
             </div>
+
+            {/* Mobile Card Layout */}
+            <div className="md:hidden space-y-3">
+              {usersList
+                .filter(u => {
+                  if (!adminSearch) return true;
+                  const q = adminSearch.toLowerCase();
+                  return (u.display_name || '').toLowerCase().includes(q) || u.email.toLowerCase().includes(q);
+                })
+                .map(u => {
+                  const isSuper = u.email === SUPER_ADMIN_EMAIL;
+                  const isAdmin = u.role === 'admin';
+                  const isBanned = !!u.is_banned;
+                  return (
+                    <div key={u.id} className={`border border-slate-200 dark:border-slate-700 rounded-xl p-4 space-y-3 ${isBanned ? 'opacity-60' : ''}`}>
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="min-w-0 flex-1">
+                          <p className="font-semibold text-slate-800 dark:text-white truncate">{u.display_name || 'Sin nombre'}</p>
+                          <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{u.email}</p>
+                          <p className="text-xs text-slate-400 mt-0.5">{u.faculty?.name || 'Sin escuela'}</p>
+                        </div>
+                        <div className="flex flex-col items-end gap-1 shrink-0">
+                          {isBanned ? (
+                            <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400">
+                              Baneado
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
+                              Activo
+                            </span>
+                          )}
+                          <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${isAdmin ? 'bg-usm-blue/10 text-usm-blue dark:bg-blue-900/30 dark:text-blue-300' : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'}`}>
+                            {isSuper ? 'Super Admin' : isAdmin ? 'Admin' : 'Usuario'}
+                          </span>
+                        </div>
+                      </div>
+                      {!isSuper && (
+                        <div className="flex flex-wrap gap-2 pt-1 border-t border-slate-100 dark:border-slate-700/50">
+                          {!isBanned && (
+                            <button
+                              disabled={togglingRole === u.id}
+                              onClick={async () => {
+                                setTogglingRole(u.id);
+                                try {
+                                  await updateUserRole(u.id, isAdmin ? 'student' : 'admin');
+                                  showToast(isAdmin ? `${u.display_name || 'Usuario'} ya no es administrador` : `${u.display_name || 'Usuario'} ahora es administrador`, 'success');
+                                } catch {
+                                  showToast('Error al cambiar el rol', 'error');
+                                } finally {
+                                  setTogglingRole(null);
+                                }
+                              }}
+                              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${isAdmin
+                                ? 'bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30'
+                                : 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/30'
+                                }`}
+                            >
+                              {togglingRole === u.id ? (
+                                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                              ) : isAdmin ? (
+                                <><ShieldOff className="w-3.5 h-3.5" /> Quitar Admin</>
+                              ) : (
+                                <><ShieldCheck className="w-3.5 h-3.5" /> Hacer Admin</>
+                              )}
+                            </button>
+                          )}
+                          <button
+                            disabled={togglingBan === u.id}
+                            onClick={() => isBanned ? handleUnban(u) : setBanConfirm(u)}
+                            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${isBanned
+                              ? 'bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900/30'
+                              : 'bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30'
+                              }`}
+                          >
+                            {togglingBan === u.id ? (
+                              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                            ) : isBanned ? (
+                              <><UserCheck className="w-3.5 h-3.5" /> Desbanear</>
+                            ) : (
+                              <><Ban className="w-3.5 h-3.5" /> Banear</>
+                            )}
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              {usersList.length === 0 && (
+                <p className="py-8 text-center text-slate-400">No hay usuarios cargados.</p>
+              )}
+            </div>
           </section>
         ) : activeTab === 'invites' ? (
           <section className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-4 sm:p-6">
@@ -912,7 +1005,9 @@ export default function AdminPage() {
               <Users className="w-5 h-5" />
               <h2 className="text-xl font-bold">Directorio de Usuarios Registrados</h2>
             </div>
-            <div className="overflow-x-auto">
+
+            {/* Desktop Table */}
+            <div className="hidden md:block overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="border-b border-slate-200 dark:border-slate-700">
@@ -945,6 +1040,30 @@ export default function AdminPage() {
                   )}
                 </tbody>
               </table>
+            </div>
+
+            {/* Mobile Card Layout */}
+            <div className="md:hidden space-y-3">
+              {usersList.map(u => (
+                <div
+                  key={u.id}
+                  onClick={() => navigate(`/u/${u.id}`)}
+                  className="border border-slate-200 dark:border-slate-700 rounded-xl p-4 flex items-center justify-between gap-3 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700/20 transition-colors"
+                >
+                  <div className="min-w-0 flex-1">
+                    <p className="font-semibold text-slate-800 dark:text-white truncate hover:text-usm-blue transition-colors">{u.display_name || 'Sin nombre'}</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{u.email}</p>
+                    <p className="text-xs text-slate-400 mt-0.5">{u.faculty?.name || 'Sin escuela'}</p>
+                  </div>
+                  <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider shrink-0 ${u.role === 'admin' ? 'bg-usm-blue/10 text-usm-blue dark:bg-blue-900/30' : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
+                    }`}>
+                    {u.role === 'student' ? 'Usuario' : u.role}
+                  </span>
+                </div>
+              ))}
+              {usersList.length === 0 && (
+                <p className="py-8 text-center text-slate-400">No hay usuarios cargados.</p>
+              )}
             </div>
           </section>
         )}
