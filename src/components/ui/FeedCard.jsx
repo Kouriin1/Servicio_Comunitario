@@ -11,7 +11,6 @@ import {
   Send,
   ChevronDown,
   ChevronUp,
-  Smile,
   Eye,
   Download,
 } from 'lucide-react';
@@ -51,6 +50,9 @@ const TYPE_COLORS = {
   Evento: 'bg-violet-50 text-violet-600 ring-1 ring-violet-100 dark:bg-violet-900/20 dark:text-violet-300 dark:ring-violet-800/30',
   Resumen: 'bg-amber-50 text-amber-600 ring-1 ring-amber-100 dark:bg-amber-900/20 dark:text-amber-300 dark:ring-amber-800/30',
 };
+
+const INITIAL_VISIBLE_COMMENTS = 30;
+const COMMENTS_BATCH_SIZE = 30;
 
 // ─── Media Previews ──────────────────────────────────────────────────────────
 
@@ -299,14 +301,28 @@ export default function FeedCard({ item, onToggleSave, isSaved = false, onViewDe
 
   const [showComments, setShowComments] = useState(false);
   const [commentText, setCommentText] = useState('');
+  const [visibleCommentsCount, setVisibleCommentsCount] = useState(INITIAL_VISIBLE_COMMENTS);
 
   const comments = item.comments || [];
+  const visibleComments = comments.slice(Math.max(0, comments.length - visibleCommentsCount));
+  const hiddenCommentsCount = Math.max(0, comments.length - visibleComments.length);
+
+  useEffect(() => {
+    if (showComments) {
+      setVisibleCommentsCount(INITIAL_VISIBLE_COMMENTS);
+    }
+  }, [showComments, item.id]);
 
   const handleAddComment = async () => {
     const text = commentText.trim();
     if (!text) return;
     await addComment(item.id, text);
     setCommentText('');
+    setVisibleCommentsCount((prev) => prev + 1);
+  };
+
+  const handleLoadMoreComments = () => {
+    setVisibleCommentsCount((prev) => prev + COMMENTS_BATCH_SIZE);
   };
 
   const handleKeyDown = (e) => {
@@ -458,7 +474,7 @@ export default function FeedCard({ item, onToggleSave, isSaved = false, onViewDe
                   <p className="text-xs text-slate-400 text-center py-4">Sé el primero en comentar.</p>
                 )}
                 <AnimatePresence initial={false}>
-                  {comments.map((c) => (
+                  {visibleComments.map((c) => (
                     <CommentItem
                       key={c.id}
                       comment={c}
@@ -468,6 +484,16 @@ export default function FeedCard({ item, onToggleSave, isSaved = false, onViewDe
                     />
                   ))}
                 </AnimatePresence>
+                {hiddenCommentsCount > 0 && (
+                  <div className="flex justify-center pt-1">
+                    <button
+                      onClick={handleLoadMoreComments}
+                      className="text-xs font-semibold text-blue-500 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
+                    >
+                      Cargar más comentarios ({hiddenCommentsCount})
+                    </button>
+                  </div>
+                )}
               </div>
 
               {/* Input */}
@@ -482,7 +508,6 @@ export default function FeedCard({ item, onToggleSave, isSaved = false, onViewDe
                     placeholder="Escribe un comentario..."
                     className="flex-1 bg-transparent text-sm text-slate-700 dark:text-slate-200 placeholder-slate-400 outline-none"
                   />
-                  <Smile className="w-4 h-4 text-slate-300 hover:text-amber-400 cursor-pointer transition-colors" />
                 </div>
                 <motion.button
                   whileHover={{ scale: 1.05 }}
