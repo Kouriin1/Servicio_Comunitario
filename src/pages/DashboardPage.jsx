@@ -34,6 +34,10 @@ const menuItems = [
   { key: 'config', icon: Settings, label: 'Configuración', color: 'text-slate-500', bg: 'bg-slate-100 dark:bg-slate-700' },
 ];
 
+const MOBILE_BREAKPOINT_QUERY = '(max-width: 767px)';
+const MOBILE_HEADER_HIDE_OFFSET = 96;
+const MOBILE_SCROLL_DELTA_THRESHOLD = 8;
+
 export default function DashboardPage() {
   const navigate = useNavigate();
   const { allContent, savedIds, toggleSave, schools, hasMore, loadingMore, loadMore } = useContentContext();
@@ -45,6 +49,7 @@ export default function DashboardPage() {
   const [savedOnly, setSavedOnly] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mobileHeaderVisible, setMobileHeaderVisible] = useState(true);
   const [loading, setLoading] = useState(true);
   const [selectedItem, setSelectedItem] = useState(null);
   const [notifications, setNotifications] = useState([]);
@@ -52,11 +57,85 @@ export default function DashboardPage() {
   const [notifLoading, setNotifLoading] = useState(false);
   const sentinelRef = useRef(null);
   const postRefs = useRef({});
+  const lastScrollYRef = useRef(0);
+  const scrollTickingRef = useRef(false);
 
   useEffect(() => {
     const timer = setTimeout(() => setLoading(false), 600);
     return () => clearTimeout(timer);
   }, []);
+
+  // Mobile UX: hide sticky search/filter bar while scrolling down, show while scrolling up
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const mediaQuery = window.matchMedia(MOBILE_BREAKPOINT_QUERY);
+
+    const handleViewportChange = () => {
+      if (!mediaQuery.matches) setMobileHeaderVisible(true);
+    };
+
+    const updateHeaderVisibility = () => {
+      const currentScrollY = window.scrollY || window.pageYOffset || 0;
+      const delta = currentScrollY - lastScrollYRef.current;
+
+      if (!mediaQuery.matches) {
+        setMobileHeaderVisible(true);
+        lastScrollYRef.current = currentScrollY;
+        scrollTickingRef.current = false;
+        return;
+      }
+
+      if (currentScrollY <= 24) {
+        setMobileHeaderVisible(true);
+      } else if (Math.abs(delta) > MOBILE_SCROLL_DELTA_THRESHOLD) {
+        if (delta > 0 && currentScrollY > MOBILE_HEADER_HIDE_OFFSET) {
+          setMobileHeaderVisible(false);
+        } else if (delta < 0) {
+          setMobileHeaderVisible(true);
+        }
+      }
+
+      lastScrollYRef.current = currentScrollY;
+      scrollTickingRef.current = false;
+    };
+
+    const handleScroll = () => {
+      if (scrollTickingRef.current) return;
+      scrollTickingRef.current = true;
+      window.requestAnimationFrame(updateHeaderVisibility);
+    };
+
+    const handleResize = () => {
+      if (!mediaQuery.matches) setMobileHeaderVisible(true);
+    };
+
+    lastScrollYRef.current = window.scrollY || window.pageYOffset || 0;
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('resize', handleResize, { passive: true });
+    if (typeof mediaQuery.addEventListener === 'function') {
+      mediaQuery.addEventListener('change', handleViewportChange);
+    } else if (typeof mediaQuery.addListener === 'function') {
+      mediaQuery.addListener(handleViewportChange);
+    }
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleResize);
+      if (typeof mediaQuery.removeEventListener === 'function') {
+        mediaQuery.removeEventListener('change', handleViewportChange);
+      } else if (typeof mediaQuery.removeListener === 'function') {
+        mediaQuery.removeListener(handleViewportChange);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (showNotifications) {
+      setMobileHeaderVisible(true);
+    }
+  }, [showNotifications]);
 
   // Infinite scroll — dispara loadMore cuando el sentinel entra en pantalla
   useEffect(() => {
@@ -439,7 +518,9 @@ export default function DashboardPage() {
 
         {/* Columna Central (Feed) */}
         <main className="flex-1 min-w-0">
-          <header className="sticky top-0 z-30 bg-usm-bg/80 dark:bg-[#0c1222]/80 backdrop-blur-xl pb-3 sm:pb-4 pt-3 mb-4">
+          <header
+            className={`sticky top-0 z-30 bg-usm-bg/80 dark:bg-[#0c1222]/80 backdrop-blur-xl pb-3 sm:pb-4 pt-3 mb-4 transform-gpu will-change-transform transition-transform transition-opacity duration-300 ease-out ${mobileHeaderVisible ? 'translate-y-0 opacity-100' : '-translate-y-[115%] opacity-0 pointer-events-none'} md:translate-y-0 md:opacity-100 md:pointer-events-auto`}
+          >
             <div className="flex items-center justify-between gap-2 sm:gap-4 mb-4 sm:mb-6">
               <div className="flex items-center gap-3 w-full">
                 <button

@@ -18,9 +18,20 @@ function formatDate(dateStr) {
   return d.toLocaleDateString('es-VE', { day: 'numeric', month: 'long', year: 'numeric' });
 }
 
+function isLikelyMobileDevice() {
+  if (typeof window === 'undefined' || typeof navigator === 'undefined') return false;
+
+  const userAgent = navigator.userAgent || navigator.vendor || '';
+  const isMobileUA = /android|iphone|ipad|ipod|iemobile|opera mini|mobile/i.test(userAgent);
+  const isTouchSmallScreen = window.matchMedia?.('(max-width: 768px)').matches && navigator.maxTouchPoints > 0;
+
+  return isMobileUA || isTouchSmallScreen;
+}
+
 function MediaViewer({ item }) {
   const hasFile = item.fileType && item.fileUrl;
   const hasLink = !!item.linkUrl;
+  const isMobile = isLikelyMobileDevice();
 
   if (!hasFile && !hasLink) return null;
 
@@ -43,20 +54,38 @@ function MediaViewer({ item }) {
         <div className="space-y-3">
           <div className="rounded-2xl overflow-hidden border border-slate-200/60 dark:border-slate-600/50 bg-white dark:bg-slate-700/50 shadow-soft">
             <iframe
-              src={item.fileUrl}
+              src={isMobile
+                ? `https://docs.google.com/gview?embedded=1&url=${encodeURIComponent(item.fileUrl)}`
+                : item.fileUrl}
               title={item.fileName || 'Documento PDF'}
-              className="w-full h-[70vh] min-h-[500px]"
+              className="w-full h-[65vh] min-h-[380px] sm:h-[70vh] sm:min-h-[500px]"
+              loading="lazy"
             />
           </div>
-          <a
-            href={item.fileUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            download={item.fileName}
-            className="inline-flex items-center gap-2 text-sm text-blue-500 dark:text-blue-400 hover:text-blue-700 font-medium transition-colors"
-          >
-            <Download className="w-4 h-4" /> Descargar PDF
-          </a>
+          {isMobile && (
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              En móvil algunos navegadores no soportan la vista previa PDF embebida. Si no carga correctamente, ábrelo o descárgalo.
+            </p>
+          )}
+          <div className="flex flex-col sm:flex-row gap-3 sm:items-center">
+            <a
+              href={item.fileUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 text-sm text-blue-500 dark:text-blue-400 hover:text-blue-700 font-medium transition-colors"
+            >
+              <ExternalLink className="w-4 h-4" /> Abrir PDF
+            </a>
+            <a
+              href={item.fileUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              download={item.fileName}
+              className="inline-flex items-center gap-2 text-sm text-blue-500 dark:text-blue-400 hover:text-blue-700 font-medium transition-colors"
+            >
+              <Download className="w-4 h-4" /> Descargar PDF
+            </a>
+          </div>
         </div>
       )}
 
@@ -66,8 +95,9 @@ function MediaViewer({ item }) {
             <iframe
               src={`https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(item.fileUrl)}`}
               title={item.fileName || 'Documento de Office'}
-              className="w-full h-[70vh] min-h-[500px]"
+              className="w-full h-[65vh] min-h-[380px] sm:h-[70vh] sm:min-h-[500px]"
               frameBorder="0"
+              loading="lazy"
             />
           </div>
           <div className="flex flex-col sm:flex-row gap-4 justify-between items-center text-sm text-slate-500 dark:text-slate-400">
