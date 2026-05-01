@@ -12,10 +12,18 @@ if (!supabaseUrl || !supabaseKey) {
   );
 }
 
+// Solución para evitar el error de "Navigator LockManager timeout" en navegadores internos (WhatsApp, Instagram, etc)
+const customLock = {
+  acquire: async (name, callback) => {
+    return await callback();
+  }
+};
+
 export const supabase = createClient(supabaseUrl, supabaseKey, {
   auth: {
     autoRefreshToken: true,
     persistSession: true,
     detectSessionInUrl: true,
+    lock: customLock,
   },
 });
