@@ -131,7 +131,7 @@ export function ContentProvider({ children }) {
   // Derived arrays for filter chips
   const schools = [
     'Todas',
-    ...Array.from(new Set((faculties || []).map((f) => getSchoolLabel(f)).filter((name) => !!name && name !== 'General'))),
+    ...Array.from(new Set((faculties || []).map((f) => getSchoolLabel(f)).filter((name) => !!name && name !== 'General' && name !== 'Facultad de Derecho'))),
   ];
   const contentTypes = ['Todos', ...contentTypesList.map((t) => t.name)];
 
@@ -174,15 +174,15 @@ export function ContentProvider({ children }) {
         .range(0, PAGE_SIZE - 1);
 
       if (error) throw error;
-      
+
       const now = new Date();
       const filteredData = (data || []).filter(pub => {
-         if (pub.content_type?.name === 'Evento' && pub.event_date) {
-            const expires = new Date(pub.event_date);
-            expires.setDate(expires.getDate() + 1);
-            return expires >= now;
-         }
-         return true;
+        if (pub.content_type?.name === 'Evento' && pub.event_date) {
+          const expires = new Date(pub.event_date);
+          expires.setDate(expires.getDate() + 1);
+          return expires >= now;
+        }
+        return true;
       });
 
       const items = filteredData.map(transformPublication);
@@ -212,12 +212,12 @@ export function ContentProvider({ children }) {
 
       const now = new Date();
       const filteredData = (data || []).filter(pub => {
-         if (pub.content_type?.name === 'Evento' && pub.event_date) {
-            const expires = new Date(pub.event_date);
-            expires.setDate(expires.getDate() + 1);
-            return expires >= now;
-         }
-         return true;
+        if (pub.content_type?.name === 'Evento' && pub.event_date) {
+          const expires = new Date(pub.event_date);
+          expires.setDate(expires.getDate() + 1);
+          return expires >= now;
+        }
+        return true;
       });
 
       const items = filteredData.map(transformPublication);
@@ -329,11 +329,11 @@ export function ContentProvider({ children }) {
       const allUsers = usersList.filter(u => u.id !== session?.user?.id);
       if (allUsers.length > 0) {
         const notifs = allUsers.map(u => ({
-           user_id: u.id,
-           actor_id: session?.user?.id,
-           type: 'mention',
-           publication_id: pub.id,
-           message: `¡Nuevo evento programado: ${item.title}!`,
+          user_id: u.id,
+          actor_id: session?.user?.id,
+          type: 'mention',
+          publication_id: pub.id,
+          message: `¡Nuevo evento programado: ${item.title}!`,
         }));
         const { error: notifsErr } = await supabase.from('notifications').insert(notifs);
         if (notifsErr) console.error("Error sending global event notifications:", notifsErr);

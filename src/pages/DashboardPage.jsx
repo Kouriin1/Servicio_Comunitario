@@ -507,7 +507,7 @@ export default function DashboardPage() {
       </AnimatePresence>
 
       {/* Contenido Principal Grid 3 Columnas */}
-<div className="max-w-[1600px] mx-auto w-full flex gap-5 sm:gap-6 p-3 sm:p-4 md:p-6 lg:p-8">
+      <div className="max-w-[1600px] mx-auto w-full flex gap-5 sm:gap-6 p-3 sm:p-4 md:p-6 lg:p-8">
 
         {/* Columna Izquierda (Navegación Desktop) */}
         <aside className="hidden md:block w-64 shrink-0 sticky top-6 h-fit">
