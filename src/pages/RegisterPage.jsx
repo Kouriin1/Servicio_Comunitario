@@ -25,7 +25,6 @@ export default function RegisterPage() {
   const studentFaculties = faculties.filter((f) => f.code !== 'TODAS');
 
   const nameRegex = /^[a-zA-ZáéíóúüñÁÉÍÓÚÜÑ\s'-]+$/;
-  const USM_EMAIL_DOMAIN = '@usm.edu.ve';
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -34,10 +33,7 @@ export default function RegisterPage() {
       setError('Completa todos los campos para continuar.');
       return;
     }
-    if (!email.trim().toLowerCase().endsWith(USM_EMAIL_DOMAIN)) {
-      setError('Solo se permiten correos institucionales @usm.edu.ve.');
-      return;
-    }
+    // No restringir dominio de correo — permitir cualquier email válido
     if (!nameRegex.test(name.trim())) {
       setError('El nombre solo puede contener letras, espacios o guiones.');
       return;
@@ -111,9 +107,7 @@ export default function RegisterPage() {
       >
         <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">Crear cuenta</h1>
         <p className="text-blue-100 mb-4">Completa tus datos para acceder a la plataforma.</p>
-        <div className="mb-8 rounded-xl bg-usm-yellow/15 border border-usm-yellow/40 px-4 py-3 text-sm text-blue-50">
-          <strong className="text-usm-yellow">Solo correos institucionales:</strong> debes registrarte con tu correo <span className="font-mono">@usm.edu.ve</span>.
-        </div>
+        {/* Nota: ya no se restringe el dominio del correo */}
 
 
 
@@ -145,7 +139,7 @@ export default function RegisterPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full rounded-xl px-4 py-3 bg-white/5 border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-blue-300"
-              placeholder="usuario@usm.edu.ve"
+              placeholder="tu@correo.com"
             />
           </label>
 
