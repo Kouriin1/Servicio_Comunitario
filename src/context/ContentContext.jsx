@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from './AuthContext';
+import { useToast } from './ToastContext';
 
 const ContentContext = createContext(null);
 
@@ -113,12 +114,23 @@ const PUB_SELECT = `
   profiles:author_id(avatar_url)
 `;
 
-const PAGE_SIZE = 10;
+// Versión liviana para listas de admin (sin arrays de likes/comments)
+const PUB_SELECT_ADMIN = `
+  *,
+  faculty:faculties(id, name, code, color),
+  content_type:content_types(id, name, icon, color),
+  media_files(id, file_type, file_name, public_url, thumbnail_url, external_url, storage_path),
+  profiles:author_id(avatar_url)
+`;
+
+const PAGE_SIZE = 15;
+const ADMIN_FETCH_LIMIT = 500;
 
 /* ───── Provider ─────────────────────────────────────── */
 
 export function ContentProvider({ children }) {
   const { session } = useAuth();
+  const { showToast } = useToast();
   const [content, setContent] = useState([]);
   const [savedIds, setSavedIds] = useState([]);
   const [faculties, setFaculties] = useState([]);
@@ -127,6 +139,11 @@ export function ContentProvider({ children }) {
   const [hasMore, setHasMore] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const offsetRef = useRef(0);
+
+  // Admin: listado completo (sin paginación) cargado bajo demanda
+  const [adminContent, setAdminContent] = useState([]);
+  const [loadingAdmin, setLoadingAdmin] = useState(false);
+  const adminLoadedRef = useRef(false);
 
   // Derived arrays for filter chips
   const schools = [
@@ -155,12 +172,21 @@ export function ContentProvider({ children }) {
   /* ───── Fetch functions ────────────────────────────── */
 
   async function fetchCatalogs() {
-    const [{ data: facs }, { data: types }] = await Promise.all([
-      supabase.from('faculties').select('*').eq('is_active', true).order('name'),
-      supabase.from('content_types').select('*').eq('is_active', true).order('name'),
-    ]);
-    setFaculties(facs || []);
-    setContentTypesList(types || []);
+    try {
+      const [facsRes, typesRes] = await Promise.all([
+        supabase.from('faculties').select('*').eq('is_active', true).order('name'),
+        supabase.from('content_types').select('*').eq('is_active', true).order('name'),
+      ]);
+
+      if (facsRes.error) throw facsRes.error;
+      if (typesRes.error) throw typesRes.error;
+
+      setFaculties(facsRes.data || []);
+      setContentTypesList(typesRes.data || []);
+    } catch (err) {
+      console.error('Error fetching catalogs:', err);
+      showToast('No se pudieron cargar las facultades. Revisa tu conexión.', 'error');
+    }
   }
 
   async function fetchContent() {
@@ -240,6 +266,28 @@ export function ContentProvider({ children }) {
     setSavedIds((data || []).map((b) => b.publication_id));
   }
 
+  // Trae todas las publicaciones para el panel admin (sin paginación, query liviano)
+  async function fetchAdminContent() {
+    if (!session?.user) return;
+    setLoadingAdmin(true);
+    try {
+      const { data, error } = await supabase
+        .from('publications')
+        .select(PUB_SELECT_ADMIN)
+        .order('created_at', { ascending: false })
+        .limit(ADMIN_FETCH_LIMIT);
+
+      if (error) throw error;
+
+      setAdminContent((data || []).map(transformPublication));
+      adminLoadedRef.current = true;
+    } catch (err) {
+      console.error('Error fetching admin content:', err);
+    } finally {
+      setLoadingAdmin(false);
+    }
+  }
+
   /* ───── CRUD ───────────────────────────────────────── */
 
   const [usersList, setUsersList] = useState([]);
@@ -269,8 +317,9 @@ export function ContentProvider({ children }) {
     const { error } = await supabase.rpc('ban_user', { target_user_id: userId });
     if (error) throw error;
     setUsersList(prev => prev.map(u => u.id === userId ? { ...u, is_banned: true, role: 'student' } : u));
-    // Remove banned user's publications from local state
+    // Remove banned user's publications from local state (feed + admin list)
     setContent(prev => prev.filter(p => p._author_id !== userId && p._creator_id !== userId));
+    setAdminContent(prev => prev.filter(p => p._author_id !== userId && p._creator_id !== userId));
   }
 
   async function unbanUser(userId) {
@@ -384,6 +433,7 @@ export function ContentProvider({ children }) {
 
     // 3. Re-fetch to get complete data with joins
     await fetchContent();
+    if (adminLoadedRef.current) await fetchAdminContent();
     return pub;
   };
 
@@ -405,6 +455,7 @@ export function ContentProvider({ children }) {
     if (error) throw error;
 
     setContent((prev) => prev.filter((item) => item.id !== id));
+    setAdminContent((prev) => prev.filter((item) => item.id !== id));
     setSavedIds((prev) => prev.filter((sid) => sid !== id));
   };
 
@@ -497,6 +548,7 @@ export function ContentProvider({ children }) {
     }
 
     await fetchContent();
+    if (adminLoadedRef.current) await fetchAdminContent();
   };
 
   const toggleSave = async (id) => {
@@ -522,7 +574,7 @@ export function ContentProvider({ children }) {
   /* ───── Context value ──────────────────────────────── */
 
   const addComment = async (publicationId, text) => {
-    if (!session?.user) return null;
+    if (!session?.user) throw new Error('Inicia sesión para comentar.');
     const { data, error } = await supabase.from('comments').insert({
       publication_id: publicationId,
       user_id: session.user.id,
@@ -530,7 +582,7 @@ export function ContentProvider({ children }) {
     }).select('*, profiles:user_id(display_name, avatar_url)').single();
     if (error) {
       console.error(error);
-      return null;
+      throw new Error('No se pudo guardar el comentario. Intenta de nuevo.');
     }
     // Update local state without refetching all
     setContent((prev) => prev.map((item) => {
@@ -543,17 +595,18 @@ export function ContentProvider({ children }) {
   };
 
   const deleteComment = async (commentId, publicationId) => {
-    // Si somos Admin hacemos borrado suave (is_deleted = true) o hard
-    // Optemos por Hard Delete para limpiar la UI:
     const { error } = await supabase.from('comments').delete().eq('id', commentId);
-    if (!error) {
-      setContent((prev) => prev.map((item) => {
-        if (item.id === publicationId) {
-          return { ...item, comments: item.comments.filter(c => c.id !== commentId), comments_count: Math.max(0, item.comments_count - 1) };
-        }
-        return item;
-      }));
+    if (error) {
+      console.error(error);
+      showToast('No se pudo eliminar el comentario.', 'error');
+      return;
     }
+    setContent((prev) => prev.map((item) => {
+      if (item.id === publicationId) {
+        return { ...item, comments: item.comments.filter(c => c.id !== commentId), comments_count: Math.max(0, item.comments_count - 1) };
+      }
+      return item;
+    }));
   };
 
   const toggleLike = async (publicationId, currentLikedState) => {
@@ -568,10 +621,20 @@ export function ContentProvider({ children }) {
       return p;
     }));
 
-    if (currentLikedState) {
-      await supabase.from('likes').delete().eq('publication_id', publicationId).eq('user_id', session.user.id);
-    } else {
-      await supabase.from('likes').insert({ publication_id: publicationId, user_id: session.user.id });
+    const { error } = currentLikedState
+      ? await supabase.from('likes').delete().eq('publication_id', publicationId).eq('user_id', session.user.id)
+      : await supabase.from('likes').insert({ publication_id: publicationId, user_id: session.user.id });
+
+    if (error) {
+      // Revert local state si falla la operación
+      setContent((prev) => prev.map(p => {
+        if (p.id === publicationId) {
+          const adj = currentLikedState ? 1 : -1;
+          return { ...p, has_liked: currentLikedState, likes: Math.max(0, (p.likes || 0) + adj) };
+        }
+        return p;
+      }));
+      showToast('No se pudo actualizar el like. Intenta de nuevo.', 'error');
     }
   };
 
@@ -610,6 +673,9 @@ export function ContentProvider({ children }) {
         loadingMore,
         loadMore,
         refreshContent: fetchContent,
+        adminContent,
+        loadingAdmin,
+        fetchAdminContent,
       }}
     >
       {children}

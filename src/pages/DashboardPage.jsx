@@ -142,26 +142,54 @@ export default function DashboardPage() {
     const el = sentinelRef.current;
     if (!el) return;
     const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) loadMore(); },
-      { threshold: 0.1 }
+      ([entry]) => { if (entry.isIntersecting && hasMore && !loadingMore) loadMore(); },
+      { threshold: 0, rootMargin: '400px 0px' }
     );
     observer.observe(el);
     return () => observer.disconnect();
   }, [hasMore, loadingMore]);
 
-  // Fetch notifications from Supabase
+  // Fetch initial notifications + suscribirse a cambios en tiempo real
   useEffect(() => {
     if (!session?.user) return;
+    const userId = session.user.id;
+
     async function fetchNotifications() {
       const { data } = await supabase
         .from('notifications')
         .select('*')
-        .eq('user_id', session.user.id)
+        .eq('user_id', userId)
         .order('created_at', { ascending: false })
-        .limit(10);
+        .limit(20);
       setNotifications(data || []);
     }
     fetchNotifications();
+
+    const channel = supabase
+      .channel(`notifications:${userId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'notifications',
+          filter: `user_id=eq.${userId}`,
+        },
+        (payload) => {
+          if (payload.eventType === 'INSERT') {
+            setNotifications((prev) => [payload.new, ...prev].slice(0, 20));
+          } else if (payload.eventType === 'UPDATE') {
+            setNotifications((prev) => prev.map((n) => n.id === payload.new.id ? payload.new : n));
+          } else if (payload.eventType === 'DELETE') {
+            setNotifications((prev) => prev.filter((n) => n.id !== payload.old.id));
+          }
+        },
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [session]);
 
   const handleNotificationClick = async (n) => {
@@ -666,17 +694,24 @@ export default function DashboardPage() {
                 </div>
               )}
 
-              {/* Sentinel de infinite scroll */}
+              {/* Sentinel de infinite scroll + fallback manual */}
               <div ref={sentinelRef} className="py-4 flex justify-center">
-                {loadingMore && (
+                {loadingMore ? (
                   <div className="flex items-center gap-2 text-slate-400 text-sm">
                     <div className="w-5 h-5 border-2 border-usm-blue border-t-transparent rounded-full animate-spin" />
                     Cargando más...
                   </div>
-                )}
-                {!hasMore && filteredData.length > 0 && (
+                ) : hasMore && filteredData.length > 0 ? (
+                  <button
+                    type="button"
+                    onClick={() => loadMore()}
+                    className="px-5 py-2.5 rounded-2xl bg-white/90 dark:bg-slate-800/80 border border-slate-200/60 dark:border-slate-700/50 text-sm font-semibold text-usm-blue dark:text-blue-300 shadow-soft hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
+                  >
+                    Cargar más publicaciones
+                  </button>
+                ) : !hasMore && filteredData.length > 0 ? (
                   <p className="text-xs text-slate-400">Ya viste todo el contenido disponible.</p>
-                )}
+                ) : null}
               </div>
             </div>
           )}
