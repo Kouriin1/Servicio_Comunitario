@@ -1,20 +1,37 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, LogOut, Mail, Building2, Shield, Camera, Save, Loader2 } from 'lucide-react';
+import { ArrowLeft, LogOut, Mail, Building2, Shield, Camera, Save, Loader2, UserRound } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { useTheme } from '../context/ThemeContext';
 import { useToast } from '../context/ToastContext';
+import { useContentContext } from '../context/ContentContext';
+
+const NAME_REGEX = /^[a-zA-ZáéíóúüñÁÉÍÓÚÜÑ\s'-]+$/;
 
 export default function SettingsPage() {
   const navigate = useNavigate();
   const { user, logout, updateProfile, uploadAvatar } = useAuth();
   const { showToast } = useToast();
+  const { faculties } = useContentContext();
 
   const fileInputRef = useRef(null);
   const [bio, setBio] = useState(user?.bio || '');
+  const [firstName, setFirstName] = useState(user?.first_name || '');
+  const [lastName, setLastName] = useState(user?.last_name || '');
+  const [facultyId, setFacultyId] = useState(user?.faculty_id || '');
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+
+  const studentFaculties = useMemo(
+    () => faculties.filter((f) => f.code !== 'TODAS'),
+    [faculties],
+  );
+
+  const hasChanges =
+    bio !== (user?.bio || '') ||
+    firstName.trim() !== (user?.first_name || '') ||
+    lastName.trim() !== (user?.last_name || '') ||
+    facultyId !== (user?.faculty_id || '');
 
   const handleLogout = async () => {
     await logout();
@@ -23,9 +40,35 @@ export default function SettingsPage() {
   };
 
   const handleSaveProfile = async () => {
+    const trimmedFirst = firstName.trim();
+    const trimmedLast = lastName.trim();
+
+    if (!trimmedFirst || !trimmedLast) {
+      showToast('Nombre y apellido son obligatorios.', 'error');
+      return;
+    }
+    if (!NAME_REGEX.test(trimmedFirst) || trimmedFirst.length < 2) {
+      showToast('El nombre solo puede contener letras y al menos 2 caracteres.', 'error');
+      return;
+    }
+    if (!NAME_REGEX.test(trimmedLast) || trimmedLast.length < 2) {
+      showToast('El apellido solo puede contener letras y al menos 2 caracteres.', 'error');
+      return;
+    }
+    if (!facultyId) {
+      showToast('Selecciona una escuela.', 'error');
+      return;
+    }
+
     try {
       setIsSaving(true);
-      await updateProfile({ bio });
+      await updateProfile({
+        bio,
+        first_name: trimmedFirst,
+        last_name: trimmedLast,
+        display_name: `${trimmedFirst} ${trimmedLast}`,
+        faculty_id: facultyId,
+      });
       showToast('Perfil actualizado con éxito', 'success');
     } catch (err) {
       showToast(err.message || 'Error al actualizar el perfil', 'error');
@@ -82,7 +125,7 @@ export default function SettingsPage() {
             <h2 className="text-lg font-bold text-usm-blue dark:text-white">Perfil</h2>
             <button
               onClick={handleSaveProfile}
-              disabled={isSaving || bio === (user?.bio || '')}
+              disabled={isSaving || !hasChanges}
               className="flex items-center gap-2 px-4 py-2 bg-usm-blue text-white rounded-xl font-semibold hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
             >
               {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
@@ -131,6 +174,51 @@ export default function SettingsPage() {
             </div>
 
             <div className="grid gap-3 pt-4 border-t border-slate-100 dark:border-slate-700">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <label className="block">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5 mb-1.5">
+                    <UserRound className="w-3.5 h-3.5" /> Nombre
+                  </span>
+                  <input
+                    type="text"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-usm-blue dark:focus:border-blue-500 text-slate-800 dark:text-white transition-colors"
+                    placeholder="Tu nombre"
+                    maxLength={50}
+                  />
+                </label>
+                <label className="block">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5 mb-1.5">
+                    <UserRound className="w-3.5 h-3.5" /> Apellido
+                  </span>
+                  <input
+                    type="text"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-usm-blue dark:focus:border-blue-500 text-slate-800 dark:text-white transition-colors"
+                    placeholder="Tu apellido"
+                    maxLength={50}
+                  />
+                </label>
+              </div>
+
+              <label className="block">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5 mb-1.5">
+                  <Building2 className="w-3.5 h-3.5" /> Escuela
+                </span>
+                <select
+                  value={facultyId}
+                  onChange={(e) => setFacultyId(e.target.value)}
+                  className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-usm-blue dark:focus:border-blue-500 text-slate-800 dark:text-white transition-colors"
+                >
+                  <option value="">Selecciona tu escuela</option>
+                  {studentFaculties.map((f) => (
+                    <option key={f.id} value={f.id}>{f.name}</option>
+                  ))}
+                </select>
+              </label>
+
               <div className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-700/50 rounded-xl">
                 <Mail className="w-4 h-4 text-slate-400" />
                 <div>
@@ -138,20 +226,11 @@ export default function SettingsPage() {
                   <p className="text-sm font-medium text-slate-700 dark:text-slate-200">{user?.email || 'No disponible'}</p>
                 </div>
               </div>
-              <div className="flex flex-col sm:flex-row gap-3">
-                <div className="flex-1 flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-700/50 rounded-xl">
-                  <Building2 className="w-4 h-4 text-slate-400" />
-                  <div>
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Escuela</p>
-                    <p className="text-sm font-medium text-slate-700 dark:text-slate-200">{user?.school || 'No definida'}</p>
-                  </div>
-                </div>
-                <div className="flex-1 flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-700/50 rounded-xl">
-                  <Shield className="w-4 h-4 text-slate-400" />
-                  <div>
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Rol Sistema</p>
-                    <p className="text-sm font-medium text-slate-700 dark:text-slate-200 capitalize">{user?.role || 'usuario'}</p>
-                  </div>
+              <div className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-700/50 rounded-xl">
+                <Shield className="w-4 h-4 text-slate-400" />
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Rol Sistema</p>
+                  <p className="text-sm font-medium text-slate-700 dark:text-slate-200 capitalize">{user?.role || 'usuario'}</p>
                 </div>
               </div>
             </div>

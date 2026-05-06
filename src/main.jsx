@@ -10,13 +10,13 @@ import { ToastProvider } from './context/ToastContext'
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <ThemeProvider>
-      <AuthProvider>
-        <ContentProvider>
-          <ToastProvider>
+      <ToastProvider>
+        <AuthProvider>
+          <ContentProvider>
             <App />
-          </ToastProvider>
-        </ContentProvider>
-      </AuthProvider>
+          </ContentProvider>
+        </AuthProvider>
+      </ToastProvider>
     </ThemeProvider>
   </StrictMode>,
 )

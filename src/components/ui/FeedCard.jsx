@@ -17,6 +17,7 @@ import {
 import { Link } from 'react-router-dom';
 import { useContentContext } from '../../context/ContentContext';
 import { useAuth } from '../../context/AuthContext';
+import { useToast } from '../../context/ToastContext';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -267,6 +268,7 @@ function CommentItem({ comment, isAdmin, onDelete, publicationId }) {
 export default function FeedCard({ item, onToggleSave, isSaved = false, onViewDetail }) {
   const { toggleLike, addComment, deleteComment } = useContentContext();
   const { user } = useAuth();
+  const { showToast } = useToast();
 
   const schoolStyle = SCHOOL_COLORS[item.school] || SCHOOL_COLORS['Todas'];
   const typeColor = TYPE_COLORS[item.type] || 'bg-slate-50 text-slate-500';
@@ -316,9 +318,13 @@ export default function FeedCard({ item, onToggleSave, isSaved = false, onViewDe
   const handleAddComment = async () => {
     const text = commentText.trim();
     if (!text) return;
-    await addComment(item.id, text);
-    setCommentText('');
-    setVisibleCommentsCount((prev) => prev + 1);
+    try {
+      await addComment(item.id, text);
+      setCommentText('');
+      setVisibleCommentsCount((prev) => prev + 1);
+    } catch (err) {
+      showToast(err.message || 'No se pudo enviar el comentario.', 'error');
+    }
   };
 
   const handleLoadMoreComments = () => {

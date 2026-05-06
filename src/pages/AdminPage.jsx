@@ -127,9 +127,84 @@ function FileTypeIcon({ fileType, className = 'w-4 h-4' }) {
   return null;
 }
 
+function FileUploadArea({ currentFile, onFileSelect, onRemove, isEdit = false }) {
+  return (
+    <div className="space-y-3">
+      <label className="text-sm font-medium text-slate-600 dark:text-slate-300">
+        Adjuntar archivo (opcional)
+      </label>
+
+      {currentFile?.fileName ? (
+        <div className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-700/50 rounded-xl border border-slate-200 dark:border-slate-600">
+          <div className="w-10 h-10 rounded-lg bg-usm-blue/10 dark:bg-blue-900/30 flex items-center justify-center text-usm-blue dark:text-blue-300">
+            <FileTypeIcon fileType={currentFile.fileType} className="w-5 h-5" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium text-slate-700 dark:text-slate-200 truncate">{currentFile.fileName}</p>
+            <p className="text-xs text-slate-400 uppercase">{currentFile.fileType}</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => onRemove(isEdit)}
+            className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-red-500 transition-colors"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      ) : (
+        <label className="border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl p-6 text-center cursor-pointer hover:border-usm-blue dark:hover:border-blue-400 hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors block">
+          <Upload className="w-8 h-8 mx-auto mb-2 text-slate-400" />
+          <p className="text-sm font-medium text-slate-600 dark:text-slate-300">
+            Toca para subir archivo
+          </p>
+          <p className="text-xs text-slate-400 mt-1">PDF, Word, PowerPoint, Excel, video (MP4/WebM/OGG/MOV) e imagen (JPG/JPEG/PNG/GIF/WEBP) - Max 100MB</p>
+          <input
+            type="file"
+            accept={ALL_ACCEPTED}
+            className="sr-only"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              e.target.value = '';
+              if (file) onFileSelect(file, isEdit);
+            }}
+          />
+        </label>
+      )}
+    </div>
+  );
+}
+
+function LinkInputArea({ currentLink, onLinkUrl, onRemoveLink, isEdit = false }) {
+  return (
+    <div className="space-y-3">
+      <label className="text-sm font-medium text-slate-600 dark:text-slate-300">
+        Enlace externo (opcional)
+      </label>
+      <div className="flex gap-2">
+        <input
+          type="url"
+          value={currentLink || ''}
+          onChange={(e) => onLinkUrl(e.target.value, isEdit)}
+          placeholder="https://ejemplo.com/recurso"
+          className="flex-1 rounded-xl border border-slate-200 dark:border-slate-600 px-4 py-2.5 text-sm dark:bg-slate-700 dark:text-white"
+        />
+        {currentLink && (
+          <button
+            type="button"
+            onClick={() => onRemoveLink(isEdit)}
+            className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-600 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function AdminPage() {
   const navigate = useNavigate();
-  const { allContent, addContent, deleteContent, updateContent, contentTypesList, contentTypes, faculties, usersList, fetchUsers, updateUserRole, banUser, unbanUser } = useContentContext();
+  const { adminContent, loadingAdmin, fetchAdminContent, addContent, deleteContent, updateContent, contentTypesList, contentTypes, faculties, usersList, fetchUsers, updateUserRole, banUser, unbanUser } = useContentContext();
   const { user, sendInvite } = useAuth();
   const { showToast } = useToast();
   const [selectedType, setSelectedType] = useState('Todos');
@@ -142,8 +217,6 @@ export default function AdminPage() {
   const [authorSearch, setAuthorSearch] = useState('');
   const [showAuthorDropdown, setShowAuthorDropdown] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const fileInputRef = useRef(null);
-  const editFileInputRef = useRef(null);
   const authorDropdownRef = useRef(null);
 
   const isSuperAdmin = user?.email === SUPER_ADMIN_EMAIL;
@@ -195,6 +268,7 @@ export default function AdminPage() {
 
   useEffect(() => {
     fetchUsers();
+    fetchAdminContent();
   }, []);
 
   useEffect(() => {
@@ -208,8 +282,8 @@ export default function AdminPage() {
   }, []);
 
   const publications = selectedType === 'Todos'
-    ? allContent
-    : allContent.filter((item) => item.type === selectedType);
+    ? adminContent
+    : adminContent.filter((item) => item.type === selectedType);
 
   const filteredUsers = useMemo(() => {
     if (!authorSearch) return usersList.slice(0, 5); // Show first 5 by default if empty search
@@ -285,6 +359,11 @@ export default function AdminPage() {
       return;
     }
 
+    if (!form.school) {
+      showToast('Selecciona una escuela o facultad', 'error');
+      return;
+    }
+
     setSubmitting(true);
     try {
       await addContent({
@@ -312,6 +391,11 @@ export default function AdminPage() {
 
     if (editingItem.title.trim().length < 5) {
       showToast('El título debe tener al menos 5 letras', 'error');
+      return;
+    }
+
+    if (!editingItem.school) {
+      showToast('Selecciona una escuela o facultad', 'error');
       return;
     }
 
@@ -370,82 +454,6 @@ export default function AdminPage() {
       setTogglingBan(null);
     }
   };
-
-  const FileUploadArea = ({ currentFile, onFileSelect, onRemove, inputRef, isEdit = false }) => (
-    <div className="space-y-3">
-      <label className="text-sm font-medium text-slate-600 dark:text-slate-300">
-        Adjuntar archivo (opcional)
-      </label>
-
-      {currentFile?.fileName ? (
-        <div className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-700/50 rounded-xl border border-slate-200 dark:border-slate-600">
-          <div className="w-10 h-10 rounded-lg bg-usm-blue/10 dark:bg-blue-900/30 flex items-center justify-center text-usm-blue dark:text-blue-300">
-            <FileTypeIcon fileType={currentFile.fileType} className="w-5 h-5" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-slate-700 dark:text-slate-200 truncate">{currentFile.fileName}</p>
-            <p className="text-xs text-slate-400 uppercase">{currentFile.fileType}</p>
-          </div>
-          <button
-            type="button"
-            onClick={() => onRemove(isEdit)}
-            className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-red-500 transition-colors"
-          >
-            <X className="w-4 h-4" />
-          </button>
-        </div>
-      ) : (
-        <>
-          <div
-            onClick={() => inputRef.current?.click()}
-            className="border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl p-6 text-center cursor-pointer hover:border-usm-blue dark:hover:border-blue-400 hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors"
-          >
-            <Upload className="w-8 h-8 mx-auto mb-2 text-slate-400" />
-            <p className="text-sm font-medium text-slate-600 dark:text-slate-300">
-              Click para subir archivo
-            </p>
-            <p className="text-xs text-slate-400 mt-1">PDF, Word, PowerPoint, Excel, video (MP4/WebM/OGG/MOV) e imagen (JPG/JPEG/PNG/GIF/WEBP) - Max 100MB</p>
-          </div>
-          <input
-            ref={inputRef}
-            type="file"
-            accept={ALL_ACCEPTED}
-            className="hidden"
-            onChange={(e) => {
-              onFileSelect(e.target.files[0], isEdit);
-              e.target.value = '';
-            }}
-          />
-        </>
-      )}
-    </div>
-  );
-
-  const LinkInputArea = ({ currentLink, onLinkUrl, onRemoveLink, isEdit = false }) => (
-    <div className="space-y-3">
-      <label className="text-sm font-medium text-slate-600 dark:text-slate-300">
-        Enlace externo (opcional)
-      </label>
-      <div className="flex gap-2">
-        <input
-          type="url"
-          value={currentLink || ''}
-          onChange={(e) => onLinkUrl(e.target.value, isEdit)}
-          placeholder="https://ejemplo.com/recurso"
-          className="flex-1 rounded-xl border border-slate-200 dark:border-slate-600 px-4 py-2.5 text-sm dark:bg-slate-700 dark:text-white"
-        />
-        {currentLink && (
-          <button
-            type="button"
-            onClick={() => onRemoveLink(isEdit)}
-            className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-600 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
-          >
-            <X className="w-4 h-4" />
-          </button>
-        )}
-      </div>
-    </div>
-  );
 
   return (
     <div className="min-h-screen bg-slate-100 dark:bg-slate-900 p-3 sm:p-6 md:p-8 overflow-x-hidden">
@@ -614,7 +622,6 @@ export default function AdminPage() {
                   currentFile={form}
                   onFileSelect={handleFileSelect}
                   onRemove={handleRemoveFile}
-                  inputRef={fileInputRef}
                 />
 
                 <LinkInputArea
@@ -656,6 +663,12 @@ export default function AdminPage() {
               </div>
 
               <div className="space-y-3 max-h-[540px] overflow-auto pr-1">
+                {loadingAdmin && publications.length === 0 && (
+                  <div className="flex items-center justify-center gap-2 py-8 text-sm text-slate-400">
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Cargando publicaciones...
+                  </div>
+                )}
                 {publications.map((item) => (
                   <article
                     key={item.id}
@@ -702,7 +715,7 @@ export default function AdminPage() {
                     </div>
                   </article>
                 ))}
-                {publications.length === 0 && (
+                {!loadingAdmin && publications.length === 0 && (
                   <p className="text-center text-slate-400 py-8">No hay publicaciones de este tipo.</p>
                 )}
               </div>
@@ -1117,7 +1130,6 @@ export default function AdminPage() {
               currentFile={editingItem}
               onFileSelect={handleFileSelect}
               onRemove={handleRemoveFile}
-              inputRef={editFileInputRef}
               isEdit
             />
 

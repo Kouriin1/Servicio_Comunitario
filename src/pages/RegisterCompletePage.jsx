@@ -88,6 +88,10 @@ export default function RegisterCompletePage() {
       setError('El apellido solo puede contener letras y debe tener al menos 2 caracteres.');
       return;
     }
+    if (!facultyId) {
+      setError('Selecciona tu escuela para continuar.');
+      return;
+    }
     if (password.length < 6) {
       setError('La contraseña debe tener al menos 6 caracteres.');
       return;
