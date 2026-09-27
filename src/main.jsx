@@ -7,6 +7,7 @@ import { ContentProvider } from './context/ContentContext'
 import { ThemeProvider } from './context/ThemeContext'
 import { ToastProvider } from './context/ToastContext'
 
+
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <ThemeProvider>
